@@ -1,0 +1,177 @@
+import 'package:flutter/material.dart';
+import 'package:jawara/shared/sidebar.dart';
+
+class BaseLayout extends StatefulWidget {
+  final Widget child;
+  final String title;
+  final List<Widget>? actions;
+  final bool showBackButton;
+
+  const BaseLayout({
+    super.key,
+    required this.child,
+    required this.title,
+    this.actions,
+    this.showBackButton = true,
+  });
+
+  @override
+  State<BaseLayout> createState() => _BaseLayoutState();
+}
+
+class _BaseLayoutState extends State<BaseLayout> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(
+            Icons.menu_rounded,
+            color: const Color(0xFF0891B2),
+            size: 24,
+          ),
+          onPressed: () {
+            _scaffoldKey.currentState?.openDrawer();
+          },
+        ),
+        title: Text(widget.title, overflow: TextOverflow.ellipsis, maxLines: 1),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        surfaceTintColor: Colors.white,
+        shadowColor: Colors.black.withOpacity(0.05),
+        titleTextStyle: const TextStyle(
+          color: Color(0xFF1F2937),
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.3,
+        ),
+        actions:
+            widget.actions ??
+            [
+              Container(
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0891B2).withOpacity(0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.notifications_rounded,
+                    color: Color(0xFF0891B2),
+                    size: 22,
+                  ),
+                  onPressed: () {},
+                  tooltip: 'Notifikasi',
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 16, left: 4),
+                child: PopupMenuButton<String>(
+                  offset: const Offset(0, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  onSelected: (value) {
+                    if (value == 'logout') {
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        '/login',
+                        (route) => false,
+                      );
+                    } else if (value == 'profile') {
+                      Navigator.pushNamed(context, '/profile');
+                    } else if (value == 'settings') {
+                      Navigator.pushNamed(context, '/settings');
+                    }
+                  },
+                  itemBuilder: (BuildContext context) => [
+                    const PopupMenuItem<String>(
+                      value: 'profile',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.person_rounded,
+                            color: Color(0xFF0891B2),
+                            size: 18,
+                          ),
+                          SizedBox(width: 12),
+                          Text('Profil', style: TextStyle(fontSize: 13.5)),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'settings',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.settings_rounded,
+                            color: Color(0xFF0891B2),
+                            size: 18,
+                          ),
+                          SizedBox(width: 12),
+                          Text('Pengaturan', style: TextStyle(fontSize: 13.5)),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    const PopupMenuItem<String>(
+                      value: 'logout',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.logout_rounded,
+                            color: Color(0xFFEF4444),
+                            size: 18,
+                          ),
+                          SizedBox(width: 12),
+                          Text(
+                            'Keluar',
+                            style: TextStyle(
+                              color: Color(0xFFEF4444),
+                              fontSize: 13.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF0891B2), Color(0xFF0284C7)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF0891B2).withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const CircleAvatar(
+                      backgroundColor: Colors.transparent,
+                      child: Text(
+                        'A',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+      ),
+      drawer: const Sidebar(),
+      body: SafeArea(child: widget.child),
+    );
+  }
+}

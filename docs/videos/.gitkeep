@@ -1,0 +1,10 @@
+# Folder untuk menyimpan video demo aplikasi
+
+Simpan file video Anda di sini dengan format:
+- MP4 (H.264 codec)
+
+Untuk file > 10MB, gunakan Git LFS:
+```bash
+git lfs install
+git lfs track "*.mp4"
+```
