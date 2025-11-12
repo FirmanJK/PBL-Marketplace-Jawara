@@ -38,6 +38,7 @@ import 'package:jawara/pages/spending/spending_add.dart';
 import 'package:jawara/pages/spending/spending_list.dart';
 import 'package:jawara/pages/user_management.dart';
 import 'package:jawara/pages/users/users_add.dart';
+import 'package:jawara/pages/marketplace_page.dart';
 import 'package:jawara/shared/theme.dart';
 
 void main() {
@@ -125,6 +126,11 @@ class MyApp extends StatelessWidget {
         // Channel Transfer
         '/channels/list': (context) => const ChannelsListPage(),
         '/channels/add': (context) => const ChannelsAddPage(),
+
+        // Marketplace
+        '/marketplace': (context) => const MarketplacePage(),
+        '/marketplace/upload': (context) => const MarketplacePage(),
+        '/marketplace/catalog': (context) => const MarketplacePage(),
 
         // Profil & Pengaturan
         '/profile': (context) => const ProfilePage(),

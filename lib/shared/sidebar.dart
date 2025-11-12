@@ -21,6 +21,7 @@ class _SidebarState extends State<Sidebar> {
   bool _isActivityLogExpanded = false;
   bool _isUserManagementExpanded = false;
   bool _isChannelTransferExpanded = false;
+  bool _isMarketplaceExpanded = false;
 
   void _closeAllMenusExcept(String menuName) {
     setState(() {
@@ -36,6 +37,7 @@ class _SidebarState extends State<Sidebar> {
       if (menuName != 'activityLog') _isActivityLogExpanded = false;
       if (menuName != 'userManagement') _isUserManagementExpanded = false;
       if (menuName != 'channelTransfer') _isChannelTransferExpanded = false;
+      if (menuName != 'marketplace') _isMarketplaceExpanded = false;
     });
   }
 
@@ -481,6 +483,33 @@ class _SidebarState extends State<Sidebar> {
                       icon: Icons.add_box_rounded,
                       title: 'Tambah Channel',
                       route: '/channels/add',
+                    ),
+                  ],
+
+                  const Divider(height: 16),
+
+                  // Marketplace
+                  _buildMenuItem(
+                    icon: Icons.shopping_bag_rounded,
+                    title: 'Marketplace',
+                    isExpanded: _isMarketplaceExpanded,
+                    onTap: () {
+                      _closeAllMenusExcept('marketplace');
+                      setState(
+                        () => _isMarketplaceExpanded = !_isMarketplaceExpanded,
+                      );
+                    },
+                  ),
+                  if (_isMarketplaceExpanded) ...[
+                    _buildSubMenuItem(
+                      icon: Icons.camera_alt_rounded,
+                      title: 'Unggah Produk',
+                      route: '/marketplace/upload',
+                    ),
+                    _buildSubMenuItem(
+                      icon: Icons.grid_view_rounded,
+                      title: 'Katalog Produk',
+                      route: '/marketplace/catalog',
                     ),
                   ],
 

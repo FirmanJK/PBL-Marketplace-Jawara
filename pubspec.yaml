@@ -1,6 +1,6 @@
 name: jawara
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -12,6 +12,7 @@ dependencies:
   intl: ^0.20.2
   fl_chart: ^0.69.0
   responsive_framework: ^1.5.1
+  image_picker: ^1.0.7
 
 dev_dependencies:
   flutter_test:
