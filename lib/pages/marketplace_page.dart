@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:jawara/models/user_role.dart';
 import 'package:jawara/pages/marketplace_catalog_page.dart';
 import 'package:jawara/pages/marketplace_upload_page.dart';
+import 'package:jawara/services/auth_service.dart';
+import 'package:jawara/shared/role_guard.dart';
 
 class MarketplacePage extends StatefulWidget {
   const MarketplacePage({super.key});

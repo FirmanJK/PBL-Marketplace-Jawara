@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/data/channels.dart';
-import 'package:jawara/shared/base_layout.dart';
+import 'package:jawara/shared/standard_app_bar.dart';
 
 class ChannelsListPage extends StatefulWidget {
   const ChannelsListPage({super.key});
@@ -10,204 +10,118 @@ class ChannelsListPage extends StatefulWidget {
 }
 
 class _ChannelsListPageState extends State<ChannelsListPage> {
+  Color _getTypeColor(String tipe) {
+    switch (tipe) {
+      case 'Bank':
+        return Colors.blue;
+      case 'E-Wallet':
+        return Colors.green;
+      default:
+        return Colors.orange;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final bool isMobile = screenWidth < 600;
-
-    return BaseLayout(
-      title: 'Daftar Channel Transfer',
-      child: Container(
-        width: double.infinity,
-        color: const Color(0xFFF4F7FC),
-        padding: EdgeInsets.all(isMobile ? 12.0 : 16.0),
-        child: Column(
-          children: [
-            // JUDUL
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Daftar Channel Transfer",
-                style: TextStyle(
-                  fontSize: isMobile ? 18 : 20,
-                  fontWeight: FontWeight.bold,
+    return Scaffold(
+      appBar: StandardAppBar(
+        title: 'Daftar Channel Transfer',
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_alt),
+            onPressed: () {},
+            tooltip: 'Filter',
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Cari channel transfer...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                filled: true,
+                fillColor: Colors.grey[100],
               ),
             ),
-            SizedBox(height: isMobile ? 16 : 20),
-
-            // CARD TABEL - FULL WIDTH & EXPANDED
-            Expanded(
-              child: Card(
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minWidth: constraints.maxWidth,
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: channelList.length,
+              itemBuilder: (context, index) {
+                final channel = channelList[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.all(16),
+                    leading: channel.thumbnail != null
+                        ? CircleAvatar(
+                            backgroundImage: NetworkImage(channel.thumbnail!),
+                            radius: 24,
+                          )
+                        : CircleAvatar(
+                            backgroundColor: _getTypeColor(channel.tipe).withOpacity(0.1),
+                            child: Icon(
+                              Icons.account_balance,
+                              color: _getTypeColor(channel.tipe),
+                            ),
                           ),
-                          child: DataTable(
-                            headingRowHeight: 56,
-                            dataRowHeight: 64,
-                            columnSpacing: 32,
-                            headingRowColor: WidgetStateProperty.all(
-                              Colors.deepPurple.shade50,
+                    title: Text(
+                      channel.nama,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 4),
+                        Text('Atas Nama: ${channel.atasNama}'),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: _getTypeColor(channel.tipe).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            channel.tipe,
+                            style: TextStyle(
+                              color: _getTypeColor(channel.tipe),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
                             ),
-                            border: TableBorder.all(
-                              color: Colors.grey.shade300,
-                              width: 1,
-                            ),
-                            columns: const [
-                              DataColumn(
-                                label: Text(
-                                  "NO",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              DataColumn(
-                                label: Text(
-                                  "NAMA CHANNEL",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              DataColumn(
-                                label: Text(
-                                  "TIPE",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              DataColumn(
-                                label: Text(
-                                  "ATAS NAMA",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              DataColumn(
-                                label: Text(
-                                  "THUMBNAIL",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              DataColumn(
-                                label: Text(
-                                  "AKSI",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ],
-                            rows: channelList.map((channel) {
-                              return DataRow(
-                                cells: [
-                                  DataCell(Text(channel.id.toString())),
-                                  DataCell(Text(channel.nama)),
-                                  DataCell(
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: channel.tipe == 'Bank'
-                                            ? Colors.blue.shade100
-                                            : channel.tipe == 'E-Wallet'
-                                            ? Colors.green.shade100
-                                            : Colors.orange.shade100,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        channel.tipe,
-                                        style: TextStyle(
-                                          color: channel.tipe == 'Bank'
-                                              ? Colors.blue.shade700
-                                              : channel.tipe == 'E-Wallet'
-                                              ? Colors.green.shade700
-                                              : Colors.orange.shade700,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  DataCell(Text(channel.atasNama)),
-                                  DataCell(
-                                    channel.thumbnail != null
-                                        ? CircleAvatar(
-                                            backgroundImage: NetworkImage(
-                                              channel.thumbnail!,
-                                            ),
-                                            radius: 20,
-                                          )
-                                        : const Icon(
-                                            Icons.image_not_supported,
-                                            color: Colors.grey,
-                                          ),
-                                  ),
-                                  DataCell(
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.more_vert,
-                                        color: Colors.black54,
-                                      ),
-                                      onPressed: () {},
-                                      tooltip: 'Lihat detail',
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }).toList(),
                           ),
                         ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // PAGINATION
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.chevron_left),
-                  onPressed: () {},
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 193, 200, 202),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    "1",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                      ],
                     ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.more_vert),
+                      onPressed: () {},
+                    ),
+                    onTap: () {},
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.chevron_right),
-                  onPressed: () {},
-                ),
-              ],
+                );
+              },
             ),
-
-            SizedBox(height: isMobile ? 12 : 16),
-          ],
-        ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.pushNamed(context, '/channels/add');
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Tambah Channel'),
+        backgroundColor: const Color(0xFF0891B2),
       ),
     );
   }

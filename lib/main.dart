@@ -21,6 +21,7 @@ import 'package:jawara/pages/income/income_other_add.dart';
 import 'package:jawara/pages/income/income_other_list.dart';
 import 'package:jawara/pages/mutations/family_mutations_add.dart';
 import 'package:jawara/pages/mutations/family_mutations_list.dart';
+import 'package:jawara/pages/notifications/notifications_page.dart';
 import 'package:jawara/pages/profile/profile_page.dart';
 import 'package:jawara/pages/reports/reports_income.dart';
 import 'package:jawara/pages/reports/reports_print.dart';
@@ -31,18 +32,39 @@ import 'package:jawara/pages/residents/families_page.dart';
 import 'package:jawara/pages/residents/houses_add.dart';
 import 'package:jawara/pages/residents/houses_list.dart';
 import 'package:jawara/pages/residents/residents_add.dart';
+import 'package:jawara/pages/residents/residents_detail.dart';
+import 'package:jawara/pages/residents/residents_edit.dart';
 import 'package:jawara/pages/residents/residents_list.dart';
 import 'package:jawara/pages/settings/settings_page.dart';
 import 'package:jawara/pages/spending.dart';
 import 'package:jawara/pages/spending/spending_add.dart';
 import 'package:jawara/pages/spending/spending_list.dart';
-import 'package:jawara/pages/user_management.dart';
+import 'package:jawara/pages/users/user_management.dart';
 import 'package:jawara/pages/users/users_add.dart';
 import 'package:jawara/pages/marketplace_page.dart';
 import 'package:jawara/shared/theme.dart';
+import 'package:jawara/services/notification_service.dart';
+import 'package:jawara/services/database_service.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize database service with error handling
+  try {
+    await DatabaseService().database;
+    print('✅ Database initialized');
+  } catch (e) {
+    print('⚠️ Database initialization failed: $e');
+  }
+  
+  // Initialize notification service (database-only version)
+  try {
+    await NotificationService().initialize();
+    print('✅ Notification service initialized');
+  } catch (e) {
+    print('⚠️ Notification service initialization failed: $e');
+  }
+  
   runApp(const MyApp());
 }
 
@@ -131,6 +153,9 @@ class MyApp extends StatelessWidget {
         '/marketplace': (context) => const MarketplacePage(),
         '/marketplace/upload': (context) => const MarketplacePage(),
         '/marketplace/catalog': (context) => const MarketplacePage(),
+
+        // Notifikasi
+        '/notifications': (context) => const NotificationsPage(),
 
         // Profil & Pengaturan
         '/profile': (context) => const ProfilePage(),

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:jawara/shared/base_layout.dart';
-import 'package:jawara/shared/table.dart';
-import 'package:jawara/shared/theme.dart';
+import 'package:jawara/shared/standard_app_bar.dart';
 
 class OtherIncomeItem {
   final int no;
@@ -49,21 +47,21 @@ class _IncomeOtherListPageState extends State<IncomeOtherListPage> {
       no: 1,
       nama: 'aaaaa',
       jenisPemasukan: 'Dana Bantuan Pemerintah',
-      tanggal: DateTime(2025, 10, 15), // Tanggal disesuaikan
+      tanggal: DateTime(2025, 10, 15),
       nominal: 11000,
     ),
     OtherIncomeItem(
       no: 2,
       nama: 'Joki by firman',
       jenisPemasukan: 'Pendapatan Lainnya',
-      tanggal: DateTime(2025, 10, 13), // Tanggal disesuaikan
+      tanggal: DateTime(2025, 10, 13),
       nominal: 4999999700,
     ),
     OtherIncomeItem(
       no: 3,
       nama: 'tes',
       jenisPemasukan: 'Pendapatan Lainnya',
-      tanggal: DateTime(2025, 8, 12), // Tanggal disesuaikan
+      tanggal: DateTime(2025, 8, 12),
       nominal: 1000000,
     ),
   ];
@@ -71,157 +69,118 @@ class _IncomeOtherListPageState extends State<IncomeOtherListPage> {
   @override
   Widget build(BuildContext context) {
     if (!_isLocaleInitialized) {
-      return const BaseLayout(
-        title: 'Pemasukan Lain - Daftar',
-        child: Center(
+      return Scaffold(
+        appBar: StandardAppBar(title: 'Pemasukan Lain'),
+        body: const Center(
           child: CircularProgressIndicator(color: Color(0xFF0891B2)),
         ),
       );
     }
 
-    final headers = [
-      'NO',
-      'NAMA',
-      'JENIS PEMASUKAN',
-      'TANGGAL',
-      'NOMINAL',
-      'AKSI',
-    ];
-    // Define sortable columns
-    final sortable = ['NAMA', 'JENIS PEMASUKAN', 'TANGGAL', 'NOMINAL'];
-
-    // Prepare table rows with formatting
     final currencyFormatter = NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp ',
-      decimalDigits: 2,
+      decimalDigits: 0,
     );
-    // Format tanggal tanpa waktu
     final dateFormatter = DateFormat('d MMMM yyyy', 'id_ID');
 
-    final rows = _incomeItems.map((item) {
-      return <Widget>[
-        Text(item.no.toString()),
-        Text(item.nama),
-        Text(item.jenisPemasukan),
-        Text(dateFormatter.format(item.tanggal)), // Format tanggal saja
-        Text(currencyFormatter.format(item.nominal)), // Format nominal
-        IconButton(
-          icon: const Icon(Icons.more_horiz),
-          onPressed: () {},
-          tooltip: 'Opsi Lain',
-        ),
-      ];
-    }).toList();
-
-    return BaseLayout(
-      title: 'Pemasukan Lain - Daftar', // AppBar title
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0), // Main content padding
-        child: Column(
-          children: [
-            // White container as the main Card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: AppTheme.borderRadiusXLarge, // From theme
-                boxShadow: AppTheme.shadowMedium, // From theme
+    return Scaffold(
+      appBar: StandardAppBar(
+        title: 'Pemasukan Lain',
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_alt),
+            onPressed: () {},
+            tooltip: 'Filter',
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Search Bar
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Cari pemasukan...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.grey[100],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Header row with Filter button
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.filter_list,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        label: const Text(
-                          'Filter',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primary, // From theme
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                AppTheme.borderRadiusSmall, // From theme
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
+            ),
+          ),
 
-                  // Data Table
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minWidth: constraints.maxWidth,
-                          ), // Min width
-                          child: CustomDataTable(
-                            headers: headers,
-                            rows: rows,
-                            sortable: sortable,
-                          ),
-                        ),
-                      );
-                    },
+          // List View
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: _incomeItems.length,
+              itemBuilder: (context, index) {
+                final item = _incomeItems[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const SizedBox(height: 16),
-
-                  // Pagination Controls
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.chevron_left),
-                        onPressed: () {}, // Add pagination logic later
-                        tooltip: 'Halaman Sebelumnya',
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.all(16),
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.green.withOpacity(0.1),
+                      child: Icon(
+                        Icons.attach_money,
+                        color: Colors.green,
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primary, // From theme
-                          borderRadius:
-                              AppTheme.borderRadiusSmall, // From theme
-                        ),
-                        child: const Text(
-                          '1',
+                    ),
+                    title: Text(
+                      item.nama,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 4),
+                        Text(item.jenisPemasukan),
+                        const SizedBox(height: 4),
+                        Text(
+                          dateFormatter.format(item.tanggal),
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          currencyFormatter.format(item.nominal),
+                          style: TextStyle(
+                            color: Colors.green,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.chevron_right),
-                        onPressed: () {}, // Add pagination logic later
-                        tooltip: 'Halaman Berikutnya',
-                      ),
-                    ],
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.more_vert),
+                      onPressed: () {},
+                    ),
+                    onTap: () {},
                   ),
-                ],
-              ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.pushNamed(context, '/income/other/add');
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Tambah Pemasukan'),
+        backgroundColor: const Color(0xFF0891B2),
       ),
     );
   }

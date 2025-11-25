@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Untuk InputFormatter
-import 'package:intl/intl.dart'; // Untuk format tanggal
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:jawara/shared/base_layout.dart';
-import 'package:jawara/shared/button.dart'; // Import CustomButton
-import 'package:jawara/shared/theme.dart'; // Import tema
+import 'package:jawara/shared/button.dart';
+import 'package:jawara/shared/theme.dart';
+import 'package:jawara/services/database_service.dart';
 
 class ResidentsAddPage extends StatefulWidget {
   const ResidentsAddPage({super.key});
@@ -145,23 +146,99 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
     });
   }
 
-  void _submitForm() {
-    // Implement submit logic
-    debugPrint('Keluarga: $_selectedKeluarga');
-    debugPrint('Nama: ${_namaController.text}');
-    debugPrint('NIK: ${_nikController.text}');
-    debugPrint('Telepon: ${_teleponController.text}');
-    debugPrint('Tempat Lahir: ${_tempatLahirController.text}');
-    debugPrint(
-      'Tanggal Lahir: ${_selectedTanggalLahir != null ? DateFormat('dd/MM/yyyy').format(_selectedTanggalLahir!) : 'N/A'}',
+  Future<void> _submitForm() async {
+    // Validasi form
+    if (_namaController.text.isEmpty) {
+      _showErrorDialog('Nama wajib diisi');
+      return;
+    }
+    
+    if (_nikController.text.isEmpty) {
+      _showErrorDialog('NIK wajib diisi');
+      return;
+    }
+    
+    if (_nikController.text.length != 16) {
+      _showErrorDialog('NIK harus 16 digit');
+      return;
+    }
+
+    try {
+      // Show loading
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      // Import database service
+      final dbService = DatabaseService();
+      
+      // Prepare data
+      final data = {
+        'name': _namaController.text,
+        'nik': _nikController.text,
+        'phone': _teleponController.text,
+        'gender': _selectedJenisKelamin ?? '',
+        'birth_date': _selectedTanggalLahir?.toIso8601String() ?? '',
+        'address': _tempatLahirController.text,
+        'status': _selectedStatus ?? 'Belum Kawin',
+        'registration_status': 'accepted',
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+        'synced': 0,
+      };
+
+      // Insert to database
+      await dbService.insert('residents', data);
+
+      // Close loading
+      if (mounted) Navigator.pop(context);
+
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Warga berhasil ditambahkan'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+
+      // Reset form
+      _resetForm();
+
+      // Navigate back with result
+      if (mounted) {
+        Navigator.pop(context, true); // Return true to indicate success
+      }
+    } catch (e) {
+      // Close loading if still showing
+      if (mounted) Navigator.pop(context);
+      
+      // Show error
+      if (mounted) {
+        _showErrorDialog('Gagal menambahkan warga: ${e.toString()}');
+      }
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
     );
-    debugPrint('Jenis Kelamin: $_selectedJenisKelamin');
-    debugPrint('Agama: $_selectedAgama');
-    debugPrint('Gol. Darah: $_selectedGolDarah');
-    debugPrint('Peran: $_selectedPeran');
-    debugPrint('Pendidikan: $_selectedPendidikan');
-    debugPrint('Pekerjaan: $_selectedPekerjaan');
-    debugPrint('Status: $_selectedStatus');
   }
 
   @override
@@ -175,18 +252,25 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
 
     return BaseLayout(
       title: 'Tambah Warga',
-      child: SingleChildScrollView(
-        padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
-        child: Container(
-          padding: EdgeInsets.all(isMobile ? 20.0 : 32.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: AppTheme.borderRadiusXLarge,
-            boxShadow: AppTheme.shadowMedium,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight - (isMobile ? 32.0 : 48.0),
+              ),
+              child: Container(
+                padding: EdgeInsets.all(isMobile ? 20.0 : 32.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: AppTheme.borderRadiusXLarge,
+                  boxShadow: AppTheme.shadowMedium,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
               Text(
                 'Tambah Warga', // Judul Form
                 style: AppTheme.headingMedium.copyWith(
@@ -345,9 +429,12 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -464,8 +551,9 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: items.contains(value) ? value : null, // Pastikan value valid
+          value: items.contains(value) ? value : null,
           hint: Text(hint, style: TextStyle(color: Colors.grey[400])),
+          isExpanded: true,
           decoration: InputDecoration(
             border: OutlineInputBorder(
               borderRadius: AppTheme.borderRadiusLarge,
@@ -486,22 +574,22 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
               horizontal: 20,
             ),
           ),
-          // Jika item pertama adalah hint, jangan tampilkan sebagai pilihan valid
           items: items.map((String item) {
             return DropdownMenuItem<String>(
-              // Jika item = hint, buat value-nya null agar tidak bisa dipilih
               value: item == hint ? null : item,
               child: Text(
                 item,
                 style: TextStyle(
                   color: item == hint ? Colors.grey[400] : AppTheme.textDark,
+                  fontSize: 14,
                 ),
+                overflow: TextOverflow.ellipsis,
               ),
             );
           }).toList(),
           onChanged: onChanged,
-          // Tampilkan dropdown di bawah
-          menuMaxHeight: 300, // Batasi tinggi menu dropdown jika perlu
+          menuMaxHeight: 200,
+          icon: const Icon(Icons.arrow_drop_down, size: 24),
         ),
       ],
     );
