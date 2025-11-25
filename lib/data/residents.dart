@@ -7,7 +7,8 @@ final List<Resident> dummyResidents = [
     nik: '3505111512040002',
     email: 'rendhazuper@gmail.com',
     gender: 'L',
-    status: RegistrationStatus.accepted,
+    status: 'Aktif',
+    registrationStatus: RegistrationStatus.accepted,
   ),
   Resident(
     id: 2,
@@ -15,7 +16,8 @@ final List<Resident> dummyResidents = [
     nik: '1234567890987654',
     email: 'antimicin3@gmail.com',
     gender: 'L',
-    status: RegistrationStatus.accepted,
+    status: 'Aktif',
+    registrationStatus: RegistrationStatus.accepted,
   ),
   Resident(
     id: 3,
@@ -23,7 +25,8 @@ final List<Resident> dummyResidents = [
     nik: '2025202520252025',
     email: 'ijat@gmail.com',
     gender: 'L',
-    status: RegistrationStatus.inactive,
+    status: 'Nonaktif',
+    registrationStatus: RegistrationStatus.inactive,
   ),
   Resident(
     id: 4,
@@ -31,7 +34,8 @@ final List<Resident> dummyResidents = [
     nik: '3201122501050002',
     email: 'raudhilfirdausn@gmail.com',
     gender: 'L',
-    status: RegistrationStatus.accepted,
+    status: 'Aktif',
+    registrationStatus: RegistrationStatus.accepted,
   ),
   Resident(
     id: 5,
@@ -39,7 +43,8 @@ final List<Resident> dummyResidents = [
     nik: '1371111011030005',
     email: 'afsafas@gmail.com',
     gender: 'L',
-    status: RegistrationStatus.accepted,
+    status: 'Aktif',
+    registrationStatus: RegistrationStatus.accepted,
   ),
   Resident(
     id: 6,
@@ -47,7 +52,8 @@ final List<Resident> dummyResidents = [
     nik: '1371111011030005',
     email: 'varizkynr@gmail.com',
     gender: 'L',
-    status: RegistrationStatus.pending,
+    status: 'Aktif',
+    registrationStatus: RegistrationStatus.pending,
   ),
   Resident(
     id: 7,
@@ -55,7 +61,8 @@ final List<Resident> dummyResidents = [
     nik: '3573012103050002',
     email: 'sainttora@gmail.com',
     gender: 'L',
-    status: RegistrationStatus.pending,
+    status: 'Aktif',
+    registrationStatus: RegistrationStatus.pending,
   ),
   Resident(
     id: 8,
@@ -63,7 +70,8 @@ final List<Resident> dummyResidents = [
     nik: '3674072257025008',
     email: 'jokajo7847@inilas.com',
     gender: 'L',
-    status: RegistrationStatus.pending,
+    status: 'Aktif',
+    registrationStatus: RegistrationStatus.pending,
   ),
   Resident(
     id: 9,
@@ -71,7 +79,8 @@ final List<Resident> dummyResidents = [
     nik: '1234567890123456',
     email: '2341720095@polinema.ac.id',
     gender: 'L',
-    status: RegistrationStatus.pending,
+    status: 'Aktif',
+    registrationStatus: RegistrationStatus.pending,
   ),
   Resident(
     id: 10,
@@ -79,7 +88,8 @@ final List<Resident> dummyResidents = [
     nik: '1234567890123456',
     email: 'tecug@mailinator.com',
     gender: 'P',
-    status: RegistrationStatus.accepted,
+    status: 'Aktif',
+    registrationStatus: RegistrationStatus.accepted,
   ),
   Resident(
     id: 11,
@@ -87,7 +97,8 @@ final List<Resident> dummyResidents = [
     nik: '3171234567890001',
     email: 'budi.s@example.com',
     gender: 'L',
-    status: RegistrationStatus.pending,
+    status: 'Aktif',
+    registrationStatus: RegistrationStatus.pending,
   ),
   Resident(
     id: 12,
@@ -95,7 +106,8 @@ final List<Resident> dummyResidents = [
     nik: '3273123456789002',
     email: 'citra.l@example.com',
     gender: 'P',
-    status: RegistrationStatus.accepted,
+    status: 'Aktif',
+    registrationStatus: RegistrationStatus.accepted,
   ),
   Resident(
     id: 13,
@@ -103,7 +115,8 @@ final List<Resident> dummyResidents = [
     nik: '3374123456789003',
     email: 'dewi.a@example.com',
     gender: 'P',
-    status: RegistrationStatus.inactive,
+    status: 'Nonaktif',
+    registrationStatus: RegistrationStatus.inactive,
   ),
   Resident(
     id: 14,
@@ -111,7 +124,8 @@ final List<Resident> dummyResidents = [
     nik: '3471123456789004',
     email: 'eko.p@example.com',
     gender: 'L',
-    status: RegistrationStatus.pending,
+    status: 'Aktif',
+    registrationStatus: RegistrationStatus.pending,
   ),
   Resident(
     id: 15,
@@ -119,7 +133,8 @@ final List<Resident> dummyResidents = [
     nik: '3578123456789005',
     email: 'fajar.n@example.com',
     gender: 'L',
-    status: RegistrationStatus.accepted,
+    status: 'Aktif',
+    registrationStatus: RegistrationStatus.accepted,
   ),
   Resident(
     id: 16,
@@ -127,7 +142,8 @@ final List<Resident> dummyResidents = [
     nik: '5171123456789006',
     email: 'gita.p@example.com',
     gender: 'P',
-    status: RegistrationStatus.pending,
+    status: 'Aktif',
+    registrationStatus: RegistrationStatus.pending,
   ),
   Resident(
     id: 17,
@@ -135,7 +151,8 @@ final List<Resident> dummyResidents = [
     nik: '6171123456789007',
     email: 'hadi.w@example.com',
     gender: 'L',
-    status: RegistrationStatus.accepted,
+    status: 'Aktif',
+    registrationStatus: RegistrationStatus.accepted,
   ),
   Resident(
     id: 18,
@@ -143,7 +160,8 @@ final List<Resident> dummyResidents = [
     nik: '6271123456789008',
     email: 'indah.s@example.com',
     gender: 'P',
-    status: RegistrationStatus.inactive,
+    status: 'Nonaktif',
+    registrationStatus: RegistrationStatus.inactive,
   ),
   Resident(
     id: 19,
@@ -151,7 +169,8 @@ final List<Resident> dummyResidents = [
     nik: '6371123456789009',
     email: 'joko.s@example.com',
     gender: 'L',
-    status: RegistrationStatus.pending,
+    status: 'Aktif',
+    registrationStatus: RegistrationStatus.pending,
   ),
   Resident(
     id: 20,
@@ -159,6 +178,7 @@ final List<Resident> dummyResidents = [
     nik: '6471123456789010',
     email: 'kartika.c@example.com',
     gender: 'P',
-    status: RegistrationStatus.accepted,
+    status: 'Aktif',
+    registrationStatus: RegistrationStatus.accepted,
   ),
 ];

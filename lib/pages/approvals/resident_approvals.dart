@@ -54,7 +54,7 @@ class ResidentApprovalsPage extends StatelessWidget {
         Text(resident.email, overflow: TextOverflow.ellipsis),
         Text(resident.gender, overflow: TextOverflow.ellipsis),
         TextButton(onPressed: () {}, child: const Text('Lihat')),
-        _buildStatusChip(resident.status),
+        _buildStatusChip(resident.registrationStatus),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [

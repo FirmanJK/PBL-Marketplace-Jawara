@@ -1,147 +1,79 @@
 # Changelog
 
-All notable changes to PBL Jawara project will be documented in this file.
+## [Unreleased] - 2025-01-XX
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+### Changed - UI/UX Improvements
 
-## [Unreleased]
+- **Mengubah semua tabel menjadi Grid View / List View** untuk pengalaman pengguna yang lebih baik dan responsif
 
-### Planned Features
-- 🔄 Real-time notifications
-- 📱 Mobile app optimization
-- 🌐 Multi-language support (English, Indonesian)
-- 📊 Advanced analytics dashboard
-- 🔐 Two-factor authentication
-- 💬 Chat integration
+#### Fitur yang Diubah:
 
----
+1. **Data Warga dan Rumah**
 
-## [1.0.0] - 2025-01-24
+   - ✅ Daftar Warga (`residents_list.dart`) - Diubah dari Grid View ke List View (lebih menarik)
+   - ✅ Daftar Rumah (`houses_list.dart`) - Diubah dari tabel ke Grid View
+   - ✅ Data Keluarga (`families_page.dart`) - Sudah menggunakan Grid View
 
-### ✨ Added - Initial Release
+2. **Pemasukan**
 
-#### 📊 Dashboard
-- Dashboard Keuangan dengan visualisasi grafik (Pie Chart, Bar Chart)
-- Dashboard Kegiatan dengan kalender interaktif
-- Dashboard Kependudukan dengan statistik warga
-- Responsive design untuk mobile dan desktop
+   - ✅ Tagihan (`income_bills.dart`) - Diubah dari tabel ke List View
+   - ✅ Kategori Iuran (`income_categories.dart`) - Diubah dari tabel ke List View
+   - ✅ Pemasukan Lain (`income_other_list.dart`) - Diubah dari tabel ke List View
 
-#### 👥 Data Warga & Rumah
-- CRUD data warga lengkap
-- Manajemen data keluarga
-- Manajemen data rumah
-- Pencarian dan filter data
+3. **Pengeluaran**
 
-#### 💰 Manajemen Keuangan
-- **Pemasukan:**
-  - Daftar iuran warga
-  - Detail pembayaran iuran
-  - Kategori iuran
-  - Pemasukan lain (non-iuran)
-- **Pengeluaran:**
-  - Pencatatan pengeluaran RT/RW
-  - Kategori pengeluaran
-- **Laporan:**
-  - Laporan pemasukan
-  - Laporan pengeluaran
-  - Cetak laporan PDF
+   - ✅ Daftar Pengeluaran (`spending_list.dart`) - Diubah dari tabel ke List View
 
-#### 📢 Komunikasi & Kegiatan
-- Manajemen kegiatan RT/RW
-- Broadcast pengumuman
-- Pesan warga & aspirasi
-- Log aktivitas sistem
+4. **Laporan Keuangan**
 
-#### 🔐 Administrasi
-- Manajemen pengguna dengan role-based access
-- Approval penerimaan warga baru
-- Mutasi keluarga (pindah/keluar)
-- Channel transfer antar RT/RW
-- Profil & pengaturan akun
+   - ✅ Laporan Pemasukan (`reports_income.dart`) - Diubah dari tabel ke List View
+   - ✅ Laporan Pengeluaran (`reports_spending.dart`) - Diubah dari tabel ke List View
 
-#### 🎨 UI/UX Components
-- BaseLayout dengan sidebar navigation
-- Custom button components
-- Custom card components
-- Custom input fields
-- Custom table components
-- Modern theme dengan Material Design 3
+5. **Kegiatan & Broadcast**
 
-### 🐛 Fixed
-- Resolved git merge conflicts di dashboard files
-- Fixed profile page navigation issue
-- Fixed UTF-8 encoding error di family_mutations_list.dart
-- Fixed sidebar menu collapse/expand behavior
-- Fixed responsive layout di mobile devices
+   - ✅ Daftar Kegiatan (`activities_list.dart`) - Diubah dari tabel ke List View
+   - ✅ Daftar Broadcast (`broadcast_list.dart`) - Diubah dari tabel ke List View
 
-### 🔧 Technical
-- Flutter 3.35.2 SDK integration
-- FL Chart 0.69.2 untuk visualisasi data
-- Responsive Framework implementation
-- State management dengan StatefulWidget
-- Modular project structure
-- Reusable component library
+6. **Pesan Warga**
 
-### 📝 Documentation
-- Comprehensive README with setup guide
-- Code documentation dan comments
-- Contributor guidelines
-- Project structure documentation
+   - ✅ Semua Pesan (`resident_messages.dart`) - Diubah dari tabel ke List View
+   - ✅ Aspirasi - Terintegrasi dalam pesan warga
 
----
+7. **Penerimaan Warga**
 
-## [0.2.0] - 2025-01-20 (Beta)
+   - ✅ Daftar Permohonan (`resident_approvals.dart`) - Diubah dari tabel ke List View
 
-### ✨ Added
-- Beta release untuk testing internal
-- Core features implementation
-- Basic navigation structure
+8. **Mutasi Keluarga**
 
-### 🐛 Fixed
-- Initial bug fixes dari alpha testing
-- Performance improvements
+   - ✅ Daftar Mutasi (`family_mutations_list.dart`) - Diubah dari tabel ke List View
 
----
+9. **Log Aktivitas**
 
-## [0.1.0] - 2025-01-15 (Alpha)
+   - ✅ Daftar Log (`activity_logs_page.dart`) - Diubah dari tabel ke List View
 
-### ✨ Added
-- Project initialization
-- Basic project structure
-- Setup Flutter environment
-- Initial UI mockups
+10. **Manajemen Pengguna**
 
----
+    - ✅ Daftar Pengguna (`user_management.dart`) - Diubah dari tabel ke List View
 
-## Version History
+11. **Channel Transfer**
+    - ✅ Daftar Channel (`channels_list.dart`) - Diubah dari tabel ke List View
 
-| Version | Date | Description |
-|---------|------|-------------|
-| 1.0.0 | 2025-01-24 | Initial Production Release |
-| 0.2.0 | 2025-01-20 | Beta Release |
-| 0.1.0 | 2025-01-15 | Alpha Release |
+### Keuntungan Perubahan:
 
----
+- ✨ Tampilan lebih modern dan menarik
+- 📱 Lebih responsif di berbagai ukuran layar
+- 🎨 Konsistensi desain di seluruh aplikasi
+- 🔍 Fitur pencarian terintegrasi di setiap halaman
+- ➕ Floating Action Button untuk aksi tambah data
+- 🎯 Interaksi yang lebih intuitif dengan card-based design
+- 🏷️ Status chip yang lebih jelas dan mudah dibaca
+- 🔄 Pull-to-refresh untuk memuat ulang data
 
-## Contributing to Changelog
+### Technical Details:
 
-When contributing, please update this changelog with your changes:
-
-```markdown
-### Added
-- New feature yang ditambahkan
-
-### Changed
-- Perubahan pada fitur existing
-
-### Fixed
-- Bug yang diperbaiki
-
-### Removed
-- Fitur yang dihapus
-```
-
----
-
-**[⬆ Back to Top](#changelog)**
+- Menggunakan `StandardAppBar` untuk konsistensi header
+- Menggunakan `ResponsiveGridView` untuk daftar warga dan rumah
+- Menggunakan `ListView.builder` dengan Card untuk data list
+- Menghapus dependency pada `CustomDataTable`
+- Menambahkan search bar di setiap halaman list
+- Menambahkan floating action button untuk aksi tambah

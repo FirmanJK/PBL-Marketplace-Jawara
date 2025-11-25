@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-// import 'package:intl/intl.dart'; // Tidak perlu format khusus di sini
-import 'package:jawara/shared/base_layout.dart';
-import 'package:jawara/shared/table.dart'; // Import CustomDataTable
-import 'package:jawara/shared/theme.dart'; // Import tema
+import 'package:jawara/shared/standard_app_bar.dart';
+import 'package:jawara/shared/theme.dart';
 
 // Dummy data model
 class HouseItem {
@@ -49,185 +47,152 @@ class _HousesListPageState extends State<HousesListPage> {
   int _currentPage = 1;
   final int _rowsPerPage = 10; // Jumlah item per halaman
 
-  // Helper widget untuk status chip
-  Widget _buildStatusChip(String status) {
-    Color chipColor;
-    Color textColor;
-
+  Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'ditempati':
-        chipColor = Colors.blue.shade100; // Biru muda
-        textColor = Colors.blue.shade800;
-        break;
+        return Colors.blue;
       case 'tersedia':
-        chipColor = Colors.green.shade100; // Hijau muda
-        textColor = Colors.green.shade800;
-        break;
+        return Colors.green;
       default:
-        chipColor = Colors.grey.shade100;
-        textColor = Colors.grey.shade800;
+        return Colors.grey;
     }
-
-    return Chip(
-      label: Text(
-        status,
-        style: TextStyle(
-          color: textColor,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
-        ),
-      ),
-      backgroundColor: chipColor,
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-      side: BorderSide.none,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-    );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // Define table headers
-    final headers = ['NO', 'ALAMAT', 'STATUS', 'AKSI'];
-    // Define sortable columns
-    final sortable = ['ALAMAT', 'STATUS'];
-
-    // Pagination Calculation
-    final startIndex = (_currentPage - 1) * _rowsPerPage;
-    final endIndex = startIndex + _rowsPerPage > _houses.length
-        ? _houses.length
-        : startIndex + _rowsPerPage;
-    final paginatedHouses = _houses.sublist(startIndex, endIndex);
-    final totalPages = (_houses.length / _rowsPerPage).ceil();
-
-    final rows = paginatedHouses.map((house) {
-      return <Widget>[
-        Text(house.no.toString()),
-        Text(house.alamat),
-        _buildStatusChip(house.status), // Chip
-        IconButton(
-          icon: const Icon(Icons.more_horiz),
-          onPressed: () {},
-          tooltip: 'Opsi Lain',
-          color: Colors.grey.shade600,
-        ),
-      ];
-    }).toList();
-
-    return BaseLayout(
-      title: 'Daftar Rumah', // AppBar title
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0), // Main content padding
+  Widget _buildHouseCard(HouseItem house) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // White container as the main Card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: AppTheme.borderRadiusXLarge, // From theme
-                boxShadow: AppTheme.shadowMedium, // From theme
+            // Header dengan icon, nama, dan status
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: AppTheme.primary.withOpacity(0.1),
+                  child: const Icon(
+                    Icons.home,
+                    color: AppTheme.primary,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        house.alamat,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Rumah #${house.no}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(house.status).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    house.status,
+                    style: TextStyle(
+                      color: _getStatusColor(house.status),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const Divider(height: 24),
+            // Detail alamat
+            Row(
+              children: [
+                Icon(
+                  Icons.location_on,
+                  size: 18,
+                  color: Colors.grey[600],
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Alamat',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Padding(
+              padding: const EdgeInsets.only(left: 26),
+              child: Text(
+                house.alamat,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Header row with Filter button
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton.icon(
-                        // Filter Button
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.filter_list,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        label: const Text(
-                          'Filter',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primary, // From theme
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                AppTheme.borderRadiusSmall, // From theme
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                      ),
-                      // Tambahkan tombol lain jika perlu (misal: Tambah Rumah)
-                    ],
+            ),
+            const SizedBox(height: 12),
+            // Detail status
+            Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 18,
+                  color: _getStatusColor(house.status),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Status',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey[600],
                   ),
-                  const SizedBox(height: 16),
-
-                  // Data Table
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minWidth: constraints.maxWidth,
-                          ), // Min width
-                          child: CustomDataTable(
-                            headers: headers,
-                            rows: rows,
-                            sortable: sortable,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Pagination Controls
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.chevron_left),
-                        onPressed: _currentPage > 1
-                            ? () => setState(() => _currentPage--)
-                            : null,
-                        tooltip: 'Halaman Sebelumnya',
-                        color: _currentPage > 1
-                            ? AppTheme.primary
-                            : Colors.grey[300], // Warna disable
-                      ),
-                      // Tampilkan nomor halaman
-                      _buildPageNumber(1, _currentPage == 1),
-                      if (totalPages >= 2)
-                        _buildPageNumber(2, _currentPage == 2),
-                      // Ellipsis jika lebih dari 2 halaman
-                      if (totalPages > 2)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text('...'),
-                        ),
-                      // Jangan tampilkan nomor terakhir jika hanya ada 2 halaman
-                      if (totalPages > 2)
-                        _buildPageNumber(
-                          totalPages,
-                          _currentPage == totalPages,
-                        ),
-
-                      IconButton(
-                        icon: const Icon(Icons.chevron_right),
-                        onPressed: _currentPage < totalPages
-                            ? () => setState(() => _currentPage++)
-                            : null,
-                        tooltip: 'Halaman Berikutnya',
-                        color: _currentPage < totalPages
-                            ? AppTheme.primary
-                            : Colors.grey[300], // Warna disable
-                      ),
-                    ],
-                  ),
-                ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Padding(
+              padding: const EdgeInsets.only(left: 26),
+              child: Text(
+                house.status,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: _getStatusColor(house.status),
+                ),
+              ),
+            ),
+            // Menu button
+            Align(
+              alignment: Alignment.bottomRight,
+              child: IconButton(
+                icon: const Icon(Icons.more_vert, size: 20),
+                onPressed: () {
+                  _showOptionsMenu(house);
+                },
+                tooltip: 'Opsi',
               ),
             ),
           ],
@@ -236,31 +201,107 @@ class _HousesListPageState extends State<HousesListPage> {
     );
   }
 
-  // Helper widget untuk nomor halaman pagination (sama seperti sebelumnya)
-  Widget _buildPageNumber(int page, bool isActive) {
-    return InkWell(
-      onTap: () {
-        if (!isActive) {
-          setState(() {
-            _currentPage = page;
-          });
-        }
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive ? AppTheme.primary : Colors.transparent,
-          borderRadius: AppTheme.borderRadiusSmall,
-          border: isActive ? null : Border.all(color: Colors.grey.shade300),
-        ),
-        child: Text(
-          '$page',
-          style: TextStyle(
-            color: isActive ? Colors.white : AppTheme.textMedium,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+  void _showOptionsMenu(HouseItem house) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.visibility),
+                title: const Text('Lihat Detail'),
+                onTap: () {
+                  Navigator.pop(context);
+                  // Navigate to detail
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('Edit'),
+                onTap: () {
+                  Navigator.pop(context);
+                  // Navigate to edit
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text('Hapus', style: TextStyle(color: Colors.red)),
+                onTap: () {
+                  Navigator.pop(context);
+                  // Show delete confirmation
+                },
+              ),
+            ],
           ),
-        ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: StandardAppBar(
+        title: 'Daftar Rumah',
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_alt),
+            onPressed: () {},
+            tooltip: 'Filter',
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Search Bar
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Cari alamat rumah...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.grey[100],
+              ),
+              onChanged: (value) {
+                // Implement search
+              },
+            ),
+          ),
+
+          // List View
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                // Reload data
+              },
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                itemCount: _houses.length,
+                itemBuilder: (context, index) {
+                  final house = _houses[index];
+                  return _buildHouseCard(house);
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.pushNamed(context, '/residents/houses/add');
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Tambah Rumah'),
+        backgroundColor: const Color(0xFF0891B2),
       ),
     );
   }

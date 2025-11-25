@@ -13,6 +13,23 @@ dependencies:
   fl_chart: ^0.69.0
   responsive_framework: ^1.5.1
   image_picker: ^1.0.7
+  # Session & Storage
+  shared_preferences: ^2.2.2
+  # Database
+  sqflite: ^2.3.0
+  path_provider: ^2.1.1
+  path: ^1.8.3
+  # Biometric
+  local_auth: ^2.1.7
+  # Notifications - Temporarily disabled due to build issues
+  # Uncomment when needed and update to compatible version
+  # flutter_local_notifications: ^17.2.3
+  # timezone: ^0.9.2
+  # PDF Generation
+  pdf: ^3.10.7
+  printing: ^5.11.1
+  # HTTP
+  http: ^1.1.2
 
 dev_dependencies:
   flutter_test:

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:jawara/shared/base_layout.dart';
+import 'package:jawara/shared/standard_app_bar.dart';
 import 'package:jawara/data/activity_logs.dart';
-import 'package:jawara/shared/table.dart';
 
 class ActivityLogsPage extends StatefulWidget {
   const ActivityLogsPage({super.key});
@@ -30,88 +29,87 @@ class _ActivityLogsPageState extends State<ActivityLogsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final bool isMobile = screenWidth < 600;
-
     if (!_isLocaleInitialized) {
-      return BaseLayout(
-        title: 'Log Aktifitas',
-        child: Container(
-          width: double.infinity,
-          color: const Color(0xFFF4F7FC),
-          child: const Center(
-            child: CircularProgressIndicator(color: Color(0xFF0891B2)),
-          ),
+      return Scaffold(
+        appBar: StandardAppBar(title: 'Log Aktivitas'),
+        body: const Center(
+          child: CircularProgressIndicator(color: Color(0xFF0891B2)),
         ),
       );
     }
 
-    final headers = ['NO', 'DESKRIPSI', 'AKTOR', 'TANGGAL'];
-    final sortable = ['DESKRIPSI', 'AKTOR', 'TANGGAL'];
+    final dateFormatter = DateFormat('d MMM yyyy HH:mm', 'id_ID');
 
-    final rows = dummyActivityLogs.map((log) {
-      return <Widget>[
-        Text(log.id.toString()),
-        Flexible(child: Text(log.description, overflow: TextOverflow.ellipsis)),
-        Text(log.actor, overflow: TextOverflow.ellipsis),
-        Text(DateFormat('d MMM yyyy', 'id_ID').format(log.timestamp)),
-      ];
-    }).toList();
-
-    return BaseLayout(
-      title: 'Log Aktifitas',
-      actions: [
-        Padding(
-          padding: EdgeInsets.only(right: isMobile ? 8.0 : 16.0),
-          child: ElevatedButton.icon(
+    return Scaffold(
+      appBar: StandardAppBar(
+        title: 'Log Aktivitas',
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_alt),
             onPressed: () {},
-            icon: Icon(
-              Icons.filter_list,
-              color: Colors.white,
-              size: isMobile ? 16 : 18,
-            ),
-            label: Text(
-              isMobile ? '' : 'Filter',
-              style: const TextStyle(color: Colors.white),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0891B2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 12 : 16,
-                vertical: isMobile ? 8 : 12,
+            tooltip: 'Filter',
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Cari log aktivitas...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.grey[100],
               ),
             ),
           ),
-        ),
-      ],
-      child: Container(
-        width: double.infinity,
-        color: const Color(0xFFF4F7FC),
-        padding: EdgeInsets.all(isMobile ? 12.0 : 16.0),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                  child: Padding(
-                    padding: EdgeInsets.all(isMobile ? 6.0 : 8.0),
-                    child: CustomDataTable(
-                      headers: headers,
-                      rows: rows,
-                      sortable: sortable,
-                    ),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: dummyActivityLogs.length,
+              itemBuilder: (context, index) {
+                final log = dummyActivityLogs[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ),
-              ),
-            );
-          },
-        ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.all(16),
+                    leading: CircleAvatar(
+                      backgroundColor: const Color(0xFF0891B2).withOpacity(0.1),
+                      child: Icon(Icons.history, color: const Color(0xFF0891B2)),
+                    ),
+                    title: Text(
+                      log.description,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 4),
+                        Text('Aktor: ${log.actor}'),
+                        const SizedBox(height: 4),
+                        Text(
+                          dateFormatter.format(log.timestamp),
+                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                        ),
+                      ],
+                    ),
+                    onTap: () {},
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

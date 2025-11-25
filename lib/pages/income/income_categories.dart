@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Untuk format angka
-import 'package:jawara/shared/base_layout.dart';
-import 'package:jawara/shared/table.dart'; // Import CustomDataTable
-import 'package:jawara/shared/theme.dart'; // Import tema
+import 'package:intl/intl.dart';
+import 'package:jawara/shared/standard_app_bar.dart';
 
 // Dummy data model
 class DuesCategory {
@@ -45,157 +43,128 @@ class _IncomeCategoriesPageState extends State<IncomeCategoriesPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Define table headers
-    final headers = ['NO', 'NAMA IURAN', 'JENIS IURAN', 'NOMINAL', 'AKSI'];
-    // Define sortable columns
-    final sortable = ['NAMA IURAN', 'JENIS IURAN', 'NOMINAL'];
-
-    // Prepare table rows with formatting
     final currencyFormatter = NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp ',
-      decimalDigits: 2,
+      decimalDigits: 0,
     );
 
-    final rows = _categories.map((category) {
-      return <Widget>[
-        Text(category.no.toString()),
-        Text(category.nama),
-        Text(category.jenis),
-        Text(currencyFormatter.format(category.nominal)), // Format nominal
-        IconButton(
-          icon: const Icon(Icons.more_horiz),
-          onPressed: () {},
-          tooltip: 'Opsi Lain',
-        ),
-      ];
-    }).toList();
-
-    return BaseLayout(
-      title: 'Kategori Iuran', // AppBar title
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0), // Main content padding
-        child: Column(
-          children: [
-            // White container as the main Card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: AppTheme.borderRadiusXLarge, // From theme
-                boxShadow: AppTheme.shadowMedium, // From theme
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Info Box
-                  Container(
-                    padding: const EdgeInsets.all(16.0),
-                    margin: const EdgeInsets.only(bottom: 16.0),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryLight.withOpacity(
-                        0.1,
-                      ), // Warna biru muda
-                      borderRadius: AppTheme.borderRadiusMedium,
-                      border: Border.all(
-                        color: AppTheme.primaryLight.withOpacity(0.3),
-                      ),
-                    ),
-                    child: Text(
-                      'Info: Iuran Bulanan: Dibayar setiap bulan sekali secara rutin. '
-                      'Iuran Khusus: Dibayar sesuai jadwal atau kebutuhan tertentu, misalnya iuran untuk acara khusus, renovasi, atau kegiatan lain yang tidak rutin.',
-                      style: AppTheme.bodyMedium.copyWith(
-                        color: AppTheme.primaryDark,
-                      ),
-                    ),
-                  ),
-
-                  // Header row with Action buttons
-                  Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween, // Tombol di kedua sisi
-                    children: [
-                      // Tombol kiri (Tambah/Refresh?) - Ganti ikon sesuai kebutuhan
-                      ElevatedButton(
-                        onPressed: () {
-                          // Aksi tombol kiri (misal: Tambah Kategori)
-                          Navigator.pushNamed(
-                            context,
-                            '/income/categories/add',
-                          ); // Contoh navigasi
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              AppTheme.accentPurple, // Warna berbeda
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppTheme.borderRadiusSmall,
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.add,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                      // Tombol Filter kanan
-                      ElevatedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.filter_list,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        label: const Text(
-                          'Filter',
-                          style: TextStyle(color: Colors.white),
-                        ), // Tambahkan teks jika perlu
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primary, // From theme
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                AppTheme.borderRadiusSmall, // From theme
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Data Table
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minWidth: constraints.maxWidth,
-                          ), // Min width
-                          child: CustomDataTable(
-                            headers: headers,
-                            rows: rows,
-                            sortable: sortable,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  // Tidak ada pagination di screenshot ini
-                  // const SizedBox(height: 16),
-                  // Row( ... pagination controls ... ),
-                ],
+    return Scaffold(
+      appBar: StandardAppBar(
+        title: 'Kategori Iuran',
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_alt),
+            onPressed: () {},
+            tooltip: 'Filter',
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Info Box
+          Container(
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0891B2).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFF0891B2).withOpacity(0.3),
               ),
             ),
-          ],
-        ),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, color: const Color(0xFF0891B2)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Iuran Bulanan: Dibayar setiap bulan. Iuran Khusus: Dibayar sesuai kebutuhan tertentu.',
+                    style: TextStyle(fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Search Bar
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Cari kategori iuran...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.grey[100],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // List View
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: _categories.length,
+              itemBuilder: (context, index) {
+                final category = _categories[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.all(16),
+                    leading: CircleAvatar(
+                      backgroundColor: const Color(0xFF0891B2).withOpacity(0.1),
+                      child: Icon(
+                        Icons.category,
+                        color: const Color(0xFF0891B2),
+                      ),
+                    ),
+                    title: Text(
+                      category.nama,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 4),
+                        Text(category.jenis),
+                        const SizedBox(height: 4),
+                        Text(
+                          currencyFormatter.format(category.nominal),
+                          style: TextStyle(
+                            color: const Color(0xFF0891B2),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.more_vert),
+                      onPressed: () {},
+                    ),
+                    onTap: () {},
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.pushNamed(context, '/income/categories/add');
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Tambah Kategori'),
+        backgroundColor: const Color(0xFF0891B2),
       ),
     );
   }

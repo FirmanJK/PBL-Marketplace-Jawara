@@ -15,6 +15,9 @@ class DashboardPopulationPage extends StatefulWidget {
 class _DashboardPopulationPageState extends State<DashboardPopulationPage> {
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+
     return BaseLayout(
       title: 'Dashboard Kependudukan',
       child: Container(
@@ -32,11 +35,11 @@ class _DashboardPopulationPageState extends State<DashboardPopulationPage> {
               const SizedBox(height: 16),
 
               // Summary Cards
-              _buildSummaryCards(),
+              _buildSummaryCards(isMobile),
               const SizedBox(height: 24),
 
               // Charts Grid
-              _buildChartsGrid(),
+              _buildChartsGrid(isMobile),
               const SizedBox(height: 16),
             ],
           ),
@@ -45,86 +48,115 @@ class _DashboardPopulationPageState extends State<DashboardPopulationPage> {
     );
   }
 
-  Widget _buildSummaryCards() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final screenWidth = MediaQuery.of(context).size.width;
-        final isMobile = screenWidth < 600;
-
-        return GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: isMobile ? 1 : 2,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
-          childAspectRatio: isMobile ? 2.2 : 2.5,
-          children: [
-            _buildSummaryCard(
+  Widget _buildSummaryCards(bool isMobile) {
+    if (isMobile) {
+      // Mobile: Stack vertically
+      return Column(
+        children: [
+          _buildSummaryCard(
+            title: 'Total Keluarga',
+            value: '10',
+            icon: Icons.family_restroom_rounded,
+            color: AppTheme.primary,
+          ),
+          const SizedBox(height: 16),
+          _buildSummaryCard(
+            title: 'Total Penduduk',
+            value: '12',
+            icon: Icons.people_alt_rounded,
+            color: AppTheme.accentGreen,
+          ),
+        ],
+      );
+    } else {
+      // Desktop: Side by side
+      return Row(
+        children: [
+          Expanded(
+            child: _buildSummaryCard(
               title: 'Total Keluarga',
               value: '10',
               icon: Icons.family_restroom_rounded,
               color: AppTheme.primary,
             ),
-            _buildSummaryCard(
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: _buildSummaryCard(
               title: 'Total Penduduk',
               value: '12',
               icon: Icons.people_alt_rounded,
               color: AppTheme.accentGreen,
             ),
-          ],
-        );
-      },
-    );
+          ),
+        ],
+      );
+    }
   }
 
-  Widget _buildChartsGrid() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final screenWidth = MediaQuery.of(context).size.width;
-        final isMobile = screenWidth < 600;
+  Widget _buildChartsGrid(bool isMobile) {
+    final charts = [
+      _buildChartCard(
+        title: 'Status Penduduk',
+        icon: Icons.toggle_on_rounded,
+        color: AppTheme.accentOrange,
+        isMobile: isMobile,
+      ),
+      _buildChartCard(
+        title: 'Jenis Kelamin',
+        icon: Icons.wc_rounded,
+        color: AppTheme.primaryLight,
+        isMobile: isMobile,
+      ),
+      _buildChartCard(
+        title: 'Pekerjaan Penduduk',
+        icon: Icons.work_rounded,
+        color: AppTheme.accentPurple,
+        isMobile: isMobile,
+      ),
+      _buildChartCard(
+        title: 'Peran dalam Keluarga',
+        icon: Icons.group_work_rounded,
+        color: AppTheme.secondary,
+        isMobile: isMobile,
+      ),
+      _buildChartCard(
+        title: 'Agama',
+        icon: Icons.mosque_rounded,
+        color: Colors.pink.shade400,
+        isMobile: isMobile,
+      ),
+      _buildChartCard(
+        title: 'Pendidikan',
+        icon: Icons.school_rounded,
+        color: Colors.teal.shade400,
+        isMobile: isMobile,
+      ),
+    ];
 
-        return GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: isMobile ? 1 : 2,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
-          childAspectRatio: isMobile ? 0.95 : 1.0,
-          children: [
-            _buildChartCard(
-              title: 'Status Penduduk',
-              icon: Icons.toggle_on_rounded,
-              color: AppTheme.accentOrange,
-            ),
-            _buildChartCard(
-              title: 'Jenis Kelamin',
-              icon: Icons.wc_rounded,
-              color: AppTheme.primaryLight,
-            ),
-            _buildChartCard(
-              title: 'Pekerjaan Penduduk',
-              icon: Icons.work_rounded,
-              color: AppTheme.accentPurple,
-            ),
-            _buildChartCard(
-              title: 'Peran dalam Keluarga',
-              icon: Icons.group_work_rounded,
-              color: AppTheme.secondary,
-            ),
-            _buildChartCard(
-              title: 'Agama',
-              icon: Icons.mosque_rounded,
-              color: Colors.pink.shade400,
-            ),
-            _buildChartCard(
-              title: 'Pendidikan',
-              icon: Icons.school_rounded,
-              color: Colors.teal.shade400,
-            ),
-          ],
-        );
-      },
-    );
+    if (isMobile) {
+      // Mobile: Stack vertically
+      return Column(
+        children: charts.map((chart) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: chart,
+          );
+        }).toList(),
+      );
+    } else {
+      // Desktop: 2 columns grid
+      return Wrap(
+        spacing: 16,
+        runSpacing: 16,
+        children: charts.map((chart) {
+          return SizedBox(
+            width: (MediaQuery.of(context).size.width - 64) / 2,
+            child: chart,
+          );
+        }).toList(),
+      );
+    }
   }
 
   // Helper Widget for Summary Cards
@@ -156,10 +188,8 @@ class _DashboardPopulationPageState extends State<DashboardPopulationPage> {
     required String title,
     required IconData icon,
     required Color color,
+    required bool isMobile,
   }) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 600;
-
     return SharedCard(
       title: title,
       icon: icon,
