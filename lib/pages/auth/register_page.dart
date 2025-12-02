@@ -1,9 +1,188 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/shared/button.dart';
-import 'package:jawara/shared/input.dart';
+import 'package:jawara/services/auth_service.dart';
+import 'package:jawara/utils/toast_helper.dart';
 
-class RegisterPage extends StatelessWidget {
+class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
+
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  // Form Controllers
+  late TextEditingController nameController;
+  late TextEditingController usernameController;
+  late TextEditingController emailController;
+  late TextEditingController nikController;
+  late TextEditingController phoneController;
+  late TextEditingController passwordController;
+  late TextEditingController passwordConfirmController;
+  late TextEditingController birthPlaceController;
+
+  // Form State
+  String? selectedGender;
+  DateTime? selectedBirthDate;
+  bool isLoading = false;
+  final formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController();
+    usernameController = TextEditingController();
+    emailController = TextEditingController();
+    nikController = TextEditingController();
+    phoneController = TextEditingController();
+    passwordController = TextEditingController();
+    passwordConfirmController = TextEditingController();
+    birthPlaceController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    usernameController.dispose();
+    emailController.dispose();
+    nikController.dispose();
+    phoneController.dispose();
+    passwordController.dispose();
+    passwordConfirmController.dispose();
+    birthPlaceController.dispose();
+    super.dispose();
+  }
+
+  // Validation methods
+  String? validateEmail(String? value) {
+    if (value?.isEmpty ?? true) {
+      return 'Email tidak boleh kosong';
+    }
+    if (!value!.contains('@')) {
+      return 'Format email tidak valid';
+    }
+    return null;
+  }
+
+  String? validatePassword(String? value) {
+    if (value?.isEmpty ?? true) {
+      return 'Password tidak boleh kosong';
+    }
+    if (value!.length < 6) {
+      return 'Password minimal 6 karakter';
+    }
+    return null;
+  }
+
+  String? validateNIK(String? value) {
+    if (value?.isEmpty ?? true) {
+      return 'NIK tidak boleh kosong';
+    }
+    if (value!.length != 16) {
+      return 'NIK harus 16 digit';
+    }
+    if (!value.isNumericOnly()) {
+      return 'NIK hanya boleh berisi angka';
+    }
+    return null;
+  }
+
+  String? validatePasswordMatch(String? value) {
+    if (value?.isEmpty ?? true) {
+      return 'Konfirmasi password tidak boleh kosong';
+    }
+    if (value != passwordController.text) {
+      return 'Password tidak cocok';
+    }
+    return null;
+  }
+
+  // Pick birth date
+  Future<void> _pickBirthDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2000),
+      firstDate: DateTime(1930),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      setState(() {
+        selectedBirthDate = picked;
+      });
+    }
+  }
+
+  // Handle register
+  Future<void> _handleRegister() async {
+    if (!formKey.currentState!.validate()) {
+      ToastHelper.showError(context, 'Silakan lengkapi semua field');
+      return;
+    }
+
+    if (selectedGender == null) {
+      ToastHelper.showError(context, 'Pilih jenis kelamin');
+      return;
+    }
+
+    if (selectedBirthDate == null) {
+      ToastHelper.showError(context, 'Pilih tanggal lahir');
+      return;
+    }
+
+    // Check age >= 17
+    final today = DateTime.now();
+    final age =
+        today.year -
+        selectedBirthDate!.year -
+        ((today.month < selectedBirthDate!.month ||
+                (today.month == selectedBirthDate!.month &&
+                    today.day < selectedBirthDate!.day))
+            ? 1
+            : 0);
+
+    if (age < 17) {
+      ToastHelper.showError(context, 'Usia minimal 17 tahun untuk registrasi');
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      await AuthService().register(
+        name: nameController.text.trim(),
+        username: usernameController.text.trim(),
+        email: emailController.text.trim(),
+        password: passwordController.text,
+        passwordConfirm: passwordConfirmController.text,
+        nik: nikController.text.trim(),
+        gender: selectedGender!,
+        birthDate: selectedBirthDate!,
+        phone: phoneController.text.trim().isEmpty
+            ? null
+            : phoneController.text.trim(),
+        birthPlace: birthPlaceController.text.trim().isEmpty
+            ? null
+            : birthPlaceController.text.trim(),
+      );
+
+      if (mounted) {
+        ToastHelper.showSuccess(context, 'Akun berhasil dibuat! 🎉');
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+      }
+    } catch (e) {
+      if (mounted) {
+        String errorMessage = 'Gagal membuat akun';
+        if (e.toString().contains('detail')) {
+          errorMessage = e.toString().replaceAll('Exception:', '').trim();
+        }
+        ToastHelper.showError(context, errorMessage);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,283 +268,265 @@ class RegisterPage extends StatelessWidget {
                             ),
                           ],
                         ),
-                        child: Column(
-                          children: [
-                            const Text(
-                              'Daftar Akun Baru 🎉',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF1F2937),
+                        child: Form(
+                          key: formKey,
+                          child: Column(
+                            children: [
+                              const Text(
+                                'Daftar Akun Baru 🎉',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1F2937),
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Lengkapi formulir untuk membuat akun',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
+                              const SizedBox(height: 8),
+                              Text(
+                                'Lengkapi formulir untuk membuat akun',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 32),
+                              const SizedBox(height: 32),
 
-                            isWideScreen
-                                ? Column(
-                                    children: [
-                                      _buildTwoColumnRow(
-                                        context,
-                                        const CustomInputField(
+                              isWideScreen
+                                  ? Column(
+                                      children: [
+                                        // Identitas Pribadi
+                                        _buildTextFormField(
                                           label: 'Nama Lengkap',
                                           hintText: 'Masukkan nama lengkap',
+                                          controller: nameController,
+                                          validator: (v) => (v?.isEmpty ?? true)
+                                              ? 'Nama tidak boleh kosong'
+                                              : null,
+                                          prefixIcon: Icons.person_outline,
                                         ),
-                                        const CustomInputField(
+                                        const SizedBox(height: 20),
+                                        _buildTwoColumnRow(
+                                          context,
+                                          _buildTextFormField(
+                                            label: 'NIK',
+                                            hintText: 'Masukkan NIK sesuai KTP',
+                                            controller: nikController,
+                                            inputType: TextInputType.number,
+                                            validator: validateNIK,
+                                            prefixIcon:
+                                                Icons.perm_identity_rounded,
+                                          ),
+                                          _buildGenderDropdown(),
+                                        ),
+                                        const SizedBox(height: 20),
+                                        _buildTwoColumnRow(
+                                          context,
+                                          _buildBirthDatePicker(),
+                                          _buildTextFormField(
+                                            label: 'Tempat Lahir',
+                                            hintText: 'Kota/Kabupaten',
+                                            controller: birthPlaceController,
+                                            prefixIcon:
+                                                Icons.location_on_outlined,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 20),
+                                        // Kontak
+                                        _buildTwoColumnRow(
+                                          context,
+                                          _buildTextFormField(
+                                            label: 'Email',
+                                            hintText: 'Masukkan email aktif',
+                                            controller: emailController,
+                                            inputType:
+                                                TextInputType.emailAddress,
+                                            validator: validateEmail,
+                                            prefixIcon: Icons.email_outlined,
+                                          ),
+                                          _buildTextFormField(
+                                            label: 'No Telepon',
+                                            hintText: '08xxxxxxxxx',
+                                            controller: phoneController,
+                                            inputType: TextInputType.phone,
+                                            prefixIcon:
+                                                Icons.phone_android_rounded,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 20),
+                                        // Akun
+                                        _buildTextFormField(
+                                          label: 'Username',
+                                          hintText: 'Username (3+ karakter)',
+                                          controller: usernameController,
+                                          validator: (v) {
+                                            if (v?.isEmpty ?? true)
+                                              return 'Username tidak boleh kosong';
+                                            if (v!.length < 3)
+                                              return 'Username minimal 3 karakter';
+                                            return null;
+                                          },
+                                          prefixIcon:
+                                              Icons.account_circle_outlined,
+                                        ),
+                                        const SizedBox(height: 20),
+                                        _buildTwoColumnRow(
+                                          context,
+                                          _buildTextFormField(
+                                            label: 'Password',
+                                            hintText:
+                                                'Masukkan password (6+ karakter)',
+                                            controller: passwordController,
+                                            isPassword: true,
+                                            validator: validatePassword,
+                                            prefixIcon: Icons.lock_outline,
+                                          ),
+                                          _buildTextFormField(
+                                            label: 'Konfirmasi Password',
+                                            hintText: 'Masukkan ulang password',
+                                            controller:
+                                                passwordConfirmController,
+                                            isPassword: true,
+                                            validator: validatePasswordMatch,
+                                            prefixIcon: Icons.lock_outline,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : Column(
+                                      children: [
+                                        _buildTextFormField(
+                                          label: 'Nama Lengkap',
+                                          hintText: 'Masukkan nama lengkap',
+                                          controller: nameController,
+                                          validator: (v) => (v?.isEmpty ?? true)
+                                              ? 'Nama tidak boleh kosong'
+                                              : null,
+                                          prefixIcon: Icons.person_outline,
+                                        ),
+                                        const SizedBox(height: 20),
+                                        _buildTextFormField(
                                           label: 'NIK',
                                           hintText: 'Masukkan NIK sesuai KTP',
+                                          controller: nikController,
+                                          inputType: TextInputType.number,
+                                          validator: validateNIK,
                                           prefixIcon:
                                               Icons.perm_identity_rounded,
                                         ),
-                                      ),
-                                      const SizedBox(height: 20),
-                                      _buildTwoColumnRow(
-                                        context,
-                                        const CustomInputField(
+                                        const SizedBox(height: 20),
+                                        _buildGenderDropdown(),
+                                        const SizedBox(height: 20),
+                                        _buildBirthDatePicker(),
+                                        const SizedBox(height: 20),
+                                        _buildTextFormField(
+                                          label: 'Tempat Lahir',
+                                          hintText: 'Kota/Kabupaten',
+                                          controller: birthPlaceController,
+                                          prefixIcon:
+                                              Icons.location_on_outlined,
+                                        ),
+                                        const SizedBox(height: 20),
+                                        _buildTextFormField(
                                           label: 'Email',
                                           hintText: 'Masukkan email aktif',
+                                          controller: emailController,
+                                          inputType: TextInputType.emailAddress,
+                                          validator: validateEmail,
                                           prefixIcon: Icons.email_outlined,
                                         ),
-                                        const CustomInputField(
+                                        const SizedBox(height: 20),
+                                        _buildTextFormField(
                                           label: 'No Telepon',
                                           hintText: '08xxxxxxxxx',
+                                          controller: phoneController,
+                                          inputType: TextInputType.phone,
                                           prefixIcon:
                                               Icons.phone_android_rounded,
-                                          inputType: TextInputType.phone,
                                         ),
-                                      ),
-                                      const SizedBox(height: 20),
-                                      _buildTwoColumnRow(
-                                        context,
-                                        const CustomInputField(
+                                        const SizedBox(height: 20),
+                                        _buildTextFormField(
+                                          label: 'Username',
+                                          hintText: 'Username (3+ karakter)',
+                                          controller: usernameController,
+                                          validator: (v) {
+                                            if (v?.isEmpty ?? true)
+                                              return 'Username tidak boleh kosong';
+                                            if (v!.length < 3)
+                                              return 'Username minimal 3 karakter';
+                                            return null;
+                                          },
+                                          prefixIcon:
+                                              Icons.account_circle_outlined,
+                                        ),
+                                        const SizedBox(height: 20),
+                                        _buildTextFormField(
                                           label: 'Password',
-                                          hintText: 'Masukkan password',
+                                          hintText:
+                                              'Masukkan password (6+ karakter)',
+                                          controller: passwordController,
                                           isPassword: true,
+                                          validator: validatePassword,
                                           prefixIcon: Icons.lock_outline,
                                         ),
-                                        const CustomInputField(
+                                        const SizedBox(height: 20),
+                                        _buildTextFormField(
                                           label: 'Konfirmasi Password',
                                           hintText: 'Masukkan ulang password',
+                                          controller: passwordConfirmController,
                                           isPassword: true,
+                                          validator: validatePasswordMatch,
                                           prefixIcon: Icons.lock_outline,
                                         ),
-                                      ),
-                                      const SizedBox(height: 20),
-                                      _buildTwoColumnRow(
-                                        context,
-                                        _buildGenderDropdown(),
-                                        _buildExistingHomeDropdown(),
-                                      ),
-                                    ],
-                                  )
-                                : Column(
-                                    children: [
-                                      const CustomInputField(
-                                        label: 'Nama Lengkap',
-                                        hintText: 'Masukkan nama lengkap',
-                                      ),
-                                      const SizedBox(height: 20),
-                                      const CustomInputField(
-                                        label: 'NIK',
-                                        hintText: 'Masukkan NIK sesuai KTP',
-                                        prefixIcon: Icons.perm_identity_rounded,
-                                      ),
-                                      const SizedBox(height: 20),
-                                      const CustomInputField(
-                                        label: 'Email',
-                                        hintText: 'Masukkan email aktif',
-                                        prefixIcon: Icons.email_outlined,
-                                      ),
-                                      const SizedBox(height: 20),
-                                      const CustomInputField(
-                                        label: 'No Telepon',
-                                        hintText: '08xxxxxxxxx',
-                                        prefixIcon: Icons.phone_android_rounded,
-                                        inputType: TextInputType.phone,
-                                      ),
-                                      const SizedBox(height: 20),
-                                      const CustomInputField(
-                                        label: 'Password',
-                                        hintText: 'Masukkan password',
-                                        isPassword: true,
-                                        prefixIcon: Icons.lock_outline,
-                                      ),
-                                      const SizedBox(height: 20),
-                                      const CustomInputField(
-                                        label: 'Konfirmasi Password',
-                                        hintText: 'Masukkan ulang password',
-                                        isPassword: true,
-                                        prefixIcon: Icons.lock_outline,
-                                      ),
-                                      const SizedBox(height: 20),
-                                      _buildGenderDropdown(),
-                                      const SizedBox(height: 20),
-                                      _buildExistingHomeDropdown(),
-                                    ],
-                                  ),
-
-                            const SizedBox(height: 20),
-                            const CustomInputField(
-                              label: 'Alamat Rumah (Jika Tidak Ada di List)',
-                              hintText: 'Blok 5A / No.10',
-                            ),
-                            const SizedBox(height: 20),
-                            _buildHomeOwnershipDropdown(),
-                            const SizedBox(height: 20),
-
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Foto Identitas',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                    color: Color(0xFF1F2937),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 20,
-                                    horizontal: 16,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[50],
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: Colors.grey[200]!,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(
-                                        Icons.cloud_upload_outlined,
-                                        color: Color(0xFF06B6D4),
-                                        size: 30,
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'Upload foto KK/KTP (.png/.jpg)',
-                                        style: TextStyle(
-                                          color: Colors.grey[600],
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      CustomButton(
-                                        text: 'Pilih File',
-                                        onPressed: () {
-                                          debugPrint('Pilih File Identitas');
-                                        },
-                                        isOutlined: true,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 32),
-
-                            // Tombol Buat Akun
-                            CustomButton(
-                              text: 'Buat Akun',
-                              icon: Icons.check_circle_outline_rounded,
-                              onPressed: () {
-                                // Tampilkan dialog sukses
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    title: const Row(
-                                      children: [
-                                        Icon(
-                                          Icons.check_circle_rounded,
-                                          color: Color(0xFF10B981),
-                                          size: 28,
-                                        ),
-                                        SizedBox(width: 12),
-                                        Text('Berhasil!'),
                                       ],
                                     ),
-                                    content: const Text(
-                                      'Akun Anda berhasil dibuat. Silakan login untuk melanjutkan.',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                          Navigator.pushNamedAndRemoveUntil(
-                                            context,
-                                            '/login',
-                                            (route) => false,
-                                          );
-                                        },
-                                        child: const Text(
-                                          'OK',
-                                          style: TextStyle(
-                                            color: Color(0xFF06B6D4),
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
 
-                            const SizedBox(height: 24),
+                              const SizedBox(height: 32),
+                              // Tombol Buat Akun
+                              CustomButton(
+                                text: isLoading ? 'Mendaftar...' : 'Buat Akun',
+                                icon: Icons.check_circle_outline_rounded,
+                                onPressed: isLoading
+                                    ? () {}
+                                    : () => _handleRegister(),
+                              ),
 
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Sudah punya akun? ',
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    // Coba pop dulu, kalau tidak bisa maka push ke login
-                                    if (Navigator.canPop(context)) {
-                                      Navigator.pop(context);
-                                    } else {
-                                      Navigator.pushReplacementNamed(
-                                        context,
-                                        '/login',
-                                      );
-                                    }
-                                  },
-                                  child: const Text(
-                                    'Masuk',
+                              const SizedBox(height: 24),
+
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Sudah punya akun? ',
                                     style: TextStyle(
-                                      color: Color(0xFF06B6D4),
-                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey[600],
                                       fontSize: 14,
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                  GestureDetector(
+                                    onTap: () {
+                                      if (Navigator.canPop(context)) {
+                                        Navigator.pop(context);
+                                      } else {
+                                        Navigator.pushReplacementNamed(
+                                          context,
+                                          '/login',
+                                        );
+                                      }
+                                    },
+                                    child: const Text(
+                                      'Masuk',
+                                      style: TextStyle(
+                                        color: Color(0xFF06B6D4),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
 
@@ -391,13 +552,61 @@ class RegisterPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTwoColumnRow(BuildContext context, Widget left, Widget right) {
-    return Row(
+  // Helper to build TextFormField
+  Widget _buildTextFormField({
+    required String label,
+    required String hintText,
+    required TextEditingController controller,
+    TextInputType inputType = TextInputType.text,
+    bool isPassword = false,
+    IconData? prefixIcon,
+    String? Function(String?)? validator,
+  }) {
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(child: left),
-        const SizedBox(width: 20),
-        Expanded(child: right),
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: Color(0xFF1F2937),
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          keyboardType: inputType,
+          obscureText: isPassword,
+          validator: validator,
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+            prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 16,
+              horizontal: 20,
+            ),
+            filled: true,
+            fillColor: Colors.grey[50],
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: Colors.grey[200]!, width: 1.5),
+            ),
+            focusedBorder: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+              borderSide: BorderSide(color: Color(0xFF06B6D4), width: 2),
+            ),
+            errorBorder: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+              borderSide: BorderSide(color: Color(0xFFEF4444), width: 2),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -416,9 +625,11 @@ class RegisterPage extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
+          value: selectedGender,
           decoration: InputDecoration(
             hintText: '-- Pilih Jenis Kelamin --',
             hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+            prefixIcon: Icon(Icons.wc_outlined, color: Colors.grey[600]),
             contentPadding: const EdgeInsets.symmetric(
               vertical: 16,
               horizontal: 20,
@@ -442,19 +653,21 @@ class RegisterPage extends StatelessWidget {
             return DropdownMenuItem<String>(value: value, child: Text(value));
           }).toList(),
           onChanged: (String? newValue) {
-            debugPrint('Jenis Kelamin dipilih: $newValue');
+            setState(() {
+              selectedGender = newValue;
+            });
           },
         ),
       ],
     );
   }
 
-  Widget _buildExistingHomeDropdown() {
+  Widget _buildBirthDatePicker() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Pilih Rumah yang Sudah Ada',
+          'Tanggal Lahir',
           style: TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 14,
@@ -462,92 +675,54 @@ class RegisterPage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          decoration: InputDecoration(
-            hintText: '-- Pilih Rumah --',
-            hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 16,
-              horizontal: 20,
-            ),
-            filled: true,
-            fillColor: Colors.grey[50],
-            border: OutlineInputBorder(
+        GestureDetector(
+          onTap: _pickBirthDate,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
+              border: Border.all(color: Colors.grey[200]!, width: 1.5),
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.grey[200]!, width: 1.5),
-            ),
-            focusedBorder: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(16)),
-              borderSide: BorderSide(color: Color(0xFF06B6D4), width: 2),
+            child: Row(
+              children: [
+                const Icon(Icons.calendar_today, color: Color(0xFF06B6D4)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    selectedBirthDate != null
+                        ? '${selectedBirthDate!.day}/${selectedBirthDate!.month}/${selectedBirthDate!.year}'
+                        : 'Pilih tanggal lahir',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: selectedBirthDate != null
+                          ? Colors.black
+                          : Colors.grey[400],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          items: ['Blok A/1', 'Blok B/2', 'Blok C/3'].map((String value) {
-            return DropdownMenuItem<String>(value: value, child: Text(value));
-          }).toList(),
-          onChanged: (String? newValue) {
-            debugPrint('Rumah dipilih: $newValue');
-          },
-          validator: (value) {
-            return null;
-          },
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Kalau tidak ada di daftar, silakan isi alamat rumah di bawah ini',
-          style: TextStyle(color: Colors.grey[600], fontSize: 12),
         ),
       ],
     );
   }
 
-  Widget _buildHomeOwnershipDropdown() {
-    return Column(
+  Widget _buildTwoColumnRow(BuildContext context, Widget left, Widget right) {
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Status kepemilikan rumah',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-            color: Color(0xFF1F2937),
-          ),
-        ),
-        const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          decoration: InputDecoration(
-            hintText: '-- Pilih Status --',
-            hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 16,
-              horizontal: 20,
-            ),
-            filled: true,
-            fillColor: Colors.grey[50],
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.grey[200]!, width: 1.5),
-            ),
-            focusedBorder: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(16)),
-              borderSide: BorderSide(color: Color(0xFF06B6D4), width: 2),
-            ),
-          ),
-          items: ['Milik Sendiri', 'Sewa', 'Lainnya'].map((String value) {
-            return DropdownMenuItem<String>(value: value, child: Text(value));
-          }).toList(),
-          onChanged: (String? newValue) {
-            debugPrint('Status dipilih: $newValue');
-          },
-        ),
+        Expanded(child: left),
+        const SizedBox(width: 20),
+        Expanded(child: right),
       ],
     );
+  }
+}
+
+extension StringExtension on String {
+  bool isNumericOnly() {
+    return this == '' ? false : !this.contains(RegExp(r'[^0-9]'));
   }
 }
