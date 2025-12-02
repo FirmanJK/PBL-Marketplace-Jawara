@@ -52,13 +52,6 @@ class _FamilyMutationsListPageState extends State<FamilyMutationsListPage> {
     return Scaffold(
       appBar: StandardAppBar(
         title: 'Daftar Mutasi Keluarga',
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: () {},
-            tooltip: 'Filter',
-          ),
-        ],
       ),
       body: Column(
         children: [

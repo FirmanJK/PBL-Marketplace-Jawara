@@ -77,13 +77,6 @@ class _BroadcastListPageState extends State<BroadcastListPage> {
     return Scaffold(
       appBar: StandardAppBar(
         title: 'Daftar Broadcast',
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: () {},
-            tooltip: 'Filter',
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -135,11 +128,9 @@ class _BroadcastListPageState extends State<BroadcastListPage> {
                         ),
                       ],
                     ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.more_vert),
-                      onPressed: () {},
-                    ),
-                    onTap: () {},
+                    onTap: () {
+                      // TODO: Navigate to broadcast detail page
+                    },
                   ),
                 );
               },

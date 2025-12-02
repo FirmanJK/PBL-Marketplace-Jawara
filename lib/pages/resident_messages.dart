@@ -84,13 +84,6 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
     return Scaffold(
       appBar: StandardAppBar(
         title: 'Pesan Warga',
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: () {},
-            tooltip: 'Filter',
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -144,11 +137,9 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
                         _buildStatusChip(message.status),
                       ],
                     ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.more_vert),
-                      onPressed: () {},
-                    ),
-                    onTap: () {},
+                    onTap: () {
+                      // TODO: Navigate to message detail page
+                    },
                   ),
                 );
               },

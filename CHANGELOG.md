@@ -1,79 +1,119 @@
 # Changelog
 
-## [Unreleased] - 2025-01-XX
+All notable changes to the JAWARA project will be documented in this file.
 
-### Changed - UI/UX Improvements
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-- **Mengubah semua tabel menjadi Grid View / List View** untuk pengalaman pengguna yang lebih baik dan responsif
+## [1.0.0] - 2025-12-02
 
-#### Fitur yang Diubah:
+### Added
 
-1. **Data Warga dan Rumah**
+- ✨ Implementasi lengkap manajemen data warga
+- ✨ Sistem manajemen keluarga dan rumah
+- ✨ Fitur mutasi warga (masuk/keluar)
+- ✨ Sistem persetujuan warga baru
+- ✨ Manajemen keuangan (pemasukan & pengeluaran)
+- ✨ Marketplace warga dengan fitur lengkap
+- ✨ Keranjang belanja untuk multiple items
+- ✨ Multiple metode pengiriman (Reguler & Instan)
+- ✨ Multiple metode pembayaran (Transfer Bank & QRIS)
+- ✨ Halaman pembayaran dengan instruksi lengkap
+- ✨ Dashboard aktivitas, keuangan, dan populasi
+- ✨ Grafik dan visualisasi data dengan fl_chart
+- ✨ Laporan PDF untuk pemasukan dan pengeluaran
+- ✨ Fitur cetak laporan
+- ✨ Saluran komunikasi untuk broadcast informasi
+- ✨ Sistem notifikasi push
+- ✨ Autentikasi biometric (fingerprint/face ID)
+- ✨ Multi-role system (Admin, Ketua RT, Bendahara, Warga)
+- ✨ Manajemen user dan role
 
-   - ✅ Daftar Warga (`residents_list.dart`) - Diubah dari Grid View ke List View (lebih menarik)
-   - ✅ Daftar Rumah (`houses_list.dart`) - Diubah dari tabel ke Grid View
-   - ✅ Data Keluarga (`families_page.dart`) - Sudah menggunakan Grid View
+### Fixed
 
-2. **Pemasukan**
+- 🐛 Stack overflow pada edit pemasukan (dropdown)
+- 🐛 RenderFlex overflow pada jenis pemasukan
+- 🐛 Error pada cart service method getQuantity()
+- 🐛 Unused imports di marketplace pages
+- 🐛 Dialog edit pemasukan tidak konsisten
 
-   - ✅ Tagihan (`income_bills.dart`) - Diubah dari tabel ke List View
-   - ✅ Kategori Iuran (`income_categories.dart`) - Diubah dari tabel ke List View
-   - ✅ Pemasukan Lain (`income_other_list.dart`) - Diubah dari tabel ke List View
+### Changed
 
-3. **Pengeluaran**
+- 🔄 Edit pemasukan menggunakan dialog (bukan halaman baru)
+- 🔄 Nama jenis pemasukan disingkat untuk menghindari overflow
+- 🔄 Katalog produk: klik langsung ke detail (tanpa dropdown)
+- 🔄 Detail produk: menu edit/hapus di dropdown
+- 🔄 Halaman pembayaran dengan tampilan lebih informatif
 
-   - ✅ Daftar Pengeluaran (`spending_list.dart`) - Diubah dari tabel ke List View
+### Improved
 
-4. **Laporan Keuangan**
+- ⚡ Performa cart service dengan try-catch
+- ⚡ Layout dialog edit dengan constraints yang tepat
+- ⚡ Dropdown dengan isExpanded untuk menghindari overflow
+- ⚡ Navigasi marketplace lebih intuitif
 
-   - ✅ Laporan Pemasukan (`reports_income.dart`) - Diubah dari tabel ke List View
-   - ✅ Laporan Pengeluaran (`reports_spending.dart`) - Diubah dari tabel ke List View
+## [0.9.0] - 2025-11-30
 
-5. **Kegiatan & Broadcast**
+### Added
 
-   - ✅ Daftar Kegiatan (`activities_list.dart`) - Diubah dari tabel ke List View
-   - ✅ Daftar Broadcast (`broadcast_list.dart`) - Diubah dari tabel ke List View
+- Initial project setup
+- Basic authentication system
+- Dashboard skeleton
+- Data models
 
-6. **Pesan Warga**
+### In Progress
 
-   - ✅ Semua Pesan (`resident_messages.dart`) - Diubah dari tabel ke List View
-   - ✅ Aspirasi - Terintegrasi dalam pesan warga
+- Marketplace features
+- Report generation
+- Notification system
 
-7. **Penerimaan Warga**
+---
 
-   - ✅ Daftar Permohonan (`resident_approvals.dart`) - Diubah dari tabel ke List View
+## Upcoming Features
 
-8. **Mutasi Keluarga**
+### [1.1.0] - Planned
 
-   - ✅ Daftar Mutasi (`family_mutations_list.dart`) - Diubah dari tabel ke List View
+- [ ] Chat antar warga
+- [ ] Voting online untuk keputusan RT
+- [ ] Jadwal kegiatan RT/RW
+- [ ] Absensi kegiatan
+- [ ] Integrasi payment gateway
+- [ ] Dark mode
+- [ ] Multi-language support
 
-9. **Log Aktivitas**
+### [1.2.0] - Planned
 
-   - ✅ Daftar Log (`activity_logs_page.dart`) - Diubah dari tabel ke List View
+- [ ] Backup & restore data
+- [ ] Export data ke Excel
+- [ ] Statistik lanjutan
+- [ ] Mobile app optimization
+- [ ] Offline mode
 
-10. **Manajemen Pengguna**
+---
 
-    - ✅ Daftar Pengguna (`user_management.dart`) - Diubah dari tabel ke List View
+## Bug Fixes History
 
-11. **Channel Transfer**
-    - ✅ Daftar Channel (`channels_list.dart`) - Diubah dari tabel ke List View
+### Critical Fixes
 
-### Keuntungan Perubahan:
+- **Stack Overflow**: Fixed dropdown overflow dengan menyingkat text dan menggunakan isExpanded
+- **Cart Service**: Fixed getQuantity() error dengan try-catch
+- **Navigation**: Fixed marketplace navigation flow
 
-- ✨ Tampilan lebih modern dan menarik
-- 📱 Lebih responsif di berbagai ukuran layar
-- 🎨 Konsistensi desain di seluruh aplikasi
-- 🔍 Fitur pencarian terintegrasi di setiap halaman
-- ➕ Floating Action Button untuk aksi tambah data
-- 🎯 Interaksi yang lebih intuitif dengan card-based design
-- 🏷️ Status chip yang lebih jelas dan mudah dibaca
-- 🔄 Pull-to-refresh untuk memuat ulang data
+### Minor Fixes
 
-### Technical Details:
+- Removed unused imports
+- Fixed deprecated warnings
+- Improved error handling
 
-- Menggunakan `StandardAppBar` untuk konsistensi header
-- Menggunakan `ResponsiveGridView` untuk daftar warga dan rumah
-- Menggunakan `ListView.builder` dengan Card untuk data list
-- Menghapus dependency pada `CustomDataTable`
-- Menambahkan search bar di setiap halaman list
-- Menambahkan floating action button untuk aksi tambah
+---
+
+## Contributors
+
+- Ahmad Dzul Fadhli Hannan (2341720123)
+- Gilang Purnomo (2341720042)
+- Mochammad Firmandika Jati Kusuma (2341720229)
+- Raffi Abiyyu Airlangga (2341720115)
+
+---
+
+For more details, see the [README.md](README.md)

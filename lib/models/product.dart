@@ -6,6 +6,9 @@ class Product {
   final String imageUrl;
   final DateTime createdAt;
   final int userId;
+  final int stock;
+  final String? sellerName;
+  final String? sellerPhone;
 
   const Product({
     required this.id,
@@ -15,6 +18,9 @@ class Product {
     required this.imageUrl,
     required this.createdAt,
     required this.userId,
+    this.stock = 99,
+    this.sellerName,
+    this.sellerPhone,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -26,6 +32,9 @@ class Product {
       imageUrl: json['image_url'] as String,
       createdAt: DateTime.parse(json['created_at'] as String),
       userId: json['user_id'] as int,
+      stock: json['stock'] as int? ?? 99,
+      sellerName: json['seller_name'] as String?,
+      sellerPhone: json['seller_phone'] as String?,
     );
   }
 
@@ -38,6 +47,9 @@ class Product {
       'image_url': imageUrl,
       'created_at': createdAt.toIso8601String(),
       'user_id': userId,
+      'stock': stock,
+      'seller_name': sellerName,
+      'seller_phone': sellerPhone,
     };
   }
 
@@ -49,6 +61,9 @@ class Product {
     String? imageUrl,
     DateTime? createdAt,
     int? userId,
+    int? stock,
+    String? sellerName,
+    String? sellerPhone,
   }) {
     return Product(
       id: id ?? this.id,
@@ -58,6 +73,9 @@ class Product {
       imageUrl: imageUrl ?? this.imageUrl,
       createdAt: createdAt ?? this.createdAt,
       userId: userId ?? this.userId,
+      stock: stock ?? this.stock,
+      sellerName: sellerName ?? this.sellerName,
+      sellerPhone: sellerPhone ?? this.sellerPhone,
     );
   }
 }

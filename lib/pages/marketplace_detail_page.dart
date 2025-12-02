@@ -1,14 +1,109 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/models/product.dart';
+import 'package:jawara/pages/marketplace_checkout_page.dart';
+import 'package:jawara/pages/marketplace_edit_page.dart';
+import 'package:jawara/pages/marketplace_cart_page.dart';
+import 'package:jawara/data/products.dart';
+import 'package:jawara/services/cart_service.dart';
 import 'package:intl/intl.dart';
 
-class MarketplaceDetailPage extends StatelessWidget {
+class MarketplaceDetailPage extends StatefulWidget {
   final Product product;
 
   const MarketplaceDetailPage({
     super.key,
     required this.product,
   });
+
+  @override
+  State<MarketplaceDetailPage> createState() => _MarketplaceDetailPageState();
+}
+
+class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
+  final CartService _cartService = CartService();
+
+  void _addToCart() {
+    _cartService.addToCart(widget.product);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${widget.product.name} ditambahkan ke keranjang'),
+        backgroundColor: const Color(0xFF10B981),
+        action: SnackBarAction(
+          label: 'Lihat',
+          textColor: Colors.white,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MarketplaceCartPage(),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _editProduct() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MarketplaceEditPage(product: widget.product),
+      ),
+    );
+    
+    if (result == true && mounted) {
+      Navigator.pop(context, true);
+    }
+  }
+
+  void _confirmDelete() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Konfirmasi Hapus'),
+        content: Text('Apakah Anda yakin ingin menghapus "${widget.product.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _deleteProduct();
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteProduct() async {
+    try {
+      await ProductService.deleteProduct(widget.product.id);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Produk berhasil dihapus'),
+            backgroundColor: Color(0xFF10B981),
+          ),
+        );
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal menghapus produk: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +113,87 @@ class MarketplaceDetailPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detail Produk'),
+        actions: [
+          // Cart Icon with Badge
+          ListenableBuilder(
+            listenable: _cartService,
+            builder: (context, child) {
+              return Stack(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MarketplaceCartPage(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.shopping_cart_outlined),
+                  ),
+                  if (_cartService.itemCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          '${_cartService.itemCount}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            offset: const Offset(0, 50),
+            onSelected: (value) {
+              if (value == 'edit') {
+                _editProduct();
+              } else if (value == 'delete') {
+                _confirmDelete();
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem<String>(
+                value: 'edit',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit, color: Color(0xFF0891B2), size: 20),
+                    SizedBox(width: 12),
+                    Text('Edit'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red, size: 20),
+                    SizedBox(width: 12),
+                    Text('Hapus', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -28,9 +204,9 @@ class MarketplaceDetailPage extends StatelessWidget {
               width: double.infinity,
               height: 300,
               color: Colors.grey[200],
-              child: product.imageUrl.startsWith('http')
+              child: widget.product.imageUrl.startsWith('http')
                   ? Image.network(
-                      product.imageUrl,
+                      widget.product.imageUrl,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return const Center(
@@ -51,7 +227,7 @@ class MarketplaceDetailPage extends StatelessWidget {
                 children: [
                   // Name
                   Text(
-                    product.name,
+                    widget.product.name,
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -67,7 +243,7 @@ class MarketplaceDetailPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      currencyFormat.format(product.price),
+                      currencyFormat.format(widget.product.price),
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -93,7 +269,7 @@ class MarketplaceDetailPage extends StatelessWidget {
 
                   // Description
                   Text(
-                    product.description,
+                    widget.product.description,
                     style: const TextStyle(
                       fontSize: 14,
                       height: 1.5,
@@ -107,7 +283,7 @@ class MarketplaceDetailPage extends StatelessWidget {
                       Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
                       const SizedBox(width: 4),
                       Text(
-                        'Diunggah: ${dateFormat.format(product.createdAt)}',
+                        'Diunggah: ${dateFormat.format(widget.product.createdAt)}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey[600],
@@ -116,6 +292,61 @@ class MarketplaceDetailPage extends StatelessWidget {
                     ],
                   ),
                 ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 4,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _addToCart,
+                icon: const Icon(Icons.add_shopping_cart),
+                label: const Text('Keranjang'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF0891B2),
+                  side: const BorderSide(color: Color(0xFF0891B2)),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 2,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MarketplaceCheckoutPage(product: widget.product),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.shopping_bag),
+                label: const Text('Beli Sekarang'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0891B2),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
             ),
           ],

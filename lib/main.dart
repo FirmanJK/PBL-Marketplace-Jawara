@@ -45,6 +45,7 @@ import 'package:jawara/pages/marketplace_page.dart';
 import 'package:jawara/shared/theme.dart';
 import 'package:jawara/services/notification_service.dart';
 import 'package:jawara/services/database_service.dart';
+import 'package:jawara/models/resident.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,17 +53,17 @@ void main() async {
   // Initialize database service with error handling
   try {
     await DatabaseService().database;
-    print('✅ Database initialized');
+    print(' Database initialized');
   } catch (e) {
-    print('⚠️ Database initialization failed: $e');
+    print(' Database initialization failed: $e');
   }
   
   // Initialize notification service (database-only version)
   try {
     await NotificationService().initialize();
-    print('✅ Notification service initialized');
+    print(' Notification service initialized');
   } catch (e) {
-    print('⚠️ Notification service initialization failed: $e');
+    print(' Notification service initialization failed: $e');
   }
   
   runApp(const MyApp());
@@ -99,6 +100,10 @@ class MyApp extends StatelessWidget {
         // Data Warga & Rumah
         '/residents/list': (context) => const ResidentsListPage(),
         '/residents/add': (context) => const ResidentsAddPage(),
+        '/residents/edit': (context) {
+          final resident = ModalRoute.of(context)!.settings.arguments as Resident;
+          return ResidentsEditPage(resident: resident);
+        },
         '/families': (context) => const FamiliesPage(),
         '/houses/list': (context) => const HousesListPage(),
         '/houses/add': (context) => const HousesAddPage(),

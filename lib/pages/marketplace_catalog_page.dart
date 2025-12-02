@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:jawara/data/products.dart';
 import 'package:jawara/models/product.dart';
 import 'package:jawara/pages/marketplace_detail_page.dart';
-import 'package:jawara/pages/marketplace_edit_page.dart';
 import 'package:intl/intl.dart';
 
 class MarketplaceCatalogPage extends StatefulWidget {
@@ -84,104 +83,16 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
     await _loadProducts();
   }
 
-  void _showProductMenu(BuildContext context, Product product) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.visibility),
-              title: const Text('Lihat Detail'),
-              onTap: () {
-                Navigator.pop(context);
-                _viewDetail(product);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.edit),
-              title: const Text('Edit Data'),
-              onTap: () {
-                Navigator.pop(context);
-                _editProduct(product);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text('Hapus Data', style: TextStyle(color: Colors.red)),
-              onTap: () {
-                Navigator.pop(context);
-                _confirmDelete(product);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _viewDetail(Product product) {
-    Navigator.push(
+  void _viewDetail(Product product) async {
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => MarketplaceDetailPage(product: product),
       ),
     );
-  }
-
-  void _editProduct(Product product) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MarketplaceEditPage(product: product),
-      ),
-    );
     
     if (result == true) {
       _refreshProducts();
-    }
-  }
-
-  void _confirmDelete(Product product) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Konfirmasi Hapus'),
-        content: Text('Apakah Anda yakin ingin menghapus "${product.name}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _deleteProduct(product);
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Hapus'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _deleteProduct(Product product) async {
-    try {
-      await ProductService.deleteProduct(product.id);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Produk berhasil dihapus')),
-        );
-        _refreshProducts();
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menghapus produk: $e')),
-        );
-      }
     }
   }
 
@@ -237,7 +148,7 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
           final product = _products[index];
           return _ProductCard(
             product: product,
-            onMenuTap: () => _showProductMenu(context, product),
+            onTap: () => _viewDetail(product),
           );
         },
       ),
@@ -247,11 +158,11 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
 
 class _ProductCard extends StatelessWidget {
   final Product product;
-  final VoidCallback onMenuTap;
+  final VoidCallback onTap;
 
   const _ProductCard({
     required this.product,
-    required this.onMenuTap,
+    required this.onTap,
   });
 
   @override
@@ -260,43 +171,25 @@ class _ProductCard extends StatelessWidget {
 
     return Card(
       clipBehavior: Clip.antiAlias,
-      child: Column(
+      child: InkWell(
+        onTap: onTap,
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Image
           Expanded(
-            child: Stack(
-              children: [
-                Container(
-                  width: double.infinity,
-                  color: Colors.grey[200],
-                  child: product.imageUrl.startsWith('http')
-                      ? Image.network(
-                          product.imageUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(Icons.image_not_supported, size: 48);
-                          },
-                        )
-                      : const Icon(Icons.image, size: 48),
-                ),
-                Positioned(
-                  top: 4,
-                  right: 4,
-                  child: Material(
-                    color: Colors.white,
-                    shape: const CircleBorder(),
-                    child: InkWell(
-                      onTap: onMenuTap,
-                      customBorder: const CircleBorder(),
-                      child: const Padding(
-                        padding: EdgeInsets.all(4),
-                        child: Icon(Icons.more_vert, size: 20),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            child: Container(
+              width: double.infinity,
+              color: Colors.grey[200],
+              child: product.imageUrl.startsWith('http')
+                  ? Image.network(
+                      product.imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(Icons.image_not_supported, size: 48);
+                      },
+                    )
+                  : const Icon(Icons.image, size: 48),
             ),
           ),
           // Info
@@ -327,6 +220,7 @@ class _ProductCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

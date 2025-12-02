@@ -27,15 +27,18 @@ class _BaseLayoutState extends State<BaseLayout> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(
-            Icons.menu_rounded,
-            color: const Color(0xFF0891B2),
-            size: 24,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(
+              Icons.menu_rounded,
+              color: Color(0xFF0891B2),
+              size: 28,
+            ),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+            tooltip: 'Menu',
           ),
-          onPressed: () {
-            _scaffoldKey.currentState?.openDrawer();
-          },
         ),
         title: Text(widget.title, overflow: TextOverflow.ellipsis, maxLines: 1),
         backgroundColor: Colors.white,
@@ -51,21 +54,31 @@ class _BaseLayoutState extends State<BaseLayout> {
         actions:
             widget.actions ??
             [
-              Container(
-                margin: const EdgeInsets.only(right: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0891B2).withOpacity(0.08),
-                  shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.notifications_rounded,
-                    color: Color(0xFF0891B2),
-                    size: 22,
+              Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications_outlined),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/notifications');
+                    },
+                    tooltip: 'Notifikasi',
                   ),
-                  onPressed: () {},
-                  tooltip: 'Notifikasi',
-                ),
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 8,
+                        minHeight: 8,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               Padding(
                 padding: const EdgeInsets.only(right: 16, left: 4),

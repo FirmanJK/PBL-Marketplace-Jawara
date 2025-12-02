@@ -52,13 +52,6 @@ class _ActivitiesListPageState extends State<ActivitiesListPage> {
     return Scaffold(
       appBar: StandardAppBar(
         title: 'Daftar Kegiatan',
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: () {},
-            tooltip: 'Filter',
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -115,11 +108,9 @@ class _ActivitiesListPageState extends State<ActivitiesListPage> {
                         ),
                       ],
                     ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.more_vert),
-                      onPressed: () {},
-                    ),
-                    onTap: () {},
+                    onTap: () {
+                      // TODO: Navigate to activity detail page
+                    },
                   ),
                 );
               },

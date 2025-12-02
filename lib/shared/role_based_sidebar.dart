@@ -131,7 +131,6 @@ class RoleBasedSidebar extends StatelessWidget {
         route: '/dashboard/finance',
         context: context,
       ));
-      menuItems.add(const Divider(height: 16));
     }
 
     // Data Warga & Rumah - Admin, Ketua RT, Sekretaris
@@ -174,7 +173,6 @@ class RoleBasedSidebar extends StatelessWidget {
             ),
         ],
       ));
-      menuItems.add(const Divider(height: 16));
     }
 
     // Keuangan - Admin, Bendahara (full), Warga (read only riwayat)
@@ -221,7 +219,6 @@ class RoleBasedSidebar extends StatelessWidget {
           ],
         ],
       ));
-      menuItems.add(const Divider(height: 16));
     }
 
     // Marketplace - Admin (full), Warga (full)
@@ -245,7 +242,6 @@ class RoleBasedSidebar extends StatelessWidget {
           ),
         ],
       ));
-      menuItems.add(const Divider(height: 16));
     }
 
     // Notifikasi - Admin, Ketua RT, Sekretaris (full), Warga (read only)
@@ -269,7 +265,6 @@ class RoleBasedSidebar extends StatelessWidget {
             ),
         ],
       ));
-      menuItems.add(const Divider(height: 16));
     }
 
     // Laporan - Admin, Bendahara, Ketua RT, Sekretaris
@@ -298,7 +293,6 @@ class RoleBasedSidebar extends StatelessWidget {
           ),
         ],
       ));
-      menuItems.add(const Divider(height: 16));
     }
 
     // Admin only menus

@@ -75,7 +75,7 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
               IconButton(
                 icon: const Icon(Icons.notifications_outlined),
                 onPressed: onNotificationTap ??
-                    () => Navigator.pushNamed(context, '/messages'),
+                    () => Navigator.pushNamed(context, '/notifications'),
                 tooltip: 'Notifikasi',
               ),
               if (hasNotifications)

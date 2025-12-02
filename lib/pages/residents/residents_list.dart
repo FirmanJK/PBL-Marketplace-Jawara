@@ -228,13 +228,6 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
     return Scaffold(
       appBar: StandardAppBar(
         title: 'Daftar Warga',
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: () {},
-            tooltip: 'Filter',
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -407,13 +400,6 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
                                   ),
                                 ],
                               ),
-                            ),
-                            
-                            // More Button
-                            IconButton(
-                              icon: const Icon(Icons.more_vert),
-                              onPressed: () {},
-                              tooltip: 'Opsi',
                             ),
                           ],
                         ),

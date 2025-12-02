@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:jawara/shared/standard_app_bar.dart';
+import 'package:jawara/pages/income/category_detail.dart';
 
 // Dummy data model
 class DuesCategory {
@@ -52,20 +53,13 @@ class _IncomeCategoriesPageState extends State<IncomeCategoriesPage> {
     return Scaffold(
       appBar: StandardAppBar(
         title: 'Kategori Iuran',
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: () {},
-            tooltip: 'Filter',
-          ),
-        ],
       ),
       body: Column(
         children: [
           // Info Box
           Container(
             margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: const Color(0xFF0891B2).withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
@@ -74,13 +68,16 @@ class _IncomeCategoriesPageState extends State<IncomeCategoriesPage> {
               ),
             ),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.info_outline, color: const Color(0xFF0891B2)),
+                const Icon(Icons.info_outline, color: Color(0xFF0891B2), size: 20),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'Iuran Bulanan: Dibayar setiap bulan. Iuran Khusus: Dibayar sesuai kebutuhan tertentu.',
-                    style: TextStyle(fontSize: 13),
+                    style: const TextStyle(fontSize: 12),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -118,39 +115,64 @@ class _IncomeCategoriesPageState extends State<IncomeCategoriesPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(16),
-                    leading: CircleAvatar(
-                      backgroundColor: const Color(0xFF0891B2).withOpacity(0.1),
-                      child: Icon(
-                        Icons.category,
-                        color: const Color(0xFF0891B2),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CategoryDetailPage(category: category),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 28,
+                            backgroundColor: const Color(0xFF0891B2).withOpacity(0.1),
+                            child: const Icon(
+                              Icons.category,
+                              color: Color(0xFF0891B2),
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  category.nama,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  category.jenis,
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  currencyFormatter.format(category.nominal),
+                                  style: const TextStyle(
+                                    color: Color(0xFF0891B2),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    title: Text(
-                      category.nama,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 4),
-                        Text(category.jenis),
-                        const SizedBox(height: 4),
-                        Text(
-                          currencyFormatter.format(category.nominal),
-                          style: TextStyle(
-                            color: const Color(0xFF0891B2),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.more_vert),
-                      onPressed: () {},
-                    ),
-                    onTap: () {},
                   ),
                 );
               },
@@ -159,12 +181,191 @@ class _IncomeCategoriesPageState extends State<IncomeCategoriesPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.pushNamed(context, '/income/categories/add');
-        },
+        onPressed: () => _showAddCategoryForm(context),
         icon: const Icon(Icons.add),
         label: const Text('Tambah Kategori'),
         backgroundColor: const Color(0xFF0891B2),
+      ),
+    );
+  }
+
+  void _showAddCategoryForm(BuildContext context) {
+    final namaController = TextEditingController();
+    final nominalController = TextEditingController();
+    String? selectedJenis = 'Iuran Bulanan';
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.75,
+                maxWidth: 500,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFF0891B2),
+                          const Color(0xFF0891B2).withOpacity(0.8),
+                        ],
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(Icons.add, color: Colors.white, size: 24),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Tambah Kategori',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Content
+                  Flexible(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextField(
+                            controller: namaController,
+                            decoration: InputDecoration(
+                              labelText: 'Nama Kategori',
+                              prefixIcon: const Icon(Icons.label, color: Color(0xFF0891B2)),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: Color(0xFF0891B2), width: 2),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          DropdownButtonFormField<String>(
+                            value: selectedJenis,
+                            decoration: InputDecoration(
+                              labelText: 'Jenis',
+                              prefixIcon: const Icon(Icons.category, color: Color(0xFF0891B2)),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: Color(0xFF0891B2), width: 2),
+                              ),
+                            ),
+                            items: ['Iuran Bulanan', 'Iuran Khusus'].map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              selectedJenis = newValue;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          TextField(
+                            controller: nominalController,
+                            decoration: InputDecoration(
+                              labelText: 'Nominal',
+                              prefixIcon: const Icon(Icons.attach_money, color: Color(0xFF0891B2)),
+                              prefixText: 'Rp ',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: Color(0xFF0891B2), width: 2),
+                              ),
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  // Actions
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          ),
+                          child: const Text(
+                            'Batal',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (namaController.text.isNotEmpty && nominalController.text.isNotEmpty) {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Kategori berhasil ditambahkan'),
+                                  backgroundColor: Color(0xFF0891B2),
+                                ),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0891B2),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text('Simpan', style: TextStyle(fontSize: 16)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

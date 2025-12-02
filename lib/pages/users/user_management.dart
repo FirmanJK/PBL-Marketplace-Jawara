@@ -50,13 +50,6 @@ class _UserManagementPageState extends State<UserManagementPage> {
     return Scaffold(
       appBar: StandardAppBar(
         title: 'Manajemen Pengguna',
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: () {},
-            tooltip: 'Filter',
-          ),
-        ],
       ),
       body: Column(
         children: [

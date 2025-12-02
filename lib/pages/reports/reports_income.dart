@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:jawara/shared/standard_app_bar.dart';
+import 'package:jawara/pages/reports/report_income_detail.dart';
 
 class IncomeReportItem {
   final int no;
@@ -33,7 +34,7 @@ class _ReportsIncomePageState extends State<ReportsIncomePage> {
     IncomeReportItem(
       no: 1,
       nama: 'aaaaa',
-      jenisPemasukan: 'Dana Bantuan Pemerintah',
+      jenisPemasukan: 'Bantuan Pemerintah',
       tanggal: DateTime(2025, 10, 15, 14, 23),
       nominal: 11000,
     ),
@@ -87,18 +88,6 @@ class _ReportsIncomePageState extends State<ReportsIncomePage> {
     return Scaffold(
       appBar: StandardAppBar(
         title: 'Laporan Pemasukan',
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: () {},
-            tooltip: 'Filter',
-          ),
-          IconButton(
-            icon: const Icon(Icons.picture_as_pdf),
-            onPressed: () {},
-            tooltip: 'Cetak PDF',
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -131,47 +120,72 @@ class _ReportsIncomePageState extends State<ReportsIncomePage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(16),
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.green.withOpacity(0.1),
-                      child: Icon(
-                        Icons.trending_up,
-                        color: Colors.green,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ReportIncomeDetailPage(item: item),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 28,
+                            backgroundColor: Colors.green.withOpacity(0.1),
+                            child: const Icon(
+                              Icons.trending_up,
+                              color: Colors.green,
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.nama,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  item.jenisPemasukan,
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  dateTimeFormatter.format(item.tanggal),
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  currencyFormatter.format(item.nominal),
+                                  style: const TextStyle(
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    title: Text(
-                      item.nama,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 4),
-                        Text(item.jenisPemasukan),
-                        const SizedBox(height: 4),
-                        Text(
-                          dateTimeFormatter.format(item.tanggal),
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 12,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          currencyFormatter.format(item.nominal),
-                          style: TextStyle(
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.more_vert),
-                      onPressed: () {},
-                    ),
-                    onTap: () {},
                   ),
                 );
               },

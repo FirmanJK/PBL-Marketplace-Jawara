@@ -21,7 +21,17 @@ class _DashboardFinancePageState extends State<DashboardFinancePage> {
       title: 'Dashboard Keuangan',
       child: Container(
         width: double.infinity,
-        color: const Color(0xFFF4F7FC),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              const Color(0xFFF0F9FF),
+              const Color(0xFFE0F2FE),
+              Colors.white,
+            ],
+          ),
+        ),
         child: LayoutBuilder(
           builder: (context, constraints) {
             final screenWidth = MediaQuery.of(context).size.width;
@@ -31,11 +41,11 @@ class _DashboardFinancePageState extends State<DashboardFinancePage> {
             int summaryCrossAxisCount = isMobile ? 1 : 3;
             int chartCrossAxisCount = isMobile ? 1 : 2;
 
-            double summaryAspectRatio = isMobile ? 2.0 : 2.5;
-            double chartAspectRatio = isMobile ? 0.95 : 1.0;
+            double summaryAspectRatio = isMobile ? 1.8 : 2.2;
+            double chartAspectRatio = isMobile ? 0.9 : 1.0;
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(isMobile ? 16 : 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -44,34 +54,49 @@ class _DashboardFinancePageState extends State<DashboardFinancePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Flexible(
-                        child: Text(
-                          'Ringkasan Keuangan',
-                          style: AppTheme.headingSmall.copyWith(
-                            color: AppTheme.textDark,
-                          ),
-                          overflow: TextOverflow.ellipsis,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Ringkasan Keuangan',
+                              style: AppTheme.headingMedium.copyWith(
+                                color: AppTheme.textDark,
+                                fontWeight: FontWeight.w800,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Pantau keuangan warga Anda',
+                              style: AppTheme.bodyMedium.copyWith(
+                                color: AppTheme.textMedium,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(width: 12),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 12.0,
-                          vertical: 4.0,
+                          horizontal: 16.0,
+                          vertical: 8.0,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: AppTheme.borderRadiusSmall,
+                          borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: AppTheme.border),
+                          boxShadow: AppTheme.shadowSmall,
                         ),
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
                             value: _selectedYear,
                             icon: const Icon(
                               Icons.keyboard_arrow_down,
-                              color: AppTheme.textMedium,
+                              color: AppTheme.primary,
                             ),
                             style: AppTheme.bodyMedium.copyWith(
                               color: AppTheme.textDark,
+                              fontWeight: FontWeight.w600,
                             ),
                             items: _yearOptions.map((String year) {
                               return DropdownMenuItem<String>(
@@ -98,23 +123,35 @@ class _DashboardFinancePageState extends State<DashboardFinancePage> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     crossAxisCount: summaryCrossAxisCount,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
+                    mainAxisSpacing: isMobile ? 12 : 16,
+                    crossAxisSpacing: isMobile ? 12 : 16,
                     childAspectRatio: summaryAspectRatio,
                     children: [
                       _buildSummaryCard(
                         title: 'Total Pemasukan',
                         value: 'Rp 5,01 M',
                         subtitle: 'Tagihan: Rp 100 rb + Lainnya: Rp 5 M',
-                        icon: Icons.arrow_downward_rounded,
+                        icon: Icons.trending_up_rounded,
                         color: AppTheme.accentGreen,
+                        gradient: LinearGradient(
+                          colors: [
+                            AppTheme.accentGreen.withOpacity(0.1),
+                            AppTheme.accentGreen.withOpacity(0.05),
+                          ],
+                        ),
                       ),
                       _buildSummaryCard(
                         title: 'Total Pengeluaran',
                         value: 'Rp 152,1 rb',
                         subtitle: '4 transaksi pengeluaran',
-                        icon: Icons.arrow_upward_rounded,
+                        icon: Icons.trending_down_rounded,
                         color: AppTheme.accentRed,
+                        gradient: LinearGradient(
+                          colors: [
+                            AppTheme.accentRed.withOpacity(0.1),
+                            AppTheme.accentRed.withOpacity(0.05),
+                          ],
+                        ),
                       ),
                       _buildSummaryCard(
                         title: 'Saldo',
@@ -122,6 +159,12 @@ class _DashboardFinancePageState extends State<DashboardFinancePage> {
                         subtitle: 'Pemasukan - Pengeluaran',
                         icon: Icons.account_balance_wallet_rounded,
                         color: AppTheme.primary,
+                        gradient: LinearGradient(
+                          colors: [
+                            AppTheme.primary.withOpacity(0.1),
+                            AppTheme.primary.withOpacity(0.05),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -132,8 +175,8 @@ class _DashboardFinancePageState extends State<DashboardFinancePage> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     crossAxisCount: chartCrossAxisCount,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
+                    mainAxisSpacing: isMobile ? 12 : 16,
+                    crossAxisSpacing: isMobile ? 12 : 16,
                     childAspectRatio: chartAspectRatio,
                     children: [
                       _buildChartCard(
@@ -182,25 +225,76 @@ class _DashboardFinancePageState extends State<DashboardFinancePage> {
     String? subtitle,
     required IconData icon,
     required Color color,
+    required Gradient gradient,
   }) {
-    return SharedCard(
-      title: title,
-      icon: icon,
-      color: color,
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: color.withOpacity(0.2),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.15),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              value,
-              style: AppTheme.headingLarge.copyWith(color: color, fontSize: 26),
-              maxLines: 1,
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      color.withOpacity(0.25),
+                      color.withOpacity(0.15),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withOpacity(0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    color: Color(0xFF1F2937),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            value,
+            style: AppTheme.headingLarge.copyWith(
+              color: color,
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
             ),
           ),
           if (subtitle != null) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(
               subtitle,
               style: AppTheme.bodySmall.copyWith(
@@ -224,25 +318,74 @@ class _DashboardFinancePageState extends State<DashboardFinancePage> {
     required bool isBarChart,
     required bool isMobile,
   }) {
-    return SharedCard(
-      title: title,
-      icon: icon,
-      color: color,
-      child: Container(
-        height: isMobile ? 200 : 250,
-        padding: EdgeInsets.all(isMobile ? 12 : 16),
-        child: isBarChart
-            ? _buildBarChart(title, isMobile)
-            : _buildPieChart(title, isMobile),
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: color.withOpacity(0.15),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      color.withOpacity(0.2),
+                      color.withOpacity(0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: color, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    color: Color(0xFF1F2937),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (isBarChart)
+            SizedBox(
+              height: isMobile ? 200 : 250,
+              child: _buildBarChart(title, isMobile),
+            )
+          else
+            _buildPieChart(title, isMobile),
+        ],
       ),
     );
   }
 
   // Helper Widget untuk Pie Chart
   Widget _buildPieChart(String title, bool isMobile) {
-    final double radius = isMobile ? 55 : 75;
-    final double fontSize = isMobile ? 14 : 16;
-    final double centerSpaceRadius = isMobile ? 35 : 45;
+    final double radius = isMobile ? 40 : 55;
+    final double fontSize = isMobile ? 10 : 12;
+    final double centerSpaceRadius = isMobile ? 25 : 35;
 
     // Helper untuk membuat section dengan responsive size
     PieChartSectionData createSection(
@@ -265,29 +408,86 @@ class _DashboardFinancePageState extends State<DashboardFinancePage> {
 
     // Data berdasarkan data aktual di aplikasi
     List<PieChartSectionData> sections;
+    List<Map<String, dynamic>> legendData;
 
     if (title.contains('Pemasukan')) {
       // Data pemasukan: Tagihan (100rb) vs Lainnya (5M)
       sections = [
-        createSection(const Color(0xFF10B981), 5010700, '98%'),
+        createSection(AppTheme.accentGreen, 5010700, '98%'),
         createSection(const Color(0xFF34D399), 100000, '2%'),
+      ];
+      legendData = [
+        {'label': 'Pemasukan Lain', 'value': 'Rp 5,01 M', 'color': AppTheme.accentGreen},
+        {'label': 'Tagihan Iuran', 'value': 'Rp 100 rb', 'color': const Color(0xFF34D399)},
       ];
     } else {
       // Data pengeluaran berdasarkan kategori aktual
       sections = [
-        createSection(const Color(0xFFEF4444), 100100, '65.8%'),
-        createSection(const Color(0xFFF97316), 51000, '33.5%'),
-        createSection(const Color(0xFFFBBF24), 1000, '0.7%'),
+        createSection(AppTheme.accentRed, 100100, '66%'),
+        createSection(AppTheme.accentOrange, 51000, '33%'),
+        createSection(const Color(0xFFFBBF24), 1000, '1%'),
+      ];
+      legendData = [
+        {'label': 'Operasional', 'value': 'Rp 100 rb', 'color': AppTheme.accentRed},
+        {'label': 'Pemeliharaan', 'value': 'Rp 51 rb', 'color': AppTheme.accentOrange},
+        {'label': 'Lainnya', 'value': 'Rp 1 rb', 'color': const Color(0xFFFBBF24)},
       ];
     }
 
-    return PieChart(
-      PieChartData(
-        sections: sections,
-        centerSpaceRadius: centerSpaceRadius,
-        sectionsSpace: 3,
-        borderData: FlBorderData(show: false),
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          height: isMobile ? 100 : 130,
+          child: PieChart(
+            PieChartData(
+              sections: sections,
+              centerSpaceRadius: centerSpaceRadius,
+              sectionsSpace: 2,
+              borderData: FlBorderData(show: false),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        ...legendData.map((item) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: item['color'],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      item['label'],
+                      style: TextStyle(
+                        fontSize: isMobile ? 10 : 11,
+                        color: AppTheme.textDark,
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  item['value'],
+                  style: TextStyle(
+                    fontSize: isMobile ? 10 : 11,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textDark,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ],
     );
   }
 

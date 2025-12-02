@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:jawara/shared/standard_app_bar.dart';
+import 'package:jawara/pages/income/income_other_detail.dart';
 
 class OtherIncomeItem {
   final int no;
@@ -46,7 +47,7 @@ class _IncomeOtherListPageState extends State<IncomeOtherListPage> {
     OtherIncomeItem(
       no: 1,
       nama: 'aaaaa',
-      jenisPemasukan: 'Dana Bantuan Pemerintah',
+      jenisPemasukan: 'Bantuan Pemerintah',
       tanggal: DateTime(2025, 10, 15),
       nominal: 11000,
     ),
@@ -87,13 +88,6 @@ class _IncomeOtherListPageState extends State<IncomeOtherListPage> {
     return Scaffold(
       appBar: StandardAppBar(
         title: 'Pemasukan Lain',
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: () {},
-            tooltip: 'Filter',
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -126,47 +120,72 @@ class _IncomeOtherListPageState extends State<IncomeOtherListPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(16),
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.green.withOpacity(0.1),
-                      child: Icon(
-                        Icons.attach_money,
-                        color: Colors.green,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => IncomeOtherDetailPage(item: item),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 28,
+                            backgroundColor: Colors.green.withOpacity(0.1),
+                            child: const Icon(
+                              Icons.attach_money,
+                              color: Colors.green,
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.nama,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  item.jenisPemasukan,
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  dateFormatter.format(item.tanggal),
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  currencyFormatter.format(item.nominal),
+                                  style: const TextStyle(
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    title: Text(
-                      item.nama,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 4),
-                        Text(item.jenisPemasukan),
-                        const SizedBox(height: 4),
-                        Text(
-                          dateFormatter.format(item.tanggal),
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 12,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          currencyFormatter.format(item.nominal),
-                          style: TextStyle(
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.more_vert),
-                      onPressed: () {},
-                    ),
-                    onTap: () {},
                   ),
                 );
               },
@@ -184,4 +203,6 @@ class _IncomeOtherListPageState extends State<IncomeOtherListPage> {
       ),
     );
   }
+
+
 }

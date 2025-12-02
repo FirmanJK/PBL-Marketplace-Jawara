@@ -26,13 +26,6 @@ class _ChannelsListPageState extends State<ChannelsListPage> {
     return Scaffold(
       appBar: StandardAppBar(
         title: 'Daftar Channel Transfer',
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: () {},
-            tooltip: 'Filter',
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -62,52 +55,71 @@ class _ChannelsListPageState extends State<ChannelsListPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(16),
-                    leading: channel.thumbnail != null
-                        ? CircleAvatar(
-                            backgroundImage: NetworkImage(channel.thumbnail!),
-                            radius: 24,
-                          )
-                        : CircleAvatar(
-                            backgroundColor: _getTypeColor(channel.tipe).withOpacity(0.1),
-                            child: Icon(
-                              Icons.account_balance,
-                              color: _getTypeColor(channel.tipe),
+                  child: InkWell(
+                    onTap: () {
+                      // TODO: Navigate to channel detail page
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          channel.thumbnail != null
+                              ? CircleAvatar(
+                                  backgroundImage: NetworkImage(channel.thumbnail!),
+                                  radius: 28,
+                                )
+                              : CircleAvatar(
+                                  radius: 28,
+                                  backgroundColor: _getTypeColor(channel.tipe).withOpacity(0.1),
+                                  child: Icon(
+                                    Icons.account_balance,
+                                    color: _getTypeColor(channel.tipe),
+                                    size: 28,
+                                  ),
+                                ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  channel.nama,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Atas Nama: ${channel.atasNama}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: _getTypeColor(channel.tipe).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    channel.tipe,
+                                    style: TextStyle(
+                                      color: _getTypeColor(channel.tipe),
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                    title: Text(
-                      channel.nama,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                        ],
+                      ),
                     ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 4),
-                        Text('Atas Nama: ${channel.atasNama}'),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: _getTypeColor(channel.tipe).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            channel.tipe,
-                            style: TextStyle(
-                              color: _getTypeColor(channel.tipe),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.more_vert),
-                      onPressed: () {},
-                    ),
-                    onTap: () {},
                   ),
                 );
               },

@@ -1,20 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:jawara/shared/standard_app_bar.dart';
-import 'package:jawara/models/resident.dart';
-import 'package:intl/intl.dart';
+import 'package:jawara/pages/residents/families_page.dart';
 
-class ResidentsDetailPage extends StatelessWidget {
-  final Resident resident;
+class FamilyDetailPage extends StatelessWidget {
+  final FamilyItem family;
 
-  const ResidentsDetailPage({super.key, required this.resident});
+  const FamilyDetailPage({super.key, required this.family});
+
+  void _showDeleteConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Hapus Keluarga'),
+        content: Text('Apakah Anda yakin ingin menghapus ${family.namaKeluarga}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('${family.namaKeluarga} berhasil dihapus')),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd MMMM yyyy');
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detail Warga'),
+        title: const Text('Detail Keluarga'),
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF1F2937),
         elevation: 0,
@@ -24,10 +47,8 @@ class ResidentsDetailPage extends StatelessWidget {
             offset: const Offset(0, 50),
             onSelected: (value) {
               if (value == 'edit') {
-                Navigator.pushNamed(
-                  context,
-                  '/residents/edit',
-                  arguments: resident,
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Fitur edit akan segera tersedia')),
                 );
               } else if (value == 'delete') {
                 _showDeleteConfirmation(context);
@@ -81,29 +102,18 @@ class ResidentsDetailPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: resident.photoUrl != null 
-                          ? Colors.transparent 
-                          : const Color(0xFF0891B2).withOpacity(0.1),
+                      color: const Color(0xFF0891B2).withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: resident.photoUrl != null
-                        ? ClipOval(
-                            child: Image.network(
-                              resident.photoUrl!,
-                              width: 80,
-                              height: 80,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : Icon(
-                            Icons.person,
-                            size: 60,
-                            color: const Color(0xFF0891B2),
-                          ),
+                    child: const Icon(
+                      Icons.family_restroom,
+                      size: 60,
+                      color: Color(0xFF0891B2),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    resident.name,
+                    family.namaKeluarga,
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -115,15 +125,15 @@ class ResidentsDetailPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                     decoration: BoxDecoration(
-                      color: resident.status == 'Aktif'
+                      color: family.status == 'Aktif'
                           ? Colors.green.withOpacity(0.1)
                           : Colors.grey.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      resident.status,
+                      family.status,
                       style: TextStyle(
-                        color: resident.status == 'Aktif' ? Colors.green : Colors.grey,
+                        color: family.status == 'Aktif' ? Colors.green : Colors.grey,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -139,7 +149,7 @@ class ResidentsDetailPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Informasi Pribadi',
+                    'Informasi Keluarga',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -149,53 +159,30 @@ class ResidentsDetailPage extends StatelessWidget {
                   const SizedBox(height: 16),
                   
                   _buildInfoCard(
-                    icon: Icons.badge,
-                    label: 'NIK',
-                    value: resident.nik,
+                    icon: Icons.person,
+                    label: 'Kepala Keluarga',
+                    value: family.kepalaKeluarga,
                   ),
                   const SizedBox(height: 12),
-                  
-                  _buildInfoCard(
-                    icon: Icons.email,
-                    label: 'Email',
-                    value: resident.email,
-                  ),
-                  const SizedBox(height: 12),
-                  
-                  _buildInfoCard(
-                    icon: Icons.phone,
-                    label: 'Telepon',
-                    value: resident.phone ?? '-',
-                  ),
-                  const SizedBox(height: 12),
-                  
-                  _buildInfoCard(
-                    icon: resident.gender == 'Laki-laki' ? Icons.male : Icons.female,
-                    label: 'Jenis Kelamin',
-                    value: resident.gender,
-                  ),
-                  const SizedBox(height: 12),
-                  
-                  if (resident.birthDate != null)
-                    _buildInfoCard(
-                      icon: Icons.cake,
-                      label: 'Tanggal Lahir',
-                      value: dateFormat.format(resident.birthDate!),
-                    ),
-                  if (resident.birthDate != null)
-                    const SizedBox(height: 12),
                   
                   _buildInfoCard(
                     icon: Icons.home,
-                    label: 'Alamat',
-                    value: resident.address ?? '-',
+                    label: 'Alamat Rumah',
+                    value: family.alamatRumah,
                   ),
                   const SizedBox(height: 12),
                   
                   _buildInfoCard(
-                    icon: Icons.app_registration,
-                    label: 'Status Registrasi',
-                    value: _getRegistrationStatusText(resident.registrationStatus),
+                    icon: Icons.key,
+                    label: 'Status Kepemilikan',
+                    value: family.statusKepemilikan,
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  _buildInfoCard(
+                    icon: Icons.numbers,
+                    label: 'No',
+                    value: family.no.toString(),
                   ),
                 ],
               ),
@@ -258,44 +245,6 @@ class ResidentsDetailPage extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _getRegistrationStatusText(RegistrationStatus status) {
-    switch (status) {
-      case RegistrationStatus.pending:
-        return 'Menunggu Persetujuan';
-      case RegistrationStatus.accepted:
-        return 'Diterima';
-      case RegistrationStatus.inactive:
-        return 'Tidak Aktif';
-    }
-  }
-
-  void _showDeleteConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Hapus Warga'),
-        content: Text('Apakah Anda yakin ingin menghapus ${resident.name}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // TODO: Implement delete
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
-            child: const Text('Hapus'),
           ),
         ],
       ),
