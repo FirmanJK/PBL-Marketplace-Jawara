@@ -72,8 +72,6 @@ class BiometricService {
         return 'Biometrik Kuat';
       case BiometricType.weak:
         return 'Biometrik Lemah';
-      default:
-        return 'Biometrik';
     }
   }
 }

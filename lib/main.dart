@@ -32,7 +32,6 @@ import 'package:jawara/pages/residents/families_page.dart';
 import 'package:jawara/pages/residents/houses_add.dart';
 import 'package:jawara/pages/residents/houses_list.dart';
 import 'package:jawara/pages/residents/residents_add.dart';
-import 'package:jawara/pages/residents/residents_detail.dart';
 import 'package:jawara/pages/residents/residents_edit.dart';
 import 'package:jawara/pages/residents/residents_list.dart';
 import 'package:jawara/pages/settings/settings_page.dart';
@@ -45,39 +44,59 @@ import 'package:jawara/pages/marketplace_page.dart';
 import 'package:jawara/shared/theme.dart';
 import 'package:jawara/services/notification_service.dart';
 import 'package:jawara/services/database_service.dart';
+import 'package:jawara/services/auth_service.dart';
 import 'package:jawara/models/resident.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize database service with error handling
   try {
     await DatabaseService().database;
-    print(' Database initialized');
+    print('✓ Database initialized');
   } catch (e) {
-    print(' Database initialization failed: $e');
+    print('✗ Database initialization failed: $e');
   }
-  
+
   // Initialize notification service (database-only version)
   try {
     await NotificationService().initialize();
-    print(' Notification service initialized');
+    print('✓ Notification service initialized');
   } catch (e) {
-    print(' Notification service initialization failed: $e');
+    print('✗ Notification service initialization failed: $e');
   }
-  
+
+  // Initialize auth service - restore session
+  try {
+    final authService = AuthService();
+    await authService.initialize();
+    print('✓ Auth service initialized');
+    if (authService.isLoggedIn) {
+      print('✓ Session restored - User: ${authService.currentUser?.name}');
+    }
+  } catch (e) {
+    print('✗ Auth service initialization failed: $e');
+  }
+
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Jawara Pintar',
       theme: AppTheme.lightTheme,
-      initialRoute: '/login',
+      initialRoute: _authService.isLoggedIn ? '/dashboard/finance' : '/login',
       builder: (context, child) => ResponsiveBreakpoints.builder(
         child: child!,
         breakpoints: [
@@ -101,7 +120,8 @@ class MyApp extends StatelessWidget {
         '/residents/list': (context) => const ResidentsListPage(),
         '/residents/add': (context) => const ResidentsAddPage(),
         '/residents/edit': (context) {
-          final resident = ModalRoute.of(context)!.settings.arguments as Resident;
+          final resident =
+              ModalRoute.of(context)!.settings.arguments as Resident;
           return ResidentsEditPage(resident: resident);
         },
         '/families': (context) => const FamiliesPage(),

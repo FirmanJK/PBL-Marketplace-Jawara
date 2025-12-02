@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/data/mutations.dart';
-import 'package:jawara/models/mutations.dart';
+
 import 'package:jawara/shared/standard_app_bar.dart';
 import 'family_mutations_detail.dart';
 
@@ -13,8 +13,6 @@ class FamilyMutationsListPage extends StatefulWidget {
 }
 
 class _FamilyMutationsListPageState extends State<FamilyMutationsListPage> {
-  final List<Mutation> _data = mutationList;
-
   Widget _buildStatusChip(String jenisMutasi) {
     Color color;
     Color textColor;
@@ -50,9 +48,7 @@ class _FamilyMutationsListPageState extends State<FamilyMutationsListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: StandardAppBar(
-        title: 'Daftar Mutasi Keluarga',
-      ),
+      appBar: StandardAppBar(title: 'Daftar Mutasi Keluarga'),
       body: Column(
         children: [
           Padding(

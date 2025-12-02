@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jawara/shared/standard_app_bar.dart';
+
 import 'package:jawara/models/resident.dart';
 import 'package:intl/intl.dart';
 
@@ -81,8 +81,8 @@ class ResidentsDetailPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: resident.photoUrl != null 
-                          ? Colors.transparent 
+                      color: resident.photoUrl != null
+                          ? Colors.transparent
                           : const Color(0xFF0891B2).withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
@@ -113,7 +113,10 @@ class ResidentsDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: resident.status == 'Aktif'
                           ? Colors.green.withOpacity(0.1)
@@ -123,7 +126,9 @@ class ResidentsDetailPage extends StatelessWidget {
                     child: Text(
                       resident.status,
                       style: TextStyle(
-                        color: resident.status == 'Aktif' ? Colors.green : Colors.grey,
+                        color: resident.status == 'Aktif'
+                            ? Colors.green
+                            : Colors.grey,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -147,55 +152,58 @@ class ResidentsDetailPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   _buildInfoCard(
                     icon: Icons.badge,
                     label: 'NIK',
                     value: resident.nik,
                   ),
                   const SizedBox(height: 12),
-                  
+
                   _buildInfoCard(
                     icon: Icons.email,
                     label: 'Email',
                     value: resident.email,
                   ),
                   const SizedBox(height: 12),
-                  
+
                   _buildInfoCard(
                     icon: Icons.phone,
                     label: 'Telepon',
                     value: resident.phone ?? '-',
                   ),
                   const SizedBox(height: 12),
-                  
+
                   _buildInfoCard(
-                    icon: resident.gender == 'Laki-laki' ? Icons.male : Icons.female,
+                    icon: resident.gender == 'Laki-laki'
+                        ? Icons.male
+                        : Icons.female,
                     label: 'Jenis Kelamin',
                     value: resident.gender,
                   ),
                   const SizedBox(height: 12),
-                  
+
                   if (resident.birthDate != null)
                     _buildInfoCard(
                       icon: Icons.cake,
                       label: 'Tanggal Lahir',
                       value: dateFormat.format(resident.birthDate!),
                     ),
-                  if (resident.birthDate != null)
-                    const SizedBox(height: 12),
-                  
+                  if (resident.birthDate != null) const SizedBox(height: 12),
+
                   _buildInfoCard(
                     icon: Icons.home,
                     label: 'Alamat',
                     value: resident.address ?? '-',
                   ),
                   const SizedBox(height: 12),
-                  
+
                   _buildInfoCard(
                     icon: Icons.app_registration,
                     label: 'Status Registrasi',
-                    value: _getRegistrationStatusText(resident.registrationStatus),
+                    value: _getRegistrationStatusText(
+                      resident.registrationStatus,
+                    ),
                   ),
                 ],
               ),
@@ -242,10 +250,7 @@ class ResidentsDetailPage extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -292,9 +297,7 @@ class ResidentsDetailPage extends StatelessWidget {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Hapus'),
           ),
         ],

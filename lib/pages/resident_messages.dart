@@ -44,11 +44,6 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
         textColor = const Color(0xFFD97706);
         label = 'Pending';
         break;
-      default:
-        color = Colors.grey.shade200;
-        textColor = Colors.grey.shade700;
-        label = 'Status Lain';
-        break;
     }
 
     return Container(
@@ -82,9 +77,7 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
     final dateFormatter = DateFormat('d MMMM yyyy', 'id_ID');
 
     return Scaffold(
-      appBar: StandardAppBar(
-        title: 'Pesan Warga',
-      ),
+      appBar: StandardAppBar(title: 'Pesan Warga'),
       body: Column(
         children: [
           Padding(
@@ -117,7 +110,10 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
                     contentPadding: const EdgeInsets.all(16),
                     leading: CircleAvatar(
                       backgroundColor: const Color(0xFF0891B2).withOpacity(0.1),
-                      child: Icon(Icons.message, color: const Color(0xFF0891B2)),
+                      child: Icon(
+                        Icons.message,
+                        color: const Color(0xFF0891B2),
+                      ),
                     ),
                     title: Text(
                       message.title,
@@ -131,7 +127,10 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
                         const SizedBox(height: 4),
                         Text(
                           dateFormatter.format(message.createdAt),
-                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         _buildStatusChip(message.status),

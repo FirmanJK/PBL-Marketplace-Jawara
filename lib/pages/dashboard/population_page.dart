@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:jawara/shared/base_layout.dart';
-import 'package:jawara/shared/card.dart';
+
 import 'package:jawara/shared/theme.dart';
 
 class DashboardPopulationPage extends StatefulWidget {
@@ -235,16 +235,10 @@ class _DashboardPopulationPageState extends State<DashboardPopulationPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         gradient: LinearGradient(
-          colors: [
-            color.withOpacity(0.08),
-            Colors.white,
-          ],
+          colors: [color.withOpacity(0.08), Colors.white],
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1.5,
-        ),
+        border: Border.all(color: color.withOpacity(0.2), width: 1.5),
         boxShadow: [
           BoxShadow(
             color: color.withOpacity(0.15),
@@ -262,10 +256,7 @@ class _DashboardPopulationPageState extends State<DashboardPopulationPage> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      color.withOpacity(0.25),
-                      color.withOpacity(0.15),
-                    ],
+                    colors: [color.withOpacity(0.25), color.withOpacity(0.15)],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
@@ -326,10 +317,7 @@ class _DashboardPopulationPageState extends State<DashboardPopulationPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: color.withOpacity(0.15),
-          width: 1,
-        ),
+        border: Border.all(color: color.withOpacity(0.15), width: 1),
         boxShadow: [
           BoxShadow(
             color: color.withOpacity(0.1),
@@ -348,10 +336,7 @@ class _DashboardPopulationPageState extends State<DashboardPopulationPage> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      color.withOpacity(0.2),
-                      color.withOpacity(0.1),
-                    ],
+                    colors: [color.withOpacity(0.2), color.withOpacity(0.1)],
                   ),
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -436,8 +421,16 @@ class _DashboardPopulationPageState extends State<DashboardPopulationPage> {
       ];
       legendData = [
         {'label': 'Wiraswasta', 'value': '5', 'color': AppTheme.accentPurple},
-        {'label': 'Karyawan', 'value': '4', 'color': AppTheme.accentPurple.withOpacity(0.7)},
-        {'label': 'Lainnya', 'value': '3', 'color': AppTheme.accentPurple.withOpacity(0.4)},
+        {
+          'label': 'Karyawan',
+          'value': '4',
+          'color': AppTheme.accentPurple.withOpacity(0.7),
+        },
+        {
+          'label': 'Lainnya',
+          'value': '3',
+          'color': AppTheme.accentPurple.withOpacity(0.4),
+        },
       ];
     } else if (title.contains('Peran')) {
       // Peran: 10 Kepala Keluarga, 2 lainnya
@@ -446,7 +439,11 @@ class _DashboardPopulationPageState extends State<DashboardPopulationPage> {
         createSection(AppTheme.secondaryLight, 2, '17%'),
       ];
       legendData = [
-        {'label': 'Kepala Keluarga', 'value': '10', 'color': AppTheme.secondary},
+        {
+          'label': 'Kepala Keluarga',
+          'value': '10',
+          'color': AppTheme.secondary,
+        },
         {'label': 'Anggota', 'value': '2', 'color': AppTheme.secondaryLight},
       ];
     } else if (title.contains('Agama')) {

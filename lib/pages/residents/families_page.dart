@@ -29,19 +29,52 @@ class FamiliesPage extends StatefulWidget {
 
 class _FamiliesPageState extends State<FamiliesPage> {
   final List<FamilyItem> _families = [
-    FamilyItem(no: 1, namaKeluarga: 'Keluarga Varizky Naldiba Rimra', kepalaKeluarga: 'Varizky Naldiba Rimra', alamatRumah: 'i', statusKepemilikan: 'Pemilik', status: 'Aktif'),
-    FamilyItem(no: 2, namaKeluarga: 'Keluarga Tes', kepalaKeluarga: 'Tes', alamatRumah: 'tes', statusKepemilikan: 'Penyewa', status: 'Aktif'),
-    FamilyItem(no: 3, namaKeluarga: 'Keluarga Farhan', kepalaKeluarga: 'Farhan', alamatRumah: 'Griyashanta L203', statusKepemilikan: 'Pemilik', status: 'Aktif'),
-    FamilyItem(no: 4, namaKeluarga: 'Keluarga Rendha Putra Rahmadya', kepalaKeluarga: 'Rendha Putra Rahmadya', alamatRumah: 'Malang', statusKepemilikan: 'Pemilik', status: 'Aktif'),
-    FamilyItem(no: 5, namaKeluarga: 'Keluarga Anti Micin', kepalaKeluarga: 'Anti Micin', alamatRumah: 'malang', statusKepemilikan: 'Penyewa', status: 'Aktif'),
+    FamilyItem(
+      no: 1,
+      namaKeluarga: 'Keluarga Varizky Naldiba Rimra',
+      kepalaKeluarga: 'Varizky Naldiba Rimra',
+      alamatRumah: 'i',
+      statusKepemilikan: 'Pemilik',
+      status: 'Aktif',
+    ),
+    FamilyItem(
+      no: 2,
+      namaKeluarga: 'Keluarga Tes',
+      kepalaKeluarga: 'Tes',
+      alamatRumah: 'tes',
+      statusKepemilikan: 'Penyewa',
+      status: 'Aktif',
+    ),
+    FamilyItem(
+      no: 3,
+      namaKeluarga: 'Keluarga Farhan',
+      kepalaKeluarga: 'Farhan',
+      alamatRumah: 'Griyashanta L203',
+      statusKepemilikan: 'Pemilik',
+      status: 'Aktif',
+    ),
+    FamilyItem(
+      no: 4,
+      namaKeluarga: 'Keluarga Rendha Putra Rahmadya',
+      kepalaKeluarga: 'Rendha Putra Rahmadya',
+      alamatRumah: 'Malang',
+      statusKepemilikan: 'Pemilik',
+      status: 'Aktif',
+    ),
+    FamilyItem(
+      no: 5,
+      namaKeluarga: 'Keluarga Anti Micin',
+      kepalaKeluarga: 'Anti Micin',
+      alamatRumah: 'malang',
+      statusKepemilikan: 'Penyewa',
+      status: 'Aktif',
+    ),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: StandardAppBar(
-        title: 'Data Keluarga',
-      ),
+      appBar: StandardAppBar(title: 'Data Keluarga'),
       body: Column(
         children: [
           Padding(
@@ -50,7 +83,9 @@ class _FamiliesPageState extends State<FamiliesPage> {
               decoration: InputDecoration(
                 hintText: 'Cari keluarga...',
                 prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 filled: true,
                 fillColor: Colors.grey[100],
               ),
@@ -73,7 +108,8 @@ class _FamiliesPageState extends State<FamiliesPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => FamilyDetailPage(family: family),
+                          builder: (context) =>
+                              FamilyDetailPage(family: family),
                         ),
                       );
                     },
@@ -84,7 +120,9 @@ class _FamiliesPageState extends State<FamiliesPage> {
                         children: [
                           CircleAvatar(
                             radius: 28,
-                            backgroundColor: const Color(0xFF0891B2).withOpacity(0.1),
+                            backgroundColor: const Color(
+                              0xFF0891B2,
+                            ).withOpacity(0.1),
                             child: const Icon(
                               Icons.family_restroom,
                               color: Color(0xFF0891B2),
@@ -137,7 +175,10 @@ class _FamiliesPageState extends State<FamiliesPage> {
                                   spacing: 8,
                                   children: [
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: family.status == 'Aktif'
                                             ? Colors.green.withOpacity(0.1)
@@ -147,14 +188,19 @@ class _FamiliesPageState extends State<FamiliesPage> {
                                       child: Text(
                                         family.status,
                                         style: TextStyle(
-                                          color: family.status == 'Aktif' ? Colors.green : Colors.grey,
+                                          color: family.status == 'Aktif'
+                                              ? Colors.green
+                                              : Colors.grey,
                                           fontWeight: FontWeight.w600,
                                           fontSize: 12,
                                         ),
                                       ),
                                     ),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: Colors.blue.withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(12),
@@ -231,7 +277,11 @@ class _FamiliesPageState extends State<FamiliesPage> {
                         color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.family_restroom, color: Colors.white, size: 24),
+                      child: const Icon(
+                        Icons.family_restroom,
+                        color: Colors.white,
+                        size: 24,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     const Text(
@@ -245,7 +295,7 @@ class _FamiliesPageState extends State<FamiliesPage> {
                   ],
                 ),
               ),
-              
+
               // Content
               Flexible(
                 child: SingleChildScrollView(
@@ -258,13 +308,19 @@ class _FamiliesPageState extends State<FamiliesPage> {
                         decoration: InputDecoration(
                           labelText: 'Nama Keluarga',
                           hintText: 'Masukkan nama keluarga',
-                          prefixIcon: const Icon(Icons.people, color: Color(0xFF0891B2)),
+                          prefixIcon: const Icon(
+                            Icons.people,
+                            color: Color(0xFF0891B2),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFF0891B2), width: 2),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF0891B2),
+                              width: 2,
+                            ),
                           ),
                           filled: true,
                           fillColor: Colors.grey[50],
@@ -276,13 +332,19 @@ class _FamiliesPageState extends State<FamiliesPage> {
                         decoration: InputDecoration(
                           labelText: 'Kepala Keluarga',
                           hintText: 'Masukkan nama kepala keluarga',
-                          prefixIcon: const Icon(Icons.person, color: Color(0xFF0891B2)),
+                          prefixIcon: const Icon(
+                            Icons.person,
+                            color: Color(0xFF0891B2),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFF0891B2), width: 2),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF0891B2),
+                              width: 2,
+                            ),
                           ),
                           filled: true,
                           fillColor: Colors.grey[50],
@@ -294,13 +356,19 @@ class _FamiliesPageState extends State<FamiliesPage> {
                         decoration: InputDecoration(
                           labelText: 'Alamat Rumah',
                           hintText: 'Masukkan alamat lengkap',
-                          prefixIcon: const Icon(Icons.location_on, color: Color(0xFF0891B2)),
+                          prefixIcon: const Icon(
+                            Icons.location_on,
+                            color: Color(0xFF0891B2),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFF0891B2), width: 2),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF0891B2),
+                              width: 2,
+                            ),
                           ),
                           filled: true,
                           fillColor: Colors.grey[50],
@@ -312,13 +380,19 @@ class _FamiliesPageState extends State<FamiliesPage> {
                         value: selectedStatus,
                         decoration: InputDecoration(
                           labelText: 'Status Kepemilikan',
-                          prefixIcon: const Icon(Icons.home, color: Color(0xFF0891B2)),
+                          prefixIcon: const Icon(
+                            Icons.home,
+                            color: Color(0xFF0891B2),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFF0891B2), width: 2),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF0891B2),
+                              width: 2,
+                            ),
                           ),
                           filled: true,
                           fillColor: Colors.grey[50],
@@ -337,7 +411,7 @@ class _FamiliesPageState extends State<FamiliesPage> {
                   ),
                 ),
               ),
-              
+
               // Actions
               Container(
                 padding: const EdgeInsets.all(20),
@@ -354,7 +428,10 @@ class _FamiliesPageState extends State<FamiliesPage> {
                     TextButton(
                       onPressed: () => Navigator.pop(context),
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
                       ),
                       child: const Text(
                         'Batal',
@@ -384,12 +461,18 @@ class _FamiliesPageState extends State<FamiliesPage> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF0891B2),
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Simpan', style: TextStyle(fontSize: 16)),
+                      child: const Text(
+                        'Simpan',
+                        style: TextStyle(fontSize: 16),
+                      ),
                     ),
                   ],
                 ),
@@ -401,6 +484,7 @@ class _FamiliesPageState extends State<FamiliesPage> {
     );
   }
 
+  // ignore: unused_element
   void _showFamilyDetail(BuildContext context, FamilyItem family) {
     showDialog(
       context: context,
@@ -446,51 +530,14 @@ class _FamiliesPageState extends State<FamiliesPage> {
     );
   }
 
-  void _showOptionsMenu(BuildContext context, FamilyItem family) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.visibility, color: Color(0xFF0891B2)),
-                title: const Text('Lihat Detail'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _showFamilyDetail(context, family);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.edit, color: Color(0xFF0891B2)),
-                title: const Text('Edit'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _showEditFamilyForm(context, family);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('Hapus', style: TextStyle(color: Colors.red)),
-                onTap: () {
-                  Navigator.pop(context);
-                  _showDeleteConfirmation(context, family);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
+  // ignore: unused_element
   void _showEditFamilyForm(BuildContext context, FamilyItem family) {
-    final namaKeluargaController = TextEditingController(text: family.namaKeluarga);
-    final kepalaKeluargaController = TextEditingController(text: family.kepalaKeluarga);
+    final namaKeluargaController = TextEditingController(
+      text: family.namaKeluarga,
+    );
+    final kepalaKeluargaController = TextEditingController(
+      text: family.kepalaKeluarga,
+    );
     final alamatController = TextEditingController(text: family.alamatRumah);
     String? selectedStatus = family.statusKepemilikan;
 
@@ -559,7 +606,9 @@ class _FamiliesPageState extends State<FamiliesPage> {
                 const SnackBar(content: Text('Keluarga berhasil diperbarui')),
               );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0891B2)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF0891B2),
+            ),
             child: const Text('Simpan'),
           ),
         ],
@@ -567,12 +616,15 @@ class _FamiliesPageState extends State<FamiliesPage> {
     );
   }
 
+  // ignore: unused_element
   void _showDeleteConfirmation(BuildContext context, FamilyItem family) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Hapus Keluarga'),
-        content: Text('Apakah Anda yakin ingin menghapus ${family.namaKeluarga}?'),
+        content: Text(
+          'Apakah Anda yakin ingin menghapus ${family.namaKeluarga}?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -583,7 +635,9 @@ class _FamiliesPageState extends State<FamiliesPage> {
               // TODO: Delete from database
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${family.namaKeluarga} berhasil dihapus')),
+                SnackBar(
+                  content: Text('${family.namaKeluarga} berhasil dihapus'),
+                ),
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),

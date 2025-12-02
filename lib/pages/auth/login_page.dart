@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/shared/button.dart';
 import 'package:jawara/shared/input.dart';
+import 'package:jawara/services/auth_service.dart';
+import 'package:jawara/models/auth_response.dart';
+import 'package:jawara/utils/toast_helper.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,8 +15,11 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
   String? _emailError;
   String? _passwordError;
+  String? _generalError;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -22,11 +28,12 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _validateAndLogin() {
+  Future<void> _validateAndLogin() async {
     setState(() {
       // Reset errors
       _emailError = null;
       _passwordError = null;
+      _generalError = null;
 
       // Validate email
       if (_emailController.text.trim().isEmpty) {
@@ -43,9 +50,64 @@ class _LoginPageState extends State<LoginPage> {
       }
     });
 
-    // If no errors, proceed to login
+    // If no validation errors, proceed to login
     if (_emailError == null && _passwordError == null) {
-      Navigator.pushReplacementNamed(context, '/dashboard/finance');
+      _performLogin();
+    }
+  }
+
+  Future<void> _performLogin() async {
+    setState(() {
+      _isLoading = true;
+      _generalError = null;
+    });
+
+    try {
+      await _authService.login(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+
+      if (mounted) {
+        // Login berhasil - tampilkan toast
+        ToastHelper.showSuccess(context, 'Login berhasil! 🎉');
+        // Navigate immediately - toast stays visible during transition (2s duration)
+        Navigator.pushReplacementNamed(context, '/dashboard/finance');
+      }
+    } on ErrorResponse catch (e) {
+      setState(() {
+        _generalError = e.detail;
+        _isLoading = false;
+      });
+
+      // Popup toast error di atas
+      if (mounted) {
+        ToastHelper.showError(context, e.detail);
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+
+      // Show different messages based on error type
+      String errorMessage = 'Terjadi kesalahan';
+      if (e.toString().contains('Connection refused')) {
+        errorMessage =
+            'Tidak bisa terhubung ke server. Pastikan backend running di localhost:8000';
+      } else if (e.toString().contains('Connection timed out')) {
+        errorMessage = 'Koneksi timeout. Cek apakah backend sedang berjalan';
+      } else {
+        errorMessage = 'Gagal login: ${e.toString()}';
+      }
+
+      setState(() {
+        _generalError = errorMessage;
+      });
+
+      // Popup toast error di atas
+      if (mounted) {
+        ToastHelper.showError(context, errorMessage);
+      }
     }
   }
 
@@ -191,9 +253,9 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             const SizedBox(height: 24),
                             CustomButton(
-                              text: 'Masuk',
-                              icon: Icons.arrow_forward,
-                              onPressed: _validateAndLogin,
+                              text: _isLoading ? 'Memproses...' : 'Masuk',
+                              icon: _isLoading ? null : Icons.arrow_forward,
+                              onPressed: _isLoading ? () {} : _validateAndLogin,
                             ),
                             const SizedBox(height: 32),
                             Row(

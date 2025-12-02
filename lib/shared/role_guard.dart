@@ -30,18 +30,21 @@ class RoleGuard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
-    
+
     // Check if user is logged in
     if (!authService.isLoggedIn) {
       return fallback ?? const SizedBox.shrink();
     }
 
     // Check role-based access
-    if (allowedRoles != null && !allowedRoles!.contains(authService.currentRole)) {
+    if (allowedRoles != null &&
+        !allowedRoles!.contains(authService.currentUser?.role)) {
       return fallback ?? const SizedBox.shrink();
     }
 
-    // Check module permission
+    // Module permissions feature not yet implemented
+    // TODO: Implement module-based permission checking in AuthService
+    /*
     if (requiredModule != null) {
       final hasPermission = authService.hasPermission(
         requiredModule!,
@@ -56,6 +59,7 @@ class RoleGuard extends StatelessWidget {
         return fallback ?? const SizedBox.shrink();
       }
     }
+    */
 
     return child;
   }
@@ -83,7 +87,7 @@ class RoleBasedWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
-    
+
     if (!authService.isLoggedIn) {
       return defaultWidget ?? const SizedBox.shrink();
     }
@@ -107,12 +111,13 @@ class RoleBasedWidget extends StatelessWidget {
 
 /// Mixin untuk route guard
 mixin RouteGuard {
-  bool canAccessRoute(BuildContext context, {
+  bool canAccessRoute(
+    BuildContext context, {
     List<UserRole>? allowedRoles,
     AppModule? requiredModule,
   }) {
     final authService = AuthService();
-    
+
     // Check if user is logged in
     if (!authService.isLoggedIn) {
       Navigator.pushReplacementNamed(context, '/login');
@@ -120,16 +125,21 @@ mixin RouteGuard {
     }
 
     // Check role-based access
-    if (allowedRoles != null && !allowedRoles.contains(authService.currentRole)) {
+    if (allowedRoles != null &&
+        !allowedRoles.contains(authService.currentUser?.role)) {
       _showAccessDenied(context);
       return false;
     }
 
-    // Check module permission
-    if (requiredModule != null && !authService.canAccessModule(requiredModule)) {
+    // Module permissions feature not yet implemented
+    // TODO: Implement module-based permission checking in AuthService
+    /*
+    if (requiredModule != null &&
+        !authService.canAccessModule(requiredModule)) {
       _showAccessDenied(context);
       return false;
     }
+    */
 
     return true;
   }
@@ -150,14 +160,11 @@ abstract class GuardedPage extends StatefulWidget {
   final List<UserRole>? allowedRoles;
   final AppModule? requiredModule;
 
-  const GuardedPage({
-    super.key,
-    this.allowedRoles,
-    this.requiredModule,
-  });
+  const GuardedPage({super.key, this.allowedRoles, this.requiredModule});
 }
 
-abstract class GuardedPageState<T extends GuardedPage> extends State<T> with RouteGuard {
+abstract class GuardedPageState<T extends GuardedPage> extends State<T>
+    with RouteGuard {
   @override
   void initState() {
     super.initState();

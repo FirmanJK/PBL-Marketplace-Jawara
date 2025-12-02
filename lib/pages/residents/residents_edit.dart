@@ -20,10 +20,9 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
-  
+
   String _selectedGender = 'Laki-laki';
   String _selectedStatus = 'Aktif';
-  RegistrationStatus _selectedRegistrationStatus = RegistrationStatus.accepted;
   DateTime? _birthDate;
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
@@ -38,7 +37,8 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
     _addressController.text = widget.resident.address ?? '';
     _selectedGender = widget.resident.gender;
     _selectedStatus = widget.resident.status;
-    _selectedRegistrationStatus = widget.resident.registrationStatus;
+    // TODO: Handle registration status if needed in future
+    // _selectedRegistrationStatus = widget.resident.registrationStatus;
     _birthDate = widget.resident.birthDate;
   }
 
@@ -78,9 +78,9 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
   void _saveChanges() {
     if (_formKey.currentState!.validate()) {
       // TODO: Implement save to database/API
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Data berhasil diperbarui')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Data berhasil diperbarui')));
       Navigator.pop(context);
     }
   }
@@ -115,9 +115,10 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
                       backgroundImage: _imageFile != null
                           ? FileImage(_imageFile!)
                           : widget.resident.photoUrl != null
-                              ? NetworkImage(widget.resident.photoUrl!)
-                              : null,
-                      child: _imageFile == null && widget.resident.photoUrl == null
+                          ? NetworkImage(widget.resident.photoUrl!)
+                          : null,
+                      child:
+                          _imageFile == null && widget.resident.photoUrl == null
                           ? Text(
                               widget.resident.name[0].toUpperCase(),
                               style: const TextStyle(

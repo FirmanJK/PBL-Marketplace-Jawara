@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/shared/sidebar.dart';
+import 'package:jawara/services/auth_service.dart';
+import 'package:jawara/utils/toast_helper.dart';
 
 class BaseLayout extends StatefulWidget {
   final Widget child;
@@ -21,6 +23,87 @@ class BaseLayout extends StatefulWidget {
 
 class _BaseLayoutState extends State<BaseLayout> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final AuthService _authService = AuthService();
+
+  Future<void> _handleLogout() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Konfirmasi Logout'),
+        content: const Text('Apakah Anda yakin ingin keluar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Keluar',
+              style: TextStyle(color: Color(0xFFEF4444)),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm ?? false) {
+      try {
+        await _authService.logout();
+        if (mounted) {
+          ToastHelper.showSuccess(context, 'Logout berhasil');
+          // Navigate immediately - toast stays visible during transition (2s duration)
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/login',
+            (route) => false,
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ToastHelper.showError(context, 'Logout gagal: $e');
+        }
+      }
+    }
+  }
+
+  void _showSuccessToast(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: const Color(0xFF10B981),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.only(top: 16, left: 16, right: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
+  void _showErrorToast(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: const Color(0xFFEF4444),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.only(top: 16, left: 16, right: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,11 +172,7 @@ class _BaseLayoutState extends State<BaseLayout> {
                   ),
                   onSelected: (value) {
                     if (value == 'logout') {
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        '/login',
-                        (route) => false,
-                      );
+                      _handleLogout();
                     } else if (value == 'profile') {
                       Navigator.pushNamed(context, '/profile');
                     } else if (value == 'settings') {
