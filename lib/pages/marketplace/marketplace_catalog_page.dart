@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/data/products.dart';
 import 'package:jawara/models/product.dart';
-import 'package:jawara/pages/marketplace_detail_page.dart';
+import 'package:jawara/pages/marketplace/marketplace_detail_page.dart';
 import 'package:intl/intl.dart';
 
 class MarketplaceCatalogPage extends StatefulWidget {
@@ -14,7 +14,7 @@ class MarketplaceCatalogPage extends StatefulWidget {
 class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
   final List<Product> _products = [];
   final ScrollController _scrollController = ScrollController();
-  
+
   int _currentPage = 1;
   bool _isLoading = false;
   bool _hasMore = true;
@@ -33,7 +33,8 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent * 0.8) {
       if (!_isLoading && _hasMore) {
         _loadProducts();
       }
@@ -42,7 +43,7 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
 
   Future<void> _loadProducts() async {
     if (_isLoading) return;
-    
+
     setState(() => _isLoading = true);
 
     try {
@@ -63,9 +64,9 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memuat produk: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal memuat produk: $e')));
       }
     } finally {
       if (mounted) {
@@ -90,7 +91,7 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
         builder: (context) => MarketplaceDetailPage(product: product),
       ),
     );
-    
+
     if (result == true) {
       _refreshProducts();
     }
@@ -107,7 +108,11 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.shopping_bag_outlined, size: 64, color: Colors.grey[400]),
+            Icon(
+              Icons.shopping_bag_outlined,
+              size: 64,
+              color: Colors.grey[400],
+            ),
             const SizedBox(height: 16),
             Text(
               'Belum ada produk',
@@ -160,67 +165,71 @@ class _ProductCard extends StatelessWidget {
   final Product product;
   final VoidCallback onTap;
 
-  const _ProductCard({
-    required this.product,
-    required this.onTap,
-  });
+  const _ProductCard({required this.product, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+    final currencyFormat = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    );
 
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              color: Colors.grey[200],
-              child: product.imageUrl.startsWith('http')
-                  ? Image.network(
-                      product.imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(Icons.image_not_supported, size: 48);
-                      },
-                    )
-                  : const Icon(Icons.image, size: 48),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                color: Colors.grey[200],
+                child: product.imageUrl.startsWith('http')
+                    ? Image.network(
+                        product.imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(
+                            Icons.image_not_supported,
+                            size: 48,
+                          );
+                        },
+                      )
+                    : const Icon(Icons.image, size: 48),
+              ),
             ),
-          ),
-          // Info
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
+            // Info
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  currencyFormat.format(product.price),
-                  style: TextStyle(
-                    color: Theme.of(context).primaryColor,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
+                  const SizedBox(height: 4),
+                  Text(
+                    currencyFormat.format(product.price),
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }

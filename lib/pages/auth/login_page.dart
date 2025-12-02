@@ -18,7 +18,6 @@ class _LoginPageState extends State<LoginPage> {
   final AuthService _authService = AuthService();
   String? _emailError;
   String? _passwordError;
-  String? _generalError;
   bool _isLoading = false;
 
   @override
@@ -33,7 +32,6 @@ class _LoginPageState extends State<LoginPage> {
       // Reset errors
       _emailError = null;
       _passwordError = null;
-      _generalError = null;
 
       // Validate email
       if (_emailController.text.trim().isEmpty) {
@@ -59,7 +57,6 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _performLogin() async {
     setState(() {
       _isLoading = true;
-      _generalError = null;
     });
 
     try {
@@ -76,7 +73,6 @@ class _LoginPageState extends State<LoginPage> {
       }
     } on ErrorResponse catch (e) {
       setState(() {
-        _generalError = e.detail;
         _isLoading = false;
       });
 
@@ -99,10 +95,6 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         errorMessage = 'Gagal login: ${e.toString()}';
       }
-
-      setState(() {
-        _generalError = errorMessage;
-      });
 
       // Popup toast error di atas
       if (mounted) {

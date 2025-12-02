@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:jawara/models/product.dart';
-import 'package:jawara/pages/marketplace_payment_page.dart';
+import 'package:jawara/pages/marketplace/marketplace_payment_page.dart';
 
 class MarketplaceCheckoutPage extends StatefulWidget {
   final Product product;
@@ -9,7 +9,8 @@ class MarketplaceCheckoutPage extends StatefulWidget {
   const MarketplaceCheckoutPage({super.key, required this.product});
 
   @override
-  State<MarketplaceCheckoutPage> createState() => _MarketplaceCheckoutPageState();
+  State<MarketplaceCheckoutPage> createState() =>
+      _MarketplaceCheckoutPageState();
 }
 
 class _MarketplaceCheckoutPageState extends State<MarketplaceCheckoutPage> {
@@ -61,7 +62,9 @@ class _MarketplaceCheckoutPageState extends State<MarketplaceCheckoutPage> {
       if (_shippingMethod == 'Reguler' && _addressController.text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Alamat pengiriman harus diisi untuk pengiriman reguler'),
+            content: Text(
+              'Alamat pengiriman harus diisi untuk pengiriman reguler',
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -75,7 +78,7 @@ class _MarketplaceCheckoutPageState extends State<MarketplaceCheckoutPage> {
   void _completeCheckout() {
     // Generate order ID
     final orderId = 'ORD${DateTime.now().millisecondsSinceEpoch}';
-    
+
     // Navigate to payment page
     Navigator.push(
       context,
@@ -129,14 +132,17 @@ class _MarketplaceCheckoutPageState extends State<MarketplaceCheckoutPage> {
                                       width: 80,
                                       height: 80,
                                       fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Container(
-                                          width: 80,
-                                          height: 80,
-                                          color: Colors.grey[200],
-                                          child: const Icon(Icons.image_not_supported),
-                                        );
-                                      },
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                            return Container(
+                                              width: 80,
+                                              height: 80,
+                                              color: Colors.grey[200],
+                                              child: const Icon(
+                                                Icons.image_not_supported,
+                                              ),
+                                            );
+                                          },
                                     )
                                   : Container(
                                       width: 80,
@@ -202,7 +208,9 @@ class _MarketplaceCheckoutPageState extends State<MarketplaceCheckoutPage> {
                                     vertical: 8,
                                   ),
                                   decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey[300]!),
+                                    border: Border.all(
+                                      color: Colors.grey[300]!,
+                                    ),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
@@ -240,7 +248,9 @@ class _MarketplaceCheckoutPageState extends State<MarketplaceCheckoutPage> {
                         children: [
                           RadioListTile<String>(
                             title: const Text('Reguler (Diantar Penjual)'),
-                            subtitle: const Text('Produk akan diantar ke alamat Anda'),
+                            subtitle: const Text(
+                              'Produk akan diantar ke alamat Anda',
+                            ),
                             value: 'Reguler',
                             groupValue: _shippingMethod,
                             onChanged: (value) {
@@ -253,7 +263,9 @@ class _MarketplaceCheckoutPageState extends State<MarketplaceCheckoutPage> {
                           const Divider(height: 1),
                           RadioListTile<String>(
                             title: const Text('Instan (Ambil di Tempat)'),
-                            subtitle: const Text('Ambil langsung di lokasi penjual'),
+                            subtitle: const Text(
+                              'Ambil langsung di lokasi penjual',
+                            ),
                             value: 'Instan',
                             groupValue: _shippingMethod,
                             onChanged: (value) {
@@ -295,7 +307,8 @@ class _MarketplaceCheckoutPageState extends State<MarketplaceCheckoutPage> {
                           ),
                         ),
                         validator: (value) {
-                          if (_shippingMethod == 'Reguler' && (value == null || value.isEmpty)) {
+                          if (_shippingMethod == 'Reguler' &&
+                              (value == null || value.isEmpty)) {
                             return 'Alamat pengiriman harus diisi';
                           }
                           return null;
