@@ -82,6 +82,7 @@ class AuthService {
     required String password,
     required String passwordConfirm,
     required String nik,
+    required String familyNumber,
     required String gender,
     required DateTime birthDate,
     String? phone,
@@ -98,6 +99,7 @@ class AuthService {
           'password_confirm': passwordConfirm,
           'phone': phone,
           'nik': nik,
+          'family_number': familyNumber,
           'gender': gender,
           'birth_date': birthDate.toString().split(' ')[0], // YYYY-MM-DD
           'birth_place': birthPlace,

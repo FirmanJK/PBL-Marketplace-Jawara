@@ -92,4 +92,21 @@ class ResidentsService {
       throw Exception('Failed to delete resident: $e');
     }
   }
+
+  /// Get all families
+  static Future<List<Map<String, dynamic>>> getFamilies() async {
+    try {
+      final token = _authService.accessToken;
+      final response = await ApiService.get('/families', token: token);
+
+      final List<dynamic> data = response is List
+          ? response
+          : response['data'] ?? [];
+      return data
+          .map((json) => Map<String, dynamic>.from(json as Map))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to load families: $e');
+    }
+  }
 }

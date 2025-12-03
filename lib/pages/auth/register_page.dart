@@ -16,6 +16,7 @@ class _RegisterPageState extends State<RegisterPage> {
   late TextEditingController usernameController;
   late TextEditingController emailController;
   late TextEditingController nikController;
+  late TextEditingController familyNumberController;
   late TextEditingController phoneController;
   late TextEditingController passwordController;
   late TextEditingController passwordConfirmController;
@@ -25,6 +26,8 @@ class _RegisterPageState extends State<RegisterPage> {
   String? selectedGender;
   DateTime? selectedBirthDate;
   bool isLoading = false;
+  bool showPassword = false;
+  bool showPasswordConfirm = false;
   final formKey = GlobalKey<FormState>();
 
   @override
@@ -34,6 +37,7 @@ class _RegisterPageState extends State<RegisterPage> {
     usernameController = TextEditingController();
     emailController = TextEditingController();
     nikController = TextEditingController();
+    familyNumberController = TextEditingController();
     phoneController = TextEditingController();
     passwordController = TextEditingController();
     passwordConfirmController = TextEditingController();
@@ -46,6 +50,7 @@ class _RegisterPageState extends State<RegisterPage> {
     usernameController.dispose();
     emailController.dispose();
     nikController.dispose();
+    familyNumberController.dispose();
     phoneController.dispose();
     passwordController.dispose();
     passwordConfirmController.dispose();
@@ -83,6 +88,19 @@ class _RegisterPageState extends State<RegisterPage> {
     }
     if (!value.isNumericOnly()) {
       return 'NIK hanya boleh berisi angka';
+    }
+    return null;
+  }
+
+  String? validateFamilyNumber(String? value) {
+    if (value?.isEmpty ?? true) {
+      return 'Nomor KK tidak boleh kosong';
+    }
+    if (value!.length != 16) {
+      return 'Nomor KK harus 16 digit';
+    }
+    if (!value.isNumericOnly()) {
+      return 'Nomor KK hanya boleh berisi angka';
     }
     return null;
   }
@@ -155,6 +173,7 @@ class _RegisterPageState extends State<RegisterPage> {
         password: passwordController.text,
         passwordConfirm: passwordConfirmController.text,
         nik: nikController.text.trim(),
+        familyNumber: familyNumberController.text.trim(),
         gender: selectedGender!,
         birthDate: selectedBirthDate!,
         phone: phoneController.text.trim().isEmpty
@@ -317,9 +336,17 @@ class _RegisterPageState extends State<RegisterPage> {
                                             prefixIcon:
                                                 Icons.perm_identity_rounded,
                                           ),
-                                          _buildGenderDropdown(),
+                                          _buildTextFormField(
+                                            label: 'Nomor KK',
+                                            hintText: 'Nomor Kartu Keluarga',
+                                            controller: familyNumberController,
+                                            inputType: TextInputType.number,
+                                            validator: validateFamilyNumber,
+                                            prefixIcon: Icons.family_restroom,
+                                          ),
                                         ),
                                         const SizedBox(height: 20),
+                                        _buildGenderDropdown(),
                                         _buildTwoColumnRow(
                                           context,
                                           _buildBirthDatePicker(),
@@ -415,6 +442,15 @@ class _RegisterPageState extends State<RegisterPage> {
                                               Icons.perm_identity_rounded,
                                         ),
                                         const SizedBox(height: 20),
+                                        _buildTextFormField(
+                                          label: 'Nomor KK',
+                                          hintText: 'Nomor Kartu Keluarga',
+                                          controller: familyNumberController,
+                                          inputType: TextInputType.number,
+                                          validator: validateFamilyNumber,
+                                          prefixIcon: Icons.family_restroom,
+                                        ),
+                                        const SizedBox(height: 20),
                                         _buildGenderDropdown(),
                                         const SizedBox(height: 20),
                                         _buildBirthDatePicker(),
@@ -468,6 +504,13 @@ class _RegisterPageState extends State<RegisterPage> {
                                           isPassword: true,
                                           validator: validatePassword,
                                           prefixIcon: Icons.lock_outline,
+                                          onPasswordToggle: () {
+                                            setState(
+                                              () =>
+                                                  showPassword = !showPassword,
+                                            );
+                                          },
+                                          showPassword: showPassword,
                                         ),
                                         const SizedBox(height: 20),
                                         _buildTextFormField(
@@ -477,6 +520,13 @@ class _RegisterPageState extends State<RegisterPage> {
                                           isPassword: true,
                                           validator: validatePasswordMatch,
                                           prefixIcon: Icons.lock_outline,
+                                          onPasswordToggle: () {
+                                            setState(
+                                              () => showPasswordConfirm =
+                                                  !showPasswordConfirm,
+                                            );
+                                          },
+                                          showPassword: showPasswordConfirm,
                                         ),
                                       ],
                                     ),
@@ -561,6 +611,8 @@ class _RegisterPageState extends State<RegisterPage> {
     bool isPassword = false,
     IconData? prefixIcon,
     String? Function(String?)? validator,
+    VoidCallback? onPasswordToggle,
+    bool showPassword = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -577,12 +629,24 @@ class _RegisterPageState extends State<RegisterPage> {
         TextFormField(
           controller: controller,
           keyboardType: inputType,
-          obscureText: isPassword,
+          obscureText: isPassword && !showPassword,
           validator: validator,
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
             prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+            suffixIcon: isPassword
+                ? IconButton(
+                    icon: Icon(
+                      showPassword
+                          ? Icons.visibility_rounded
+                          : Icons.visibility_off_rounded,
+                      color: Colors.grey[400],
+                      size: 20,
+                    ),
+                    onPressed: onPasswordToggle,
+                  )
+                : null,
             contentPadding: const EdgeInsets.symmetric(
               vertical: 16,
               horizontal: 20,

@@ -20,91 +20,38 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
   final _nikController = TextEditingController();
   final _teleponController = TextEditingController();
   final _tempatLahirController = TextEditingController();
+  final _pendidikanController = TextEditingController();
+  final _pekerjaanController = TextEditingController();
 
   // State
-  String? _selectedKeluarga;
+  int? _selectedFamilyId;
   DateTime? _selectedTanggalLahir;
   String? _selectedJenisKelamin;
   String? _selectedAgama;
   String? _selectedGolDarah;
-  String? _selectedPeran;
-  String? _selectedPendidikan;
-  String? _selectedPekerjaan;
-  String? _selectedStatus; // Status pernikahan?
 
-  // Dummy Options (Ganti dengan data asli/dinamis nanti)
-  final List<String> _keluargaOptions = [
-    '-- Pilih Keluarga --',
-    'Keluarga Mara Nunez',
-    'Keluarga Tes',
-    'Keluarga Farhan',
-    'Keluarga Rendha',
-    'Keluarga Anti Micin',
-    'Keluarga Varizky',
-    'Keluarga Ijat',
-    'Keluarga Raudhil',
-  ];
-  final List<String> _jenisKelaminOptions = [
-    '-- Pilih Jenis Kelamin --',
-    'Laki-laki',
-    'Perempuan',
-  ];
+  // Data dari backend
+  List<Map<String, dynamic>> _families = [];
+  bool _isLoadingFamilies = false;
+
+  // Static options (sesuai backend schema validasi)
+  final List<String> _jenisKelaminOptions = ['Laki-laki', 'Perempuan'];
   final List<String> _agamaOptions = [
-    '-- Pilih Agama --',
     'Islam',
-    'Kristen Protestan',
-    'Kristen Katolik',
+    'Kristen',
+    'Katolik',
     'Hindu',
     'Buddha',
-    'Konghucu',
-  ];
-  final List<String> _golDarahOptions = [
-    '-- Pilih Golongan Darah --',
-    'A',
-    'B',
-    'AB',
-    'O',
-    'Tidak Tahu',
-  ];
-  final List<String> _peranOptions = [
-    '-- Pilih Peran Keluarga --',
-    'Kepala Keluarga',
-    'Istri',
-    'Anak',
+    'Khonghucu',
     'Lainnya',
   ];
-  final List<String> _pendidikanOptions = [
-    '-- Pilih Pendidikan Terakhir --',
-    'Tidak Sekolah',
-    'SD',
-    'SMP',
-    'SMA/SMK',
-    'Diploma',
-    'S1',
-    'S2',
-    'S3',
-  ];
-  final List<String> _pekerjaanOptions = [
-    '-- Pilih Jenis Pekerjaan --',
-    'Belum/Tidak Bekerja',
-    'Pelajar/Mahasiswa',
-    'PNS',
-    'TNI/POLRI',
-    'Karyawan Swasta',
-    'Wiraswasta',
-    'Petani',
-    'Nelayan',
-    'Ibu Rumah Tangga',
-    'Pensiunan',
-    'Lainnya',
-  ];
-  final List<String> _statusOptions = [
-    '-- Pilih Status --',
-    'Belum Kawin',
-    'Kawin',
-    'Cerai Hidup',
-    'Cerai Mati',
-  ]; // Asumsi status pernikahan
+  final List<String> _golDarahOptions = ['A', 'B', 'AB', 'O', '-'];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFamilies();
+  }
 
   @override
   void dispose() {
@@ -112,15 +59,40 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
     _nikController.dispose();
     _teleponController.dispose();
     _tempatLahirController.dispose();
+    _pendidikanController.dispose();
+    _pekerjaanController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadFamilies() async {
+    setState(() => _isLoadingFamilies = true);
+    try {
+      final families = await ResidentsService.getFamilies();
+      setState(() {
+        _families = families
+            .map(
+              (f) => {
+                'id': f['id'],
+                'name': f['family_number'] ?? 'Keluarga ${f['id']}',
+              },
+            )
+            .toList();
+      });
+    } catch (e) {
+      if (mounted) {
+        ToastHelper.showError(context, 'Gagal load keluarga: $e');
+      }
+    } finally {
+      setState(() => _isLoadingFamilies = false);
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedTanggalLahir ?? DateTime.now(),
-      firstDate: DateTime(1900), // Batas awal tahun lahir
-      lastDate: DateTime.now(), // Batas akhir tahun lahir (hari ini)
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
     );
     if (picked != null && picked != _selectedTanggalLahir) {
       setState(() {
@@ -135,15 +107,13 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
       _nikController.clear();
       _teleponController.clear();
       _tempatLahirController.clear();
-      _selectedKeluarga = null;
+      _pendidikanController.clear();
+      _pekerjaanController.clear();
+      _selectedFamilyId = null;
       _selectedTanggalLahir = null;
       _selectedJenisKelamin = null;
       _selectedAgama = null;
       _selectedGolDarah = null;
-      _selectedPeran = null;
-      _selectedPendidikan = null;
-      _selectedPekerjaan = null;
-      _selectedStatus = null;
     });
   }
 
@@ -164,9 +134,13 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
       return;
     }
 
-    if (_selectedJenisKelamin == null ||
-        _selectedJenisKelamin == _jenisKelaminOptions[0]) {
+    if (_selectedJenisKelamin == null) {
       ToastHelper.showWarning(context, 'Jenis kelamin harus dipilih');
+      return;
+    }
+
+    if (_selectedFamilyId == null) {
+      ToastHelper.showWarning(context, 'Keluarga harus dipilih');
       return;
     }
 
@@ -182,22 +156,18 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
             ? null
             : _tempatLahirController.text,
         'birth_date': _selectedTanggalLahir?.toIso8601String().split('T')[0],
-        'gender': _selectedJenisKelamin == _jenisKelaminOptions[0]
+        'gender': _selectedJenisKelamin,
+        'religion': _selectedAgama,
+        'blood_type': _selectedGolDarah,
+        'education': _pendidikanController.text.isEmpty
             ? null
-            : _selectedJenisKelamin,
-        'religion': _selectedAgama == _agamaOptions[0] ? null : _selectedAgama,
-        'blood_type': _selectedGolDarah == _golDarahOptions[0]
+            : _pendidikanController.text,
+        'occupation': _pekerjaanController.text.isEmpty
             ? null
-            : _selectedGolDarah?.replaceAll('Tidak Tahu', '-'),
-        'education': _selectedPendidikan == _pendidikanOptions[0]
-            ? null
-            : _selectedPendidikan,
-        'occupation': _selectedPekerjaan == _pekerjaanOptions[0]
-            ? null
-            : _selectedPekerjaan,
+            : _pekerjaanController.text,
         'status': 'aktif',
-        'family_id': 1,
-        'house_id': 1,
+        'family_id': _selectedFamilyId,
+        'house_id': 1, // TODO: Load dari backend
       };
 
       // Create resident via API
@@ -254,21 +224,15 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Tambah Warga', // Judul Form
+                      'Tambah Warga',
                       style: AppTheme.headingMedium.copyWith(
                         fontSize: isMobile ? 20 : 24,
                       ),
                     ),
                     SizedBox(height: isMobile ? 24 : 32),
 
-                    // Dropdown Keluarga
-                    _buildDropdownField(
-                      label: 'Pilih Keluarga',
-                      hint: '-- Pilih Keluarga --',
-                      value: _selectedKeluarga,
-                      items: _keluargaOptions,
-                      onChanged: (v) => setState(() => _selectedKeluarga = v),
-                    ),
+                    // Dropdown Keluarga (Dinamis dari backend)
+                    _buildFamilyDropdown(),
                     const SizedBox(height: 24),
 
                     // Input Nama
@@ -321,7 +285,7 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
                     // Dropdown Jenis Kelamin
                     _buildDropdownField(
                       label: 'Jenis Kelamin',
-                      hint: '-- Pilih Jenis Kelamin --',
+                      hint: 'Pilih jenis kelamin',
                       value: _selectedJenisKelamin,
                       items: _jenisKelaminOptions,
                       onChanged: (v) =>
@@ -332,7 +296,7 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
                     // Dropdown Agama
                     _buildDropdownField(
                       label: 'Agama',
-                      hint: '-- Pilih Agama --',
+                      hint: 'Pilih agama',
                       value: _selectedAgama,
                       items: _agamaOptions,
                       onChanged: (v) => setState(() => _selectedAgama = v),
@@ -342,50 +306,26 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
                     // Dropdown Golongan Darah
                     _buildDropdownField(
                       label: 'Golongan Darah',
-                      hint: '-- Pilih Golongan Darah --',
+                      hint: 'Pilih golongan darah',
                       value: _selectedGolDarah,
                       items: _golDarahOptions,
                       onChanged: (v) => setState(() => _selectedGolDarah = v),
                     ),
                     const SizedBox(height: 24),
 
-                    // Dropdown Peran Keluarga
-                    _buildDropdownField(
-                      label: 'Peran Keluarga',
-                      hint: '-- Pilih Peran Keluarga --',
-                      value: _selectedPeran,
-                      items: _peranOptions,
-                      onChanged: (v) => setState(() => _selectedPeran = v),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Dropdown Pendidikan Terakhir
-                    _buildDropdownField(
+                    // Input Pendidikan Terakhir
+                    _buildTextField(
                       label: 'Pendidikan Terakhir',
-                      hint: '-- Pilih Pendidikan Terakhir --',
-                      value: _selectedPendidikan,
-                      items: _pendidikanOptions,
-                      onChanged: (v) => setState(() => _selectedPendidikan = v),
+                      hint: 'Contoh: SMA, S1, Diploma',
+                      controller: _pendidikanController,
                     ),
                     const SizedBox(height: 24),
 
-                    // Dropdown Pekerjaan
-                    _buildDropdownField(
+                    // Input Pekerjaan
+                    _buildTextField(
                       label: 'Pekerjaan',
-                      hint: '-- Pilih Jenis Pekerjaan --',
-                      value: _selectedPekerjaan,
-                      items: _pekerjaanOptions,
-                      onChanged: (v) => setState(() => _selectedPekerjaan = v),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Dropdown Status
-                    _buildDropdownField(
-                      label: 'Status',
-                      hint: '-- Pilih Status --',
-                      value: _selectedStatus,
-                      items: _statusOptions,
-                      onChanged: (v) => setState(() => _selectedStatus = v),
+                      hint: 'Contoh: Karyawan Swasta, Petani',
+                      controller: _pekerjaanController,
                     ),
                     const SizedBox(height: 32),
 
@@ -425,7 +365,75 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
     );
   }
 
-  // --- Helper Widgets (Bisa disalin dari file lain atau dibuat baru) ---
+  // --- Helper Widgets ---
+
+  Widget _buildFamilyDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Pilih Keluarga',
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+        ),
+        const SizedBox(height: 8),
+        _isLoadingFamilies
+            ? Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 20,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: AppTheme.borderRadiusLarge,
+                  border: Border.all(color: AppTheme.border),
+                ),
+                child: const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              )
+            : DropdownButtonFormField<int>(
+                value: _selectedFamilyId,
+                hint: const Text('Pilih keluarga'),
+                isExpanded: true,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: AppTheme.borderRadiusLarge,
+                    borderSide: const BorderSide(color: AppTheme.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: AppTheme.borderRadiusLarge,
+                    borderSide: const BorderSide(color: AppTheme.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: AppTheme.borderRadiusLarge,
+                    borderSide: const BorderSide(
+                      color: AppTheme.primary,
+                      width: 2,
+                    ),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[50],
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 20,
+                  ),
+                ),
+                items: _families.map((family) {
+                  return DropdownMenuItem<int>(
+                    value: family['id'] as int,
+                    child: Text(
+                      family['name'],
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  );
+                }).toList(),
+                onChanged: (val) => setState(() => _selectedFamilyId = val),
+              ),
+      ],
+    );
+  }
 
   Widget _buildTextField({
     required String label,
@@ -450,7 +458,7 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
           maxLength: maxLength,
           decoration: InputDecoration(
             hintText: hint,
-            counterText: "", // Hide the default counter
+            counterText: "",
             border: OutlineInputBorder(
               borderRadius: AppTheme.borderRadiusLarge,
               borderSide: const BorderSide(color: AppTheme.border),
@@ -562,13 +570,10 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
           ),
           items: items.map((String item) {
             return DropdownMenuItem<String>(
-              value: item == hint ? null : item,
+              value: item,
               child: Text(
                 item,
-                style: TextStyle(
-                  color: item == hint ? Colors.grey[400] : AppTheme.textDark,
-                  fontSize: 14,
-                ),
+                style: const TextStyle(fontSize: 14, color: AppTheme.textDark),
                 overflow: TextOverflow.ellipsis,
               ),
             );
