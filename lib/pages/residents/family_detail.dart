@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:jawara/pages/residents/families_page.dart';
+import 'package:jawara/models/family.dart';
 import 'package:jawara/utils/toast_helper.dart';
 
 class FamilyDetailPage extends StatelessWidget {
-  final FamilyItem family;
+  final Family family;
 
   const FamilyDetailPage({super.key, required this.family});
 
@@ -92,10 +92,10 @@ class FamilyDetailPage extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
+                decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    const Color(0xFF0891B2).withOpacity(0.1),
+                    Color.fromRGBO(8, 145, 178, 0.1),
                     Colors.white,
                   ],
                   begin: Alignment.topCenter,
@@ -106,8 +106,8 @@ class FamilyDetailPage extends StatelessWidget {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0891B2).withOpacity(0.1),
+                      decoration: BoxDecoration(
+                      color: Color.fromRGBO(8, 145, 178, 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -127,23 +127,19 @@ class FamilyDetailPage extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-                  Container(
+                    Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: family.status == 'Aktif'
-                          ? Colors.green.withOpacity(0.1)
-                          : Colors.grey.withOpacity(0.1),
+                      color: Color.fromRGBO(33, 150, 243, 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      family.status,
-                      style: TextStyle(
-                        color: family.status == 'Aktif'
-                            ? Colors.green
-                            : Colors.grey,
+                      '${family.residentCount} anggota',
+                      style: const TextStyle(
+                        color: Colors.blue,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -171,28 +167,28 @@ class FamilyDetailPage extends StatelessWidget {
                   _buildInfoCard(
                     icon: Icons.person,
                     label: 'Kepala Keluarga',
-                    value: family.kepalaKeluarga,
+                    value: family.headResidentId != null ? '#${family.headResidentId}' : '-',
                   ),
                   const SizedBox(height: 12),
 
                   _buildInfoCard(
                     icon: Icons.home,
-                    label: 'Alamat Rumah',
-                    value: family.alamatRumah,
+                    label: 'Dibuat',
+                    value: family.createdAt != null ? family.createdAt!.toLocal().toString().split(' ').first : '-',
                   ),
                   const SizedBox(height: 12),
 
                   _buildInfoCard(
-                    icon: Icons.key,
-                    label: 'Status Kepemilikan',
-                    value: family.statusKepemilikan,
+                    icon: Icons.update,
+                    label: 'Terakhir diperbarui',
+                    value: family.updatedAt != null ? family.updatedAt!.toLocal().toString().split(' ').first : '-',
                   ),
                   const SizedBox(height: 12),
 
                   _buildInfoCard(
                     icon: Icons.numbers,
                     label: 'No',
-                    value: family.no.toString(),
+                    value: family.id.toString(),
                   ),
                 ],
               ),
@@ -216,7 +212,7 @@ class FamilyDetailPage extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Color.fromRGBO(0, 0, 0, 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
