@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:jawara/models/resident.dart';
+import 'package:jawara/services/residents_service.dart';
+import 'package:jawara/utils/toast_helper.dart';
 import 'package:intl/intl.dart';
 
 class ResidentsDetailPage extends StatelessWidget {
@@ -81,25 +83,14 @@ class ResidentsDetailPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: resident.photoUrl != null
-                          ? Colors.transparent
-                          : const Color(0xFF0891B2).withOpacity(0.1),
+                      color: const Color(0xFF0891B2).withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: resident.photoUrl != null
-                        ? ClipOval(
-                            child: Image.network(
-                              resident.photoUrl!,
-                              width: 80,
-                              height: 80,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : Icon(
-                            Icons.person,
-                            size: 60,
-                            color: const Color(0xFF0891B2),
-                          ),
+                    child: Icon(
+                      Icons.person,
+                      size: 60,
+                      color: const Color(0xFF0891B2),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -118,15 +109,15 @@ class ResidentsDetailPage extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: resident.status == 'Aktif'
+                      color: resident.status == 'aktif'
                           ? Colors.green.withOpacity(0.1)
                           : Colors.grey.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      resident.status,
+                      resident.status.toUpperCase(),
                       style: TextStyle(
-                        color: resident.status == 'Aktif'
+                        color: resident.status == 'aktif'
                             ? Colors.green
                             : Colors.grey,
                         fontWeight: FontWeight.w600,
@@ -161,18 +152,19 @@ class ResidentsDetailPage extends StatelessWidget {
                   const SizedBox(height: 12),
 
                   _buildInfoCard(
-                    icon: Icons.email,
-                    label: 'Email',
-                    value: resident.email,
-                  ),
-                  const SizedBox(height: 12),
-
-                  _buildInfoCard(
                     icon: Icons.phone,
                     label: 'Telepon',
                     value: resident.phone ?? '-',
                   ),
                   const SizedBox(height: 12),
+
+                  if (resident.email != null)
+                    _buildInfoCard(
+                      icon: Icons.email,
+                      label: 'Email',
+                      value: resident.email!,
+                    ),
+                  if (resident.email != null) const SizedBox(height: 12),
 
                   _buildInfoCard(
                     icon: resident.gender == 'Laki-laki'
@@ -183,6 +175,22 @@ class ResidentsDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
+                  if (resident.birthPlace != null)
+                    _buildInfoCard(
+                      icon: Icons.location_on,
+                      label: 'Tempat Lahir',
+                      value: resident.birthPlace!,
+                    ),
+                  if (resident.birthPlace != null) const SizedBox(height: 12),
+
+                  if (resident.address != null)
+                    _buildInfoCard(
+                      icon: Icons.home,
+                      label: 'Alamat',
+                      value: resident.address!,
+                    ),
+                  if (resident.address != null) const SizedBox(height: 12),
+
                   if (resident.birthDate != null)
                     _buildInfoCard(
                       icon: Icons.cake,
@@ -190,13 +198,6 @@ class ResidentsDetailPage extends StatelessWidget {
                       value: dateFormat.format(resident.birthDate!),
                     ),
                   if (resident.birthDate != null) const SizedBox(height: 12),
-
-                  _buildInfoCard(
-                    icon: Icons.home,
-                    label: 'Alamat',
-                    value: resident.address ?? '-',
-                  ),
-                  const SizedBox(height: 12),
 
                   _buildInfoCard(
                     icon: Icons.app_registration,
@@ -281,27 +282,28 @@ class ResidentsDetailPage extends StatelessWidget {
   }
 
   void _showDeleteConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Hapus Warga'),
-        content: Text('Apakah Anda yakin ingin menghapus ${resident.name}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // TODO: Implement delete
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Hapus'),
-          ),
-        ],
-      ),
-    );
+    _deleteResident(context);
+  }
+
+  Future<void> _deleteResident(BuildContext context) async {
+    try {
+      // Delete via API
+      await ResidentsService.deleteResident(resident.id);
+
+      // Show success toast
+      if (context.mounted) {
+        ToastHelper.showSuccess(context, 'Warga berhasil dihapus');
+      }
+
+      // Pop back to list page (refresh will happen automatically)
+      if (context.mounted) {
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      // Show error toast
+      if (context.mounted) {
+        ToastHelper.showError(context, 'Gagal menghapus warga: $e');
+      }
+    }
   }
 }

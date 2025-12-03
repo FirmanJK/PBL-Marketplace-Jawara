@@ -5,6 +5,7 @@ import 'package:jawara/models/user_role.dart';
 import 'package:jawara/shared/responsive_grid_view.dart';
 import 'package:jawara/shared/role_guard.dart';
 import 'package:jawara/shared/standard_app_bar.dart';
+import 'package:jawara/utils/toast_helper.dart';
 
 class ResidentsGridPage extends StatefulWidget {
   const ResidentsGridPage({super.key});
@@ -45,7 +46,10 @@ class _ResidentsGridPageState extends State<ResidentsGridPage> {
         final matchesSearch =
             resident.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
             resident.nik.contains(_searchQuery) ||
-            resident.email.toLowerCase().contains(_searchQuery.toLowerCase());
+            (resident.email?.toLowerCase().contains(
+                  _searchQuery.toLowerCase(),
+                ) ??
+                false);
 
         final matchesStatus =
             _filterStatus == null || resident.status == _filterStatus;
@@ -130,16 +134,12 @@ class _ResidentsGridPageState extends State<ResidentsGridPage> {
 
   void _viewDetail(Resident resident) {
     // TODO: Navigate to detail page
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Detail: ${resident.name}')));
+    ToastHelper.showInfo(context, 'Detail: ${resident.name}');
   }
 
   void _editResident(Resident resident) {
     // TODO: Navigate to edit page
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Edit: ${resident.name}')));
+    ToastHelper.showInfo(context, 'Edit: ${resident.name}');
   }
 
   void _confirmDelete(Resident resident) {
@@ -171,9 +171,7 @@ class _ResidentsGridPageState extends State<ResidentsGridPage> {
       _residents.removeWhere((r) => r.id == resident.id);
       _filterResidents();
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Data warga berhasil dihapus')),
-    );
+    ToastHelper.showSuccess(context, 'Data warga berhasil dihapus');
   }
 
   @override
@@ -288,7 +286,7 @@ class _ResidentsGridPageState extends State<ResidentsGridPage> {
                       ),
                     ),
                     title: resident.name,
-                    subtitle: resident.email,
+                    subtitle: resident.email ?? resident.nik,
                     statusColor: _getStatusColor(resident.registrationStatus),
                     statusLabel: _getStatusLabel(resident.registrationStatus),
                     details: [

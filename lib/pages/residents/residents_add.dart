@@ -4,7 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:jawara/shared/base_layout.dart';
 import 'package:jawara/shared/button.dart';
 import 'package:jawara/shared/theme.dart';
-import 'package:jawara/services/database_service.dart';
+import 'package:jawara/services/residents_service.dart';
+import 'package:jawara/utils/toast_helper.dart';
 
 class ResidentsAddPage extends StatefulWidget {
   const ResidentsAddPage({super.key});
@@ -149,96 +150,77 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
   Future<void> _submitForm() async {
     // Validasi form
     if (_namaController.text.isEmpty) {
-      _showErrorDialog('Nama wajib diisi');
+      ToastHelper.showWarning(context, 'Nama wajib diisi');
       return;
     }
-    
+
     if (_nikController.text.isEmpty) {
-      _showErrorDialog('NIK wajib diisi');
+      ToastHelper.showWarning(context, 'NIK wajib diisi');
       return;
     }
-    
+
     if (_nikController.text.length != 16) {
-      _showErrorDialog('NIK harus 16 digit');
+      ToastHelper.showWarning(context, 'NIK harus 16 digit');
+      return;
+    }
+
+    if (_selectedJenisKelamin == null ||
+        _selectedJenisKelamin == _jenisKelaminOptions[0]) {
+      ToastHelper.showWarning(context, 'Jenis kelamin harus dipilih');
       return;
     }
 
     try {
-      // Show loading
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-
-      // Import database service
-      final dbService = DatabaseService();
-      
-      // Prepare data
+      // Prepare data untuk API backend
       final data = {
-        'name': _namaController.text,
         'nik': _nikController.text,
-        'phone': _teleponController.text,
-        'gender': _selectedJenisKelamin ?? '',
-        'birth_date': _selectedTanggalLahir?.toIso8601String() ?? '',
-        'address': _tempatLahirController.text,
-        'status': _selectedStatus ?? 'Belum Kawin',
-        'registration_status': 'accepted',
-        'created_at': DateTime.now().toIso8601String(),
-        'updated_at': DateTime.now().toIso8601String(),
-        'synced': 0,
+        'name': _namaController.text,
+        'phone': _teleponController.text.isEmpty
+            ? null
+            : _teleponController.text,
+        'birth_place': _tempatLahirController.text.isEmpty
+            ? null
+            : _tempatLahirController.text,
+        'birth_date': _selectedTanggalLahir?.toIso8601String().split('T')[0],
+        'gender': _selectedJenisKelamin == _jenisKelaminOptions[0]
+            ? null
+            : _selectedJenisKelamin,
+        'religion': _selectedAgama == _agamaOptions[0] ? null : _selectedAgama,
+        'blood_type': _selectedGolDarah == _golDarahOptions[0]
+            ? null
+            : _selectedGolDarah?.replaceAll('Tidak Tahu', '-'),
+        'education': _selectedPendidikan == _pendidikanOptions[0]
+            ? null
+            : _selectedPendidikan,
+        'occupation': _selectedPekerjaan == _pekerjaanOptions[0]
+            ? null
+            : _selectedPekerjaan,
+        'status': 'aktif',
+        'family_id': 1,
+        'house_id': 1,
       };
 
-      // Insert to database
-      await dbService.insert('residents', data);
+      // Create resident via API
+      await ResidentsService.createResident(data);
 
-      // Close loading
-      if (mounted) Navigator.pop(context);
-
-      // Show success message
+      // Show success toast
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Warga berhasil ditambahkan'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        ToastHelper.showSuccess(context, 'Warga berhasil ditambahkan');
       }
-
-      // Reset form
-      _resetForm();
 
       // Navigate back with result
       if (mounted) {
-        Navigator.pop(context, true); // Return true to indicate success
+        Navigator.pop(context, true);
       }
     } catch (e) {
-      // Close loading if still showing
-      if (mounted) Navigator.pop(context);
-      
-      // Show error
+      // Show error toast
       if (mounted) {
-        _showErrorDialog('Gagal menambahkan warga: ${e.toString()}');
+        ToastHelper.showError(
+          context,
+          'Gagal menambahkan warga: ${e.toString()}',
+        );
       }
     }
-  }
-
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -271,164 +253,168 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-              Text(
-                'Tambah Warga', // Judul Form
-                style: AppTheme.headingMedium.copyWith(
-                  fontSize: isMobile ? 20 : 24,
-                ),
-              ),
-              SizedBox(height: isMobile ? 24 : 32),
-
-              // Dropdown Keluarga
-              _buildDropdownField(
-                label: 'Pilih Keluarga',
-                hint: '-- Pilih Keluarga --',
-                value: _selectedKeluarga,
-                items: _keluargaOptions,
-                onChanged: (v) => setState(() => _selectedKeluarga = v),
-              ),
-              const SizedBox(height: 24),
-
-              // Input Nama
-              _buildTextField(
-                label: 'Nama',
-                hint: 'Masukkan nama lengkap',
-                controller: _namaController,
-              ),
-              const SizedBox(height: 24),
-
-              // Input NIK
-              _buildTextField(
-                label: 'NIK',
-                hint: 'Masukkan NIK sesuai KTP',
-                controller: _nikController,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(16),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // Input Nomor Telepon
-              _buildTextField(
-                label: 'Nomor Telepon',
-                hint: '08xxxxxxxxxx',
-                controller: _teleponController,
-                keyboardType: TextInputType.phone,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              ),
-              const SizedBox(height: 24),
-
-              // Input Tempat Lahir
-              _buildTextField(
-                label: 'Tempat Lahir',
-                hint: 'Masukkan tempat lahir',
-                controller: _tempatLahirController,
-              ),
-              const SizedBox(height: 24),
-
-              // Input Tanggal Lahir
-              _buildDateField(
-                label: 'Tanggal Lahir',
-                formattedDate: formattedDate,
-                onTapIcon: () => _selectDate(context),
-              ),
-              const SizedBox(height: 24),
-
-              // Dropdown Jenis Kelamin
-              _buildDropdownField(
-                label: 'Jenis Kelamin',
-                hint: '-- Pilih Jenis Kelamin --',
-                value: _selectedJenisKelamin,
-                items: _jenisKelaminOptions,
-                onChanged: (v) => setState(() => _selectedJenisKelamin = v),
-              ),
-              const SizedBox(height: 24),
-
-              // Dropdown Agama
-              _buildDropdownField(
-                label: 'Agama',
-                hint: '-- Pilih Agama --',
-                value: _selectedAgama,
-                items: _agamaOptions,
-                onChanged: (v) => setState(() => _selectedAgama = v),
-              ),
-              const SizedBox(height: 24),
-
-              // Dropdown Golongan Darah
-              _buildDropdownField(
-                label: 'Golongan Darah',
-                hint: '-- Pilih Golongan Darah --',
-                value: _selectedGolDarah,
-                items: _golDarahOptions,
-                onChanged: (v) => setState(() => _selectedGolDarah = v),
-              ),
-              const SizedBox(height: 24),
-
-              // Dropdown Peran Keluarga
-              _buildDropdownField(
-                label: 'Peran Keluarga',
-                hint: '-- Pilih Peran Keluarga --',
-                value: _selectedPeran,
-                items: _peranOptions,
-                onChanged: (v) => setState(() => _selectedPeran = v),
-              ),
-              const SizedBox(height: 24),
-
-              // Dropdown Pendidikan Terakhir
-              _buildDropdownField(
-                label: 'Pendidikan Terakhir',
-                hint: '-- Pilih Pendidikan Terakhir --',
-                value: _selectedPendidikan,
-                items: _pendidikanOptions,
-                onChanged: (v) => setState(() => _selectedPendidikan = v),
-              ),
-              const SizedBox(height: 24),
-
-              // Dropdown Pekerjaan
-              _buildDropdownField(
-                label: 'Pekerjaan',
-                hint: '-- Pilih Jenis Pekerjaan --',
-                value: _selectedPekerjaan,
-                items: _pekerjaanOptions,
-                onChanged: (v) => setState(() => _selectedPekerjaan = v),
-              ),
-              const SizedBox(height: 24),
-
-              // Dropdown Status
-              _buildDropdownField(
-                label: 'Status',
-                hint: '-- Pilih Status --',
-                value: _selectedStatus,
-                items: _statusOptions,
-                onChanged: (v) => setState(() => _selectedStatus = v),
-              ),
-              const SizedBox(height: 32),
-
-              // Tombol Aksi
-              Row(
-                children: [
-                  SizedBox(
-                    width: 120,
-                    child: CustomButton(text: 'Submit', onPressed: _submitForm),
-                  ),
-                  const SizedBox(width: 16),
-                  TextButton(
-                    onPressed: _resetForm,
-                    child: const Text(
-                      'Reset',
-                      style: TextStyle(color: AppTheme.textMedium),
-                    ),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
+                    Text(
+                      'Tambah Warga', // Judul Form
+                      style: AppTheme.headingMedium.copyWith(
+                        fontSize: isMobile ? 20 : 24,
                       ),
                     ),
-                  ),
-                ],
-              ),
+                    SizedBox(height: isMobile ? 24 : 32),
+
+                    // Dropdown Keluarga
+                    _buildDropdownField(
+                      label: 'Pilih Keluarga',
+                      hint: '-- Pilih Keluarga --',
+                      value: _selectedKeluarga,
+                      items: _keluargaOptions,
+                      onChanged: (v) => setState(() => _selectedKeluarga = v),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Input Nama
+                    _buildTextField(
+                      label: 'Nama',
+                      hint: 'Masukkan nama lengkap',
+                      controller: _namaController,
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Input NIK
+                    _buildTextField(
+                      label: 'NIK',
+                      hint: 'Masukkan NIK sesuai KTP',
+                      controller: _nikController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(16),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Input Nomor Telepon
+                    _buildTextField(
+                      label: 'Nomor Telepon',
+                      hint: '08xxxxxxxxxx',
+                      controller: _teleponController,
+                      keyboardType: TextInputType.phone,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Input Tempat Lahir
+                    _buildTextField(
+                      label: 'Tempat Lahir',
+                      hint: 'Masukkan tempat lahir',
+                      controller: _tempatLahirController,
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Input Tanggal Lahir
+                    _buildDateField(
+                      label: 'Tanggal Lahir',
+                      formattedDate: formattedDate,
+                      onTapIcon: () => _selectDate(context),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Dropdown Jenis Kelamin
+                    _buildDropdownField(
+                      label: 'Jenis Kelamin',
+                      hint: '-- Pilih Jenis Kelamin --',
+                      value: _selectedJenisKelamin,
+                      items: _jenisKelaminOptions,
+                      onChanged: (v) =>
+                          setState(() => _selectedJenisKelamin = v),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Dropdown Agama
+                    _buildDropdownField(
+                      label: 'Agama',
+                      hint: '-- Pilih Agama --',
+                      value: _selectedAgama,
+                      items: _agamaOptions,
+                      onChanged: (v) => setState(() => _selectedAgama = v),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Dropdown Golongan Darah
+                    _buildDropdownField(
+                      label: 'Golongan Darah',
+                      hint: '-- Pilih Golongan Darah --',
+                      value: _selectedGolDarah,
+                      items: _golDarahOptions,
+                      onChanged: (v) => setState(() => _selectedGolDarah = v),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Dropdown Peran Keluarga
+                    _buildDropdownField(
+                      label: 'Peran Keluarga',
+                      hint: '-- Pilih Peran Keluarga --',
+                      value: _selectedPeran,
+                      items: _peranOptions,
+                      onChanged: (v) => setState(() => _selectedPeran = v),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Dropdown Pendidikan Terakhir
+                    _buildDropdownField(
+                      label: 'Pendidikan Terakhir',
+                      hint: '-- Pilih Pendidikan Terakhir --',
+                      value: _selectedPendidikan,
+                      items: _pendidikanOptions,
+                      onChanged: (v) => setState(() => _selectedPendidikan = v),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Dropdown Pekerjaan
+                    _buildDropdownField(
+                      label: 'Pekerjaan',
+                      hint: '-- Pilih Jenis Pekerjaan --',
+                      value: _selectedPekerjaan,
+                      items: _pekerjaanOptions,
+                      onChanged: (v) => setState(() => _selectedPekerjaan = v),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Dropdown Status
+                    _buildDropdownField(
+                      label: 'Status',
+                      hint: '-- Pilih Status --',
+                      value: _selectedStatus,
+                      items: _statusOptions,
+                      onChanged: (v) => setState(() => _selectedStatus = v),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Tombol Aksi
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 120,
+                          child: CustomButton(
+                            text: 'Submit',
+                            onPressed: _submitForm,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        TextButton(
+                          onPressed: _resetForm,
+                          child: const Text(
+                            'Reset',
+                            style: TextStyle(color: AppTheme.textMedium),
+                          ),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/pages/residents/families_page.dart';
+import 'package:jawara/utils/toast_helper.dart';
 
 class FamilyDetailPage extends StatelessWidget {
   final FamilyItem family;
@@ -11,7 +12,9 @@ class FamilyDetailPage extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Hapus Keluarga'),
-        content: Text('Apakah Anda yakin ingin menghapus ${family.namaKeluarga}?'),
+        content: Text(
+          'Apakah Anda yakin ingin menghapus ${family.namaKeluarga}?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -21,8 +24,9 @@ class FamilyDetailPage extends StatelessWidget {
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${family.namaKeluarga} berhasil dihapus')),
+              ToastHelper.showSuccess(
+                context,
+                '${family.namaKeluarga} berhasil dihapus',
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -47,8 +51,9 @@ class FamilyDetailPage extends StatelessWidget {
             offset: const Offset(0, 50),
             onSelected: (value) {
               if (value == 'edit') {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Fitur edit akan segera tersedia')),
+                ToastHelper.showInfo(
+                  context,
+                  'Fitur edit akan segera tersedia',
                 );
               } else if (value == 'delete') {
                 _showDeleteConfirmation(context);
@@ -123,7 +128,10 @@ class FamilyDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: family.status == 'Aktif'
                           ? Colors.green.withOpacity(0.1)
@@ -133,7 +141,9 @@ class FamilyDetailPage extends StatelessWidget {
                     child: Text(
                       family.status,
                       style: TextStyle(
-                        color: family.status == 'Aktif' ? Colors.green : Colors.grey,
+                        color: family.status == 'Aktif'
+                            ? Colors.green
+                            : Colors.grey,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -157,28 +167,28 @@ class FamilyDetailPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   _buildInfoCard(
                     icon: Icons.person,
                     label: 'Kepala Keluarga',
                     value: family.kepalaKeluarga,
                   ),
                   const SizedBox(height: 12),
-                  
+
                   _buildInfoCard(
                     icon: Icons.home,
                     label: 'Alamat Rumah',
                     value: family.alamatRumah,
                   ),
                   const SizedBox(height: 12),
-                  
+
                   _buildInfoCard(
                     icon: Icons.key,
                     label: 'Status Kepemilikan',
                     value: family.statusKepemilikan,
                   ),
                   const SizedBox(height: 12),
-                  
+
                   _buildInfoCard(
                     icon: Icons.numbers,
                     label: 'No',
@@ -229,10 +239,7 @@ class FamilyDetailPage extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 4),
                 Text(

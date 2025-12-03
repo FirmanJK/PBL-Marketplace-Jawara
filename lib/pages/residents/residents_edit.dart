@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/shared/standard_app_bar.dart';
 import 'package:jawara/models/resident.dart';
+import 'package:jawara/services/residents_service.dart';
+import 'package:jawara/utils/toast_helper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -17,12 +19,10 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _nikController = TextEditingController();
-  final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _addressController = TextEditingController();
 
   String _selectedGender = 'Laki-laki';
-  String _selectedStatus = 'Aktif';
+  String _selectedStatus = 'aktif';
   DateTime? _birthDate;
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
@@ -32,13 +32,9 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
     super.initState();
     _nameController.text = widget.resident.name;
     _nikController.text = widget.resident.nik;
-    _emailController.text = widget.resident.email;
     _phoneController.text = widget.resident.phone ?? '';
-    _addressController.text = widget.resident.address ?? '';
     _selectedGender = widget.resident.gender;
     _selectedStatus = widget.resident.status;
-    // TODO: Handle registration status if needed in future
-    // _selectedRegistrationStatus = widget.resident.registrationStatus;
     _birthDate = widget.resident.birthDate;
   }
 
@@ -46,9 +42,7 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
   void dispose() {
     _nameController.dispose();
     _nikController.dispose();
-    _emailController.dispose();
     _phoneController.dispose();
-    _addressController.dispose();
     super.dispose();
   }
 
@@ -77,11 +71,38 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
 
   void _saveChanges() {
     if (_formKey.currentState!.validate()) {
-      // TODO: Implement save to database/API
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Data berhasil diperbarui')));
-      Navigator.pop(context);
+      _submitUpdate();
+    }
+  }
+
+  Future<void> _submitUpdate() async {
+    try {
+      // Prepare update data
+      final updateData = {
+        'name': _nameController.text,
+        'phone': _phoneController.text.isEmpty ? null : _phoneController.text,
+        'birth_date': _birthDate?.toIso8601String().split('T')[0],
+        'gender': _selectedGender,
+        'status': _selectedStatus,
+      };
+
+      // Call update API
+      await ResidentsService.updateResident(widget.resident.id, updateData);
+
+      // Show success toast
+      if (mounted) {
+        ToastHelper.showSuccess(context, 'Data berhasil diperbarui');
+      }
+
+      // Pop back to refresh (list page will auto-refresh)
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      // Show error toast
+      if (mounted) {
+        ToastHelper.showError(context, 'Gagal memperbarui data: $e');
+      }
     }
   }
 
@@ -114,11 +135,8 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
                       backgroundColor: const Color(0xFF0891B2).withOpacity(0.1),
                       backgroundImage: _imageFile != null
                           ? FileImage(_imageFile!)
-                          : widget.resident.photoUrl != null
-                          ? NetworkImage(widget.resident.photoUrl!)
                           : null,
-                      child:
-                          _imageFile == null && widget.resident.photoUrl == null
+                      child: _imageFile == null
                           ? Text(
                               widget.resident.name[0].toUpperCase(),
                               style: const TextStyle(
@@ -186,27 +204,6 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
               ),
               const SizedBox(height: 16),
 
-              // Email
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: Icon(Icons.email),
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Email tidak boleh kosong';
-                  }
-                  if (!value.contains('@')) {
-                    return 'Email tidak valid';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
               // Phone
               TextFormField(
                 controller: _phoneController,
@@ -216,6 +213,47 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.phone,
+              ),
+              const SizedBox(height: 16),
+
+              // Email (read-only from user data)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 16,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.email, color: Colors.grey),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Email',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            widget.resident.email ?? '-',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
 
@@ -259,15 +297,42 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
               ),
               const SizedBox(height: 16),
 
-              // Address
-              TextFormField(
-                controller: _addressController,
-                decoration: const InputDecoration(
-                  labelText: 'Alamat',
-                  prefixIcon: Icon(Icons.home),
-                  border: OutlineInputBorder(),
+              // Address (read-only from house data)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 16,
                 ),
-                maxLines: 3,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.home, color: Colors.grey, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Alamat',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      widget.resident.address ?? '-',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
 
@@ -275,14 +340,14 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
               DropdownButtonFormField<String>(
                 value: _selectedStatus,
                 decoration: const InputDecoration(
-                  labelText: 'Status Domisili',
+                  labelText: 'Status',
                   prefixIcon: Icon(Icons.info),
                   border: OutlineInputBorder(),
                 ),
-                items: ['Aktif', 'Nonaktif'].map((String value) {
+                items: ['aktif', 'pindah', 'meninggal'].map((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(value),
+                    child: Text(value[0].toUpperCase() + value.substring(1)),
                   );
                 }).toList(),
                 onChanged: (String? newValue) {

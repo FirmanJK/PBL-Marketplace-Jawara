@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/shared/standard_app_bar.dart';
 import 'package:jawara/pages/residents/family_detail.dart';
+import 'package:jawara/utils/toast_helper.dart';
 
 class FamilyItem {
   final int no;
@@ -444,18 +445,14 @@ class _FamiliesPageState extends State<FamiliesPage> {
                         if (namaKeluargaController.text.isNotEmpty &&
                             kepalaKeluargaController.text.isNotEmpty) {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Keluarga berhasil ditambahkan'),
-                              backgroundColor: Color(0xFF10B981),
-                            ),
+                          ToastHelper.showSuccess(
+                            context,
+                            'Keluarga berhasil ditambahkan',
                           );
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Mohon lengkapi data keluarga'),
-                              backgroundColor: Colors.red,
-                            ),
+                          ToastHelper.showWarning(
+                            context,
+                            'Mohon lengkapi data keluarga',
                           );
                         }
                       },
@@ -602,9 +599,7 @@ class _FamiliesPageState extends State<FamiliesPage> {
             onPressed: () {
               // TODO: Update database
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Keluarga berhasil diperbarui')),
-              );
+              ToastHelper.showSuccess(context, 'Keluarga berhasil diperbarui');
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF0891B2),
@@ -634,10 +629,9 @@ class _FamiliesPageState extends State<FamiliesPage> {
             onPressed: () {
               // TODO: Delete from database
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${family.namaKeluarga} berhasil dihapus'),
-                ),
+              ToastHelper.showSuccess(
+                context,
+                '${family.namaKeluarga} berhasil dihapus',
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),

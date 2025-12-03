@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/pages/residents/houses_list.dart';
+import 'package:jawara/utils/toast_helper.dart';
 
 class HouseDetailPage extends StatelessWidget {
   final HouseItem house;
@@ -11,7 +12,9 @@ class HouseDetailPage extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Hapus Rumah'),
-        content: Text('Apakah Anda yakin ingin menghapus rumah di ${house.alamat}?'),
+        content: Text(
+          'Apakah Anda yakin ingin menghapus rumah di ${house.alamat}?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -21,8 +24,9 @@ class HouseDetailPage extends StatelessWidget {
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Rumah di ${house.alamat} berhasil dihapus')),
+              ToastHelper.showSuccess(
+                context,
+                'Rumah di ${house.alamat} berhasil dihapus',
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -58,8 +62,9 @@ class HouseDetailPage extends StatelessWidget {
             offset: const Offset(0, 50),
             onSelected: (value) {
               if (value == 'edit') {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Fitur edit akan segera tersedia')),
+                ToastHelper.showInfo(
+                  context,
+                  'Fitur edit akan segera tersedia',
                 );
               } else if (value == 'delete') {
                 _showDeleteConfirmation(context);
@@ -134,7 +139,10 @@ class HouseDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: _getStatusColor(house.status).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -166,21 +174,21 @@ class HouseDetailPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   _buildInfoCard(
                     icon: Icons.location_on,
                     label: 'Alamat',
                     value: house.alamat,
                   ),
                   const SizedBox(height: 12),
-                  
+
                   _buildInfoCard(
                     icon: Icons.numbers,
                     label: 'Nomor Rumah',
                     value: house.no.toString(),
                   ),
                   const SizedBox(height: 12),
-                  
+
                   _buildInfoCard(
                     icon: Icons.info_outline,
                     label: 'Status',
@@ -233,10 +241,7 @@ class HouseDetailPage extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 4),
                 Text(
