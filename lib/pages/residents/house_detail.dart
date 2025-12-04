@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:jawara/pages/residents/houses_list.dart';
+import 'package:jawara/models/house.dart';
 import 'package:jawara/utils/toast_helper.dart';
+import 'package:jawara/pages/residents/houses_edit.dart';
+import 'package:jawara/services/house_service.dart';
 
 class HouseDetailPage extends StatelessWidget {
-  final HouseItem house;
+  final House house;
 
   const HouseDetailPage({super.key, required this.house});
 
@@ -13,7 +15,7 @@ class HouseDetailPage extends StatelessWidget {
       builder: (context) => AlertDialog(
         title: const Text('Hapus Rumah'),
         content: Text(
-          'Apakah Anda yakin ingin menghapus rumah di ${house.alamat}?',
+          'Apakah Anda yakin ingin menghapus rumah di ${house.address ?? '-'}?',
         ),
         actions: [
           TextButton(
@@ -21,13 +23,22 @@ class HouseDetailPage extends StatelessWidget {
             child: const Text('Batal'),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-              ToastHelper.showSuccess(
-                context,
-                'Rumah di ${house.alamat} berhasil dihapus',
-              );
+            onPressed: () async {
+              // perform delete via API
+              try {
+                await HouseService.deleteHouse(house.id);
+                if (!context.mounted) return;
+                Navigator.pop(context); // close dialog
+                Navigator.pop(context, true); // close detail and signal deletion
+                ToastHelper.showSuccess(
+                  context,
+                  'Rumah di ${house.address ?? '-'} berhasil dihapus',
+                );
+              } catch (e) {
+                if (!context.mounted) return;
+                Navigator.pop(context); // close dialog
+                ToastHelper.showError(context, 'Gagal menghapus rumah: $e');
+              }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Hapus'),
@@ -62,10 +73,16 @@ class HouseDetailPage extends StatelessWidget {
             offset: const Offset(0, 50),
             onSelected: (value) {
               if (value == 'edit') {
-                ToastHelper.showInfo(
+                Navigator.push(
                   context,
-                  'Fitur edit akan segera tersedia',
-                );
+                  MaterialPageRoute(
+                    builder: (context) => HousesEditPage(house: house),
+                  ),
+                ).then((result) {
+                  if (result == true) {
+                    Navigator.pop(context, true); // signal parent to refresh
+                  }
+                });
               } else if (value == 'delete') {
                 _showDeleteConfirmation(context);
               }
@@ -129,7 +146,7 @@ class HouseDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    house.alamat,
+                    house.address ?? '-',
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -144,13 +161,13 @@ class HouseDetailPage extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(house.status).withOpacity(0.1),
+                      color: _getStatusColor((house.residentCount > 0) ? 'ditempati' : 'tersedia').withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      house.status,
+                      (house.residentCount > 0) ? 'Ditempati' : 'Tersedia',
                       style: TextStyle(
-                        color: _getStatusColor(house.status),
+                        color: _getStatusColor((house.residentCount > 0) ? 'ditempati' : 'tersedia'),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -178,22 +195,22 @@ class HouseDetailPage extends StatelessWidget {
                   _buildInfoCard(
                     icon: Icons.location_on,
                     label: 'Alamat',
-                    value: house.alamat,
+                    value: house.address ?? '-',
                   ),
                   const SizedBox(height: 12),
 
                   _buildInfoCard(
                     icon: Icons.numbers,
                     label: 'Nomor Rumah',
-                    value: house.no.toString(),
+                    value: (house.houseNumber ?? house.id.toString()),
                   ),
                   const SizedBox(height: 12),
 
                   _buildInfoCard(
                     icon: Icons.info_outline,
                     label: 'Status',
-                    value: house.status,
-                    valueColor: _getStatusColor(house.status),
+                    value: (house.residentCount > 0) ? 'Ditempati' : 'Tersedia',
+                    valueColor: _getStatusColor((house.residentCount > 0) ? 'ditempati' : 'tersedia'),
                   ),
                 ],
               ),
