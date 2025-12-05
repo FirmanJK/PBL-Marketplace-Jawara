@@ -5,6 +5,7 @@ class House {
   final String? rt;
   final String? rw;
   final int residentCount;
+  final String? status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -15,6 +16,7 @@ class House {
     this.rt,
     this.rw,
     this.residentCount = 0,
+    this.status = 'available',
     this.createdAt,
     this.updatedAt,
   });
@@ -27,6 +29,7 @@ class House {
       rt: json['rt'] as String?,
       rw: json['rw'] as String?,
       residentCount: json['resident_count'] is int ? json['resident_count'] as int : int.tryParse('${json['resident_count'] ?? 0}') ?? 0,
+      status: json['status'] as String? ?? 'available',
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) : null,
       updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at'] as String) : null,
     );
@@ -39,6 +42,7 @@ class House {
       'address': address,
       'rt': rt,
       'rw': rw,
+      'status': status,
       'resident_count': residentCount,
       'created_at': createdAt?.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),

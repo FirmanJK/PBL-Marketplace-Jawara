@@ -57,6 +57,32 @@ class _FamilyEditPageState extends State<FamilyEditPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Build a deduplicated list of dropdown items for head selection to
+    // avoid duplicate-value assertion errors when widget.members contains
+    // repeated entries.
+    final List<DropdownMenuItem<int?>> headItems = [];
+    final seen = <int>{};
+    headItems.add(const DropdownMenuItem<int?>(value: null, child: Text('- Tidak ada -')));
+    for (final m in widget.members) {
+      if (seen.contains(m.id)) continue;
+      seen.add(m.id);
+      headItems.add(DropdownMenuItem<int?>(
+        value: m.id,
+        child: Text(
+          m.name,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
+      ));
+    }
+
+    // Ensure the selected value exists exactly once in items; if not,
+    // fallback to null to avoid Dropdown assertion about duplicate values.
+    final int? _dropdownSelected = (() {
+      final matches = headItems.where((it) => it.value == _selectedHeadId).length;
+      return matches == 1 ? _selectedHeadId : null;
+    })();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Keluarga'),
@@ -74,17 +100,17 @@ class _FamilyEditPageState extends State<FamilyEditPage> {
               decoration: const InputDecoration(labelText: 'Nama Keluarga', border: OutlineInputBorder()),
             ),
             const SizedBox(height: 16),
+            
             DropdownButtonFormField<int?>(
-              initialValue: _selectedHeadId,
+              value: _dropdownSelected,
+              isExpanded: true,
               decoration: const InputDecoration(labelText: 'Pilih Kepala Keluarga', border: OutlineInputBorder()),
-              items: [
-                const DropdownMenuItem<int?>(value: null, child: Text('- Tidak ada -')),
-                ...widget.members.map((m) => DropdownMenuItem<int?>(value: m.id, child: Text('${m.name} (NIK: ${m.nik})')))
-              ],
+              items: headItems,
               onChanged: (v) {
                 setState(() => _selectedHeadId = v);
               },
             ),
+            
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,

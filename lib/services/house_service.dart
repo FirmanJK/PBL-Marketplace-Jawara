@@ -1,4 +1,5 @@
 import 'package:jawara/models/house.dart';
+import 'package:jawara/models/resident.dart';
 import 'package:jawara/services/api_service.dart';
 import 'package:jawara/services/auth_service.dart';
 
@@ -60,6 +61,18 @@ class HouseService {
       await ApiService.delete('$endpoint/$id', token: token);
     } catch (e) {
       throw Exception('Failed to delete house: $e');
+    }
+  }
+
+  /// Assign an existing resident to an existing house using server-side assign endpoint
+  static Future<Resident> assignHouse(int houseId, int residentId) async {
+    try {
+      final token = _auth.accessToken;
+      final response = await ApiService.post('$endpoint/$houseId/assign/$residentId', token: token);
+      final data = response is Map ? response : response['data'] ?? response;
+      return Resident.fromJson(data as Map<String, dynamic>);
+    } catch (e) {
+      throw Exception('Failed to assign resident to house: $e');
     }
   }
 }

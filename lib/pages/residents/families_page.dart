@@ -116,8 +116,8 @@ class _FamiliesPageState extends State<FamiliesPage> {
                                               const SizedBox(height: 4),
                                               Text(
                                                 family.headResidentName != null
-                                                    ? family.headResidentName!
-                                                    : (family.headResidentId != null ? 'Kepala: #${family.headResidentId}' : 'Kepala: -'),
+                                                  ? family.headResidentName!
+                                                  : 'Kepala: -',
                                                 style: TextStyle(
                                                   color: Colors.grey[600],
                                                   fontSize: 13,

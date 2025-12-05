@@ -6,6 +6,7 @@ import 'package:jawara/shared/button.dart';
 import 'package:jawara/shared/theme.dart';
 import 'package:jawara/services/residents_service.dart';
 import 'package:jawara/services/families_service.dart';
+import 'package:jawara/services/house_service.dart';
 import 'dart:async';
 import 'package:jawara/utils/toast_helper.dart';
 
@@ -29,10 +30,17 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
 
   // State
   int? _selectedFamilyId;
+  int? _selectedHouseId;
   DateTime? _selectedTanggalLahir;
   String? _selectedJenisKelamin;
   String? _selectedAgama;
   String? _selectedGolDarah;
+
+  // House inputs
+  final _houseNumberController = TextEditingController();
+  final _houseAddressController = TextEditingController();
+  final _rtController = TextEditingController();
+  final _rwController = TextEditingController();
 
   // Data dari backend
   List<Map<String, dynamic>> _families = [];
@@ -198,6 +206,10 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
     _tempatLahirController.dispose();
     _pendidikanController.dispose();
     _pekerjaanController.dispose();
+    _houseNumberController.dispose();
+    _houseAddressController.dispose();
+    _rtController.dispose();
+    _rwController.dispose();
     super.dispose();
   }
 
@@ -236,6 +248,108 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
         _selectedTanggalLahir = picked;
       });
     }
+  }
+
+  Future<void> _openHousePicker() async {
+    if (_selectedFamilyId == null) {
+      ToastHelper.showWarning(context, 'Pilih keluarga terlebih dahulu');
+      return;
+    }
+
+    bool loading = false;
+    List houses = [];
+    List residents = [];
+
+    Future<void> fetch() async {
+      loading = true;
+      setState(() {});
+      try {
+        houses = await HouseService.getHouses(skip: 0, limit: 500);
+        // fetch residents to determine which houses are occupied by selected family
+        residents = await ResidentsService.getResidents(skip: 0, limit: 1000);
+      } catch (e) {
+        ToastHelper.showError(context, 'Gagal load rumah atau warga: $e');
+      } finally {
+        loading = false;
+        if (mounted) setState(() {});
+      }
+    }
+
+    await fetch();
+
+    // Determine house IDs used by selected family
+    final familyHouseIds = <int>{};
+    for (var r in residents) {
+      final hid = r is Map ? r['house_id'] as int? : (r.houseId as int?);
+      final fid = r is Map ? r['family_id'] as int? : (r.familyId as int?);
+      if (hid != null && fid == _selectedFamilyId) familyHouseIds.add(hid);
+    }
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setStateDialog) {
+          final filtered = houses.where((h) {
+            final houseStatus = (h is Map ? h['status'] as String? : h.status) ?? 'available';
+            final hid = (h is Map ? h['id'] as int? : h.id) ?? 0;
+            return houseStatus == 'available' || familyHouseIds.contains(hid);
+          }).toList();
+
+          return AlertDialog(
+            title: const Text('Pilih Rumah'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (loading) const Center(child: CircularProgressIndicator()),
+                  if (!loading)
+                    Flexible(
+                      child: filtered.isEmpty
+                          ? const Text('Tidak ada rumah yang sesuai')
+                          : ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: filtered.length,
+                              itemBuilder: (context, idx) {
+                                final item = filtered[idx];
+                                final id = item is Map ? item['id'] as int : item.id;
+                                final addr = item is Map ? item['address'] as String? : item.address;
+                                final num = item is Map ? item['house_number'] as String? : item.houseNumber;
+                                final status = item is Map ? item['status'] as String? : item.status;
+                                return ListTile(
+                                  title: Text(num ?? 'Rumah #$id'),
+                                  subtitle: Text(addr ?? '-'),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(status ?? 'available'),
+                                      const SizedBox(width: 8),
+                                      TextButton(
+                                        child: const Text('Pilih'),
+                                        onPressed: () {
+                                          setState(() {
+                                            _selectedHouseId = id as int;
+                                          });
+                                          if (mounted) ToastHelper.showSuccess(context, 'Rumah terpilih');
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                    ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Batal')),
+            ],
+          );
+        });
+      },
+    );
   }
 
   void _resetForm() {
@@ -304,19 +418,58 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
             : _pekerjaanController.text,
         'status': 'aktif',
         'family_id': _selectedFamilyId,
-        'house_id': 1, // TODO: Load dari backend
+          // If no house selected, send 0 so backend may auto-assign; if user provided house data, we'll create it below
+          'house_id': 0,
       };
+
+        // If user provided house details (and didn't select existing), create a new house first
+        try {
+          final hasHouseData = _houseAddressController.text.isNotEmpty || _houseNumberController.text.isNotEmpty || _rtController.text.isNotEmpty || _rwController.text.isNotEmpty;
+          if (_selectedHouseId == null && hasHouseData) {
+            final houseBody = {
+              'house_number': _houseNumberController.text.isEmpty ? null : _houseNumberController.text,
+              'address': _houseAddressController.text.isEmpty ? null : _houseAddressController.text,
+              'rt': _rtController.text.isEmpty ? null : _rtController.text,
+              'rw': _rwController.text.isEmpty ? null : _rwController.text,
+            };
+            final createdHouse = await HouseService.createHouse(houseBody);
+            data['house_id'] = createdHouse.id;
+            // remember selected house so we will call assign endpoint after resident created
+            _selectedHouseId = createdHouse.id;
+          } else if (_selectedHouseId != null) {
+            data['house_id'] = _selectedHouseId;
+          }
+        } catch (e) {
+          // If house creation failed, show a warning but continue with house_id=0 so backend can assign
+          if (mounted) ToastHelper.showWarning(context, 'Gagal membuat rumah: $e');
+        }
+
+        // If user selected an existing house via picker, _selectedHouseId will be set
 
       // Create resident via API
       final created = await ResidentsService.createResident(data);
 
-      // Show success toast
-      if (mounted) {
-        ToastHelper.showSuccess(context, 'Warga berhasil ditambahkan');
+      // If user selected an existing house (not newly created), call assign endpoint
+      if (_selectedHouseId != null) {
+        try {
+          final assigned = await HouseService.assignHouse(_selectedHouseId!, created.id);
+          // prefer the assigned resident returned from server
+          if (mounted) {
+            ToastHelper.showSuccess(context, 'Warga berhasil ditambahkan dan dipindahkan ke rumah');
+            Navigator.pop(context, assigned);
+            return;
+          }
+        } catch (e) {
+          // If assign failed, still return created resident but show warning
+          if (mounted) ToastHelper.showWarning(context, 'Warga dibuat, namun gagal melakukan assign rumah: $e');
+          if (mounted) Navigator.pop(context, created);
+          return;
+        }
       }
 
-      // Navigate back with created Resident
+      // Show success toast and return created resident
       if (mounted) {
+        ToastHelper.showSuccess(context, 'Warga berhasil ditambahkan');
         Navigator.pop(context, created);
       }
     } catch (e) {
@@ -373,16 +526,18 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        ElevatedButton.icon(
-                          icon: const Icon(Icons.people),
-                          label: const Text('Pilih Warga Terdaftar'),
-                          onPressed: _openExistingResidentPicker,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        if (widget.initialFamilyId != null) ...[
+                          ElevatedButton.icon(
+                            icon: const Icon(Icons.people),
+                            label: const Text('Pilih Warga Terdaftar'),
+                            onPressed: _openExistingResidentPicker,
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(child: Container()),
+                          const SizedBox(width: 12),
+                        ],
+                        const Spacer(),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -480,6 +635,60 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
                       controller: _pekerjaanController,
                     ),
                     const SizedBox(height: 32),
+
+                    const Text(
+                      'Informasi Rumah (opsional)',
+                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                    ),
+                    const SizedBox(height: 12),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextField(
+                            label: 'Nomor Rumah',
+                            hint: 'Contoh: A-101',
+                            controller: _houseNumberController,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        ElevatedButton.icon(
+                          onPressed: _openHousePicker,
+                          icon: const Icon(Icons.home),
+                          label: const Text('Pilih Rumah'),
+                          style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    _buildTextField(
+                      label: 'Alamat Rumah',
+                      hint: 'Jl. Contoh No.1',
+                      controller: _houseAddressController,
+                    ),
+                    const SizedBox(height: 12),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextField(
+                            label: 'RT',
+                            hint: '001',
+                            controller: _rtController,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildTextField(
+                            label: 'RW',
+                            hint: '002',
+                            controller: _rwController,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
 
                     // Tombol Aksi
                     Row(

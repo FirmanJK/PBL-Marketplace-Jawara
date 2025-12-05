@@ -391,7 +391,15 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
                   _buildInfoCard(
                     icon: Icons.person,
                     label: 'Kepala Keluarga',
-                    value: family.headResidentId != null ? '#${family.headResidentId}' : '-',
+                    value: (() {
+                      if (family.headResidentName != null && family.headResidentName!.isNotEmpty) return family.headResidentName!;
+                      if (family.headResidentId == null) return '-';
+                      final head = _residents.firstWhere(
+                        (r) => r.id == family.headResidentId,
+                        orElse: () => Resident(id: -1, name: '', nik: '', gender: '', status: '', familyId: 0, houseId: 0),
+                      );
+                      return head.id == -1 ? '-' : head.name;
+                    })(),
                   ),
                   const SizedBox(height: 12),
 
@@ -409,11 +417,7 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
                   ),
                   const SizedBox(height: 12),
 
-                  _buildInfoCard(
-                    icon: Icons.numbers,
-                    label: 'No',
-                    value: family.id.toString(),
-                  ),
+                  // removed 'No' card per UI request
                   const SizedBox(height: 16),
 
                   const Text(
