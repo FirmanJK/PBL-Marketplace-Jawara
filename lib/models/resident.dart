@@ -50,8 +50,8 @@ class Resident {
       nik: json['nik'] as String? ?? '',
       gender: json['gender'] as String? ?? 'Laki-laki',
       status: json['status'] as String? ?? 'aktif',
-      familyId: json['family_id'] as int? ?? 1,
-      houseId: json['house_id'] as int? ?? 1,
+      familyId: json['family_id'] as int? ?? 0,
+      houseId: json['house_id'] as int? ?? 0,
       registrationStatus: _statusFromString(
         json['registration_status'] as String? ?? 'accepted',
       ),

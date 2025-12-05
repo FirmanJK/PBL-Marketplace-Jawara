@@ -5,10 +5,14 @@ import 'package:jawara/shared/base_layout.dart';
 import 'package:jawara/shared/button.dart';
 import 'package:jawara/shared/theme.dart';
 import 'package:jawara/services/residents_service.dart';
+import 'package:jawara/services/families_service.dart';
+import 'dart:async';
 import 'package:jawara/utils/toast_helper.dart';
 
 class ResidentsAddPage extends StatefulWidget {
-  const ResidentsAddPage({super.key});
+  final int? initialFamilyId;
+
+  const ResidentsAddPage({super.key, this.initialFamilyId});
 
   @override
   State<ResidentsAddPage> createState() => _ResidentsAddPageState();
@@ -51,6 +55,139 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
   void initState() {
     super.initState();
     _loadFamilies();
+    // Preselect family if provided by caller (e.g., from FamilyDetail)
+    if (widget.initialFamilyId != null) {
+      _selectedFamilyId = widget.initialFamilyId;
+    }
+  }
+
+  // Server-side resident picker with debounce + simple pagination
+  Future<void> _openExistingResidentPicker() async {
+    if (_selectedFamilyId == null) {
+      ToastHelper.showWarning(context, 'Pilih keluarga terlebih dahulu');
+      return;
+    }
+
+    int skip = 0;
+    const int pageSize = 25;
+    String query = '';
+    List residents = [];
+    bool loading = false;
+    Timer? debounce;
+
+    Future<void> fetch() async {
+      loading = true;
+      setState(() {});
+      try {
+        final res = await ResidentsService.getResidents(skip: skip, limit: pageSize, query: query.isEmpty ? null : query);
+        residents = res;
+      } catch (e) {
+        ToastHelper.showError(context, 'Gagal load daftar warga: $e');
+      } finally {
+        loading = false;
+        if (mounted) setState(() {});
+      }
+    }
+
+    // initial fetch
+    await fetch();
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setStateDialog) {
+          final filtered = residents;
+
+          return AlertDialog(
+            title: const Text('Pilih Warga Terdaftar'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    decoration: const InputDecoration(hintText: 'Cari nama atau NIK'),
+                    onChanged: (v) {
+                      query = v;
+                      skip = 0;
+                      // debounce
+                      debounce?.cancel();
+                      debounce = Timer(const Duration(milliseconds: 300), () async {
+                        await fetch();
+                        setStateDialog(() {});
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  if (loading) const Center(child: CircularProgressIndicator()),
+                  if (!loading)
+                    Flexible(
+                      child: filtered.isEmpty
+                          ? const Text('Tidak ada hasil')
+                          : ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: filtered.length,
+                              itemBuilder: (context, idx) {
+                                final item = filtered[idx];
+                                final id = item is Map ? item['id'] : item.id;
+                                final name = item is Map ? item['name'] : item.name;
+                                final nik = item is Map ? item['nik'] : item.nik;
+                                return ListTile(
+                                  title: Text('$name'),
+                                  subtitle: Text(nik.toString()),
+                                  trailing: TextButton(
+                                    child: const Text('Tambah'),
+                                        onPressed: () async {
+                                      try {
+                                        final added = await FamiliesService.addResidentToFamily(_selectedFamilyId!, id as int);
+                                        if (!mounted) return;
+                                        ToastHelper.showSuccess(context, 'Warga berhasil ditambahkan ke keluarga');
+                                        Navigator.of(context).pop(added);
+                                      } catch (e) {
+                                        if (!mounted) return;
+                                        ToastHelper.showError(context, 'Gagal menambahkan warga: $e');
+                                      }
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
+                    ),
+                ],
+              ),
+            ),
+            actions: [
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: skip - pageSize >= 0
+                        ? () async {
+                            skip = (skip - pageSize).clamp(0, skip);
+                            await fetch();
+                            setStateDialog(() {});
+                          }
+                        : null,
+                    child: const Text('Prev'),
+                  ),
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed: () async {
+                      skip += pageSize;
+                      await fetch();
+                      setStateDialog(() {});
+                    },
+                    child: const Text('Next'),
+                  ),
+                  const Spacer(),
+                  TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Batal')),
+                ],
+              ),
+            ],
+          );
+        });
+      },
+    );
+    debounce?.cancel();
   }
 
   @override
@@ -171,16 +308,16 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
       };
 
       // Create resident via API
-      await ResidentsService.createResident(data);
+      final created = await ResidentsService.createResident(data);
 
       // Show success toast
       if (mounted) {
         ToastHelper.showSuccess(context, 'Warga berhasil ditambahkan');
       }
 
-      // Navigate back with result
+      // Navigate back with created Resident
       if (mounted) {
-        Navigator.pop(context, true);
+        Navigator.pop(context, created);
       }
     } catch (e) {
       // Show error toast
@@ -233,7 +370,22 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
 
                     // Dropdown Keluarga (Dinamis dari backend)
                     _buildFamilyDropdown(),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.people),
+                          label: const Text('Pilih Warga Terdaftar'),
+                          onPressed: _openExistingResidentPicker,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(child: Container()),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
 
                     // Input Nama
                     _buildTextField(
