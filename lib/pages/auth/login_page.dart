@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/shared/button.dart';
 import 'package:jawara/shared/input.dart';
+import 'package:jawara/services/auth_service.dart';
+import 'package:jawara/models/auth_response.dart';
+import 'package:jawara/utils/toast_helper.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,8 +15,10 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
   String? _emailError;
   String? _passwordError;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -22,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _validateAndLogin() {
+  Future<void> _validateAndLogin() async {
     setState(() {
       // Reset errors
       _emailError = null;
@@ -43,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     });
 
-    // If no errors, proceed to login
+    // If no validation errors, proceed to login
     if (_emailError == null && _passwordError == null) {
       Navigator.pushReplacementNamed(context, '/admin-dashboard');
     }
@@ -191,9 +196,9 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             const SizedBox(height: 24),
                             CustomButton(
-                              text: 'Masuk',
-                              icon: Icons.arrow_forward,
-                              onPressed: _validateAndLogin,
+                              text: _isLoading ? 'Memproses...' : 'Masuk',
+                              icon: _isLoading ? null : Icons.arrow_forward,
+                              onPressed: _isLoading ? () {} : _validateAndLogin,
                             ),
                             const SizedBox(height: 32),
                             Row(

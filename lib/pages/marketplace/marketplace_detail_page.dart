@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/models/product.dart';
-import 'package:jawara/pages/marketplace_checkout_page.dart';
-import 'package:jawara/pages/marketplace_edit_page.dart';
-import 'package:jawara/pages/marketplace_cart_page.dart';
+import 'package:jawara/pages/marketplace/marketplace_checkout_page.dart';
+import 'package:jawara/pages/marketplace/marketplace_edit_page.dart';
+import 'package:jawara/pages/marketplace/marketplace_cart_page.dart';
 import 'package:jawara/data/products.dart';
 import 'package:jawara/services/cart_service.dart';
 import 'package:intl/intl.dart';
@@ -10,10 +10,7 @@ import 'package:intl/intl.dart';
 class MarketplaceDetailPage extends StatefulWidget {
   final Product product;
 
-  const MarketplaceDetailPage({
-    super.key,
-    required this.product,
-  });
+  const MarketplaceDetailPage({super.key, required this.product});
 
   @override
   State<MarketplaceDetailPage> createState() => _MarketplaceDetailPageState();
@@ -51,7 +48,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
         builder: (context) => MarketplaceEditPage(product: widget.product),
       ),
     );
-    
+
     if (result == true && mounted) {
       Navigator.pop(context, true);
     }
@@ -62,7 +59,9 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Konfirmasi Hapus'),
-        content: Text('Apakah Anda yakin ingin menghapus "${widget.product.name}"?'),
+        content: Text(
+          'Apakah Anda yakin ingin menghapus "${widget.product.name}"?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -107,7 +106,11 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+    final currencyFormat = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    );
     final dateFormat = DateFormat('dd MMMM yyyy, HH:mm', 'id_ID');
 
     return Scaffold(
@@ -214,9 +217,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                         );
                       },
                     )
-                  : const Center(
-                      child: Icon(Icons.image, size: 64),
-                    ),
+                  : const Center(child: Icon(Icons.image, size: 64)),
             ),
 
             // Product Info
@@ -237,7 +238,10 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
 
                   // Price
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: Theme.of(context).primaryColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -260,34 +264,29 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                   // Description Label
                   const Text(
                     'Deskripsi',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
 
                   // Description
                   Text(
                     widget.product.description,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      height: 1.5,
-                    ),
+                    style: const TextStyle(fontSize: 14, height: 1.5),
                   ),
                   const SizedBox(height: 24),
 
                   // Created At
                   Row(
                     children: [
-                      Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
+                      Icon(
+                        Icons.access_time,
+                        size: 16,
+                        color: Colors.grey[600],
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         'Diunggah: ${dateFormat.format(widget.product.createdAt)}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -334,7 +333,8 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MarketplaceCheckoutPage(product: widget.product),
+                      builder: (context) =>
+                          MarketplaceCheckoutPage(product: widget.product),
                     ),
                   );
                 },

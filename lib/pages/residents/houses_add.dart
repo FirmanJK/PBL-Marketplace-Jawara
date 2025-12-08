@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:jawara/shared/base_layout.dart';
 import 'package:jawara/shared/button.dart'; // Import CustomButton
 import 'package:jawara/shared/theme.dart'; // Import tema
+import 'package:jawara/services/house_service.dart';
+import 'package:jawara/utils/toast_helper.dart';
 
 class HousesAddPage extends StatefulWidget {
   const HousesAddPage({super.key});
@@ -13,10 +15,17 @@ class HousesAddPage extends StatefulWidget {
 class _HousesAddPageState extends State<HousesAddPage> {
   // Controller for the text field
   final _alamatController = TextEditingController();
+  final _houseNumberController = TextEditingController();
+  final _rtController = TextEditingController();
+  final _rwController = TextEditingController();
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
     _alamatController.dispose();
+    _houseNumberController.dispose();
+    _rtController.dispose();
+    _rwController.dispose();
     super.dispose();
   }
 
@@ -27,9 +36,38 @@ class _HousesAddPageState extends State<HousesAddPage> {
   }
 
   void _submitForm() {
-    // Implement submit logic here
-    debugPrint('Alamat Rumah: ${_alamatController.text}');
-    // Panggil API atau fungsi simpan data
+    _doSubmit();
+  }
+
+  Future<void> _doSubmit() async {
+    final houseNumber = _houseNumberController.text.trim();
+    final address = _alamatController.text.trim();
+    final rt = _rtController.text.trim();
+    final rw = _rwController.text.trim();
+
+    if (address.isEmpty) {
+      ToastHelper.showError(context, 'Alamat rumah wajib diisi');
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    try {
+      final body = {
+        'house_number': houseNumber.isNotEmpty ? houseNumber : null,
+        'address': address,
+        'rt': rt.isNotEmpty ? rt : null,
+        'rw': rw.isNotEmpty ? rw : null,
+      };
+      await HouseService.createHouse(body);
+      if (!mounted) return;
+      ToastHelper.showSuccess(context, 'Rumah berhasil ditambahkan');
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      ToastHelper.showError(context, 'Gagal menambahkan rumah: $e');
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   @override
@@ -57,10 +95,28 @@ class _HousesAddPageState extends State<HousesAddPage> {
 
               // Alamat Rumah
               _buildTextField(
+                label: 'Nomor Rumah (opsional)',
+                hint: 'Mis: A-12',
+                controller: _houseNumberController,
+              ),
+              const SizedBox(height: 12),
+              _buildTextField(
+                label: 'RT (opsional)',
+                hint: 'Contoh: 01',
+                controller: _rtController,
+              ),
+              const SizedBox(height: 12),
+              _buildTextField(
+                label: 'RW (opsional)',
+                hint: 'Contoh: 02',
+                controller: _rwController,
+              ),
+              const SizedBox(height: 12),
+              _buildTextField(
                 label: 'Alamat Rumah',
                 hint: 'Contoh: Jl. Merpati No. 5', // Placeholder
                 controller: _alamatController,
-                 maxLines: 3, // Beri sedikit ruang jika alamat panjang
+                maxLines: 3, // Beri sedikit ruang jika alamat panjang
               ),
               const SizedBox(height: 32),
 
@@ -70,8 +126,8 @@ class _HousesAddPageState extends State<HousesAddPage> {
                   SizedBox(
                     width: 120, // Sesuaikan lebar jika perlu
                     child: CustomButton(
-                      text: 'Submit', // Tombol Submit
-                      onPressed: _submitForm,
+                      text: _isSubmitting ? 'Menyimpan...' : 'Submit', // Tombol Submit
+                      onPressed: _isSubmitting ? () {} : _submitForm,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -96,9 +152,11 @@ class _HousesAddPageState extends State<HousesAddPage> {
     required String label,
     required String hint,
     required TextEditingController controller,
-    TextInputType keyboardType = TextInputType.text,
-    int maxLines = 1, // Tambahkan parameter maxLines
+    TextInputType? keyboardType,
+    int? maxLines,
   }) {
+    final _keyboardType = keyboardType ?? TextInputType.text;
+    final _maxLines = maxLines ?? 1;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -106,8 +164,8 @@ class _HousesAddPageState extends State<HousesAddPage> {
         const SizedBox(height: 8),
         TextField(
           controller: controller,
-          keyboardType: keyboardType,
-          maxLines: maxLines, // Gunakan maxLines
+          keyboardType: _keyboardType,
+          maxLines: _maxLines, // Gunakan maxLines
           decoration: InputDecoration(
             hintText: hint,
             border: OutlineInputBorder(

@@ -139,9 +139,6 @@ class _IncomeBillsPageState extends State<IncomeBillsPage> {
     ),
   ];
 
-  int _currentPage = 1;
-  final int _rowsPerPage = 10;
-
   @override
   void initState() {
     super.initState();
@@ -153,29 +150,6 @@ class _IncomeBillsPageState extends State<IncomeBillsPage> {
     setState(() {
       _isLocaleInitialized = true;
     });
-  }
-
-  Widget _buildFamilyStatusChip(String status) {
-    Color chipColor = status.toLowerCase() == 'aktif'
-        ? Colors.green.shade100
-        : Colors.grey.shade100;
-    Color textColor = status.toLowerCase() == 'aktif'
-        ? Colors.green.shade800
-        : Colors.grey.shade800;
-    return Chip(
-      label: Text(
-        status,
-        style: TextStyle(
-          color: textColor,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
-        ),
-      ),
-      backgroundColor: chipColor,
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-      side: BorderSide.none,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-    );
   }
 
   Widget _buildPaymentStatusChip(String status) {
@@ -208,8 +182,6 @@ class _IncomeBillsPageState extends State<IncomeBillsPage> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     if (!_isLocaleInitialized) {
@@ -229,9 +201,7 @@ class _IncomeBillsPageState extends State<IncomeBillsPage> {
     final dateFormatter = DateFormat('d MMM yyyy', 'id_ID');
 
     return Scaffold(
-      appBar: StandardAppBar(
-        title: 'Tagihan',
-      ),
+      appBar: StandardAppBar(title: 'Tagihan'),
       body: Column(
         children: [
           // Search Bar
@@ -281,7 +251,8 @@ class _IncomeBillsPageState extends State<IncomeBillsPage> {
                           children: [
                             CircleAvatar(
                               radius: 28,
-                              backgroundColor: bill.statusPembayaran == 'Belum Dibayar'
+                              backgroundColor:
+                                  bill.statusPembayaran == 'Belum Dibayar'
                                   ? Colors.orange.withOpacity(0.1)
                                   : Colors.green.withOpacity(0.1),
                               child: Icon(
@@ -321,7 +292,9 @@ class _IncomeBillsPageState extends State<IncomeBillsPage> {
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  _buildPaymentStatusChip(bill.statusPembayaran),
+                                  _buildPaymentStatusChip(
+                                    bill.statusPembayaran,
+                                  ),
                                 ],
                               ),
                             ),

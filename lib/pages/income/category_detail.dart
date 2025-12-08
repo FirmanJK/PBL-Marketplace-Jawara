@@ -87,7 +87,7 @@ class CategoryDetailPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 16),
                           DropdownButtonFormField<String>(
-                            value: selectedJenis,
+                            initialValue: selectedJenis,
                             decoration: InputDecoration(
                               labelText: 'Jenis',
                               prefixIcon: const Icon(Icons.category, color: Color(0xFF0891B2)),

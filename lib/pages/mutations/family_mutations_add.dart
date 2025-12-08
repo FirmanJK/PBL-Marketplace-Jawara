@@ -30,7 +30,7 @@ class CustomDropdown extends StatelessWidget {
           contentPadding: EdgeInsets.zero,
         ),
         hint: Text(hintText),
-        value: selectedValue,
+        initialValue: selectedValue,
         items: items.map((String value) {
           return DropdownMenuItem<String>(value: value, child: Text(value));
         }).toList(),

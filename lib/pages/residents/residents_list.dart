@@ -2,28 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:jawara/shared/standard_app_bar.dart';
 import 'package:jawara/pages/residents/residents_detail.dart';
 import 'package:jawara/models/resident.dart';
-import 'package:jawara/services/database_service.dart';
-
-// Dummy data model untuk halaman ini
-class ResidentListItem {
-  final int no;
-  final String nama;
-  final String nik;
-  final String keluarga;
-  final String jenisKelamin;
-  final String statusDomisili; // Aktif, Nonaktif
-  final String statusHidup; // Hidup, Wafat
-
-  ResidentListItem({
-    required this.no,
-    required this.nama,
-    required this.nik,
-    required this.keluarga,
-    required this.jenisKelamin,
-    required this.statusDomisili,
-    required this.statusHidup,
-  });
-}
+import 'package:jawara/services/residents_service.dart';
+import 'package:jawara/utils/toast_helper.dart';
 
 class ResidentsListPage extends StatefulWidget {
   const ResidentsListPage({super.key});
@@ -33,119 +13,9 @@ class ResidentsListPage extends StatefulWidget {
 }
 
 class _ResidentsListPageState extends State<ResidentsListPage> {
-  List<ResidentListItem> _residents = [];
+  List<Resident> _residents = [];
   bool _isLoading = true;
-  final _dummyResidents = [
-    ResidentListItem(
-      no: 1,
-      nama: 'yyyyy',
-      nik: '1234567891234567',
-      keluarga: 'Keluarga Mara Nunez',
-      jenisKelamin: 'Perempuan',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 2,
-      nama: 'Varizky Naldiba Rimra',
-      nik: '1371111011030005',
-      keluarga: 'Keluarga Varizky Naldiba Rimra',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 3,
-      nama: 'Tes',
-      nik: '2222222222222222',
-      keluarga: 'Keluarga Tes',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Wafat',
-    ),
-    ResidentListItem(
-      no: 4,
-      nama: 'Farhan',
-      nik: '456789086456456',
-      keluarga: 'Keluarga Farhan',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 5,
-      nama: 'Rendha Putra Rahmadya',
-      nik: '3505111512040002',
-      keluarga: 'Keluarga Rendha Putra Rahmadya',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 6,
-      nama: 'Anti Micin',
-      nik: '1234567890987654',
-      keluarga: 'Keluarga Anti Micin',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 7,
-      nama: 'varizky naldiba rimra',
-      nik: '1234123412341234',
-      keluarga: 'Keluarga varizky naldiba rimra',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 8,
-      nama: 'lalalal',
-      nik: '1234567890123456',
-      keluarga: 'Keluarga Ijat',
-      jenisKelamin: 'Perempuan',
-      statusDomisili: 'Nonaktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 9,
-      nama: 'Ijat',
-      nik: '2025202520252025',
-      keluarga: 'Keluarga Ijat',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Nonaktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 10,
-      nama: 'Raudhil Firdaus Naufal',
-      nik: '3201122501050002',
-      keluarga: 'Keluarga Raudhil Firdaus Naufal',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-    // Tambahkan data lain untuk halaman 2 dst.
-    ResidentListItem(
-      no: 11,
-      nama: 'Warga 11',
-      nik: '1111111111111111',
-      keluarga: 'Keluarga 11',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 12,
-      nama: 'Warga 12',
-      nik: '1212121212121212',
-      keluarga: 'Keluarga 12',
-      jenisKelamin: 'Perempuan',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-  ];
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -155,80 +25,43 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
 
   Future<void> _loadResidents() async {
     setState(() => _isLoading = true);
-    
+
     try {
-      final dbService = DatabaseService();
-      final results = await dbService.query('residents', orderBy: 'created_at DESC');
-      
+      final residents = await ResidentsService.getResidents(
+        skip: 0,
+        limit: 100,
+      );
       setState(() {
-        _residents = results.asMap().entries.map((entry) {
-          final index = entry.key;
-          final data = entry.value;
-          return ResidentListItem(
-            no: index + 1,
-            nama: data['name'] as String? ?? '',
-            nik: data['nik'] as String? ?? '',
-            keluarga: 'Keluarga ${data['name']}',
-            jenisKelamin: data['gender'] as String? ?? 'Laki-laki',
-            statusDomisili: 'Aktif',
-            statusHidup: 'Hidup',
-          );
-        }).toList();
-        
-        // Jika database kosong, gunakan dummy data
-        if (_residents.isEmpty) {
-          _residents = _dummyResidents;
-        }
-        
+        _residents = residents;
         _isLoading = false;
       });
     } catch (e) {
       debugPrint('Error loading residents: $e');
       setState(() {
-        _residents = _dummyResidents;
         _isLoading = false;
       });
+      if (mounted) {
+        ToastHelper.showError(context, 'Gagal memuat warga: $e');
+      }
     }
   }
 
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'aktif':
-      case 'hidup':
-        return Colors.green;
-      case 'nonaktif':
-      case 'wafat':
-        return Colors.grey;
-      default:
-        return Colors.grey;
+  List<Resident> _getFilteredResidents() {
+    if (_searchQuery.isEmpty) {
+      return _residents;
     }
-  }
-
-  Widget _buildStatusChip(String status) {
-    Color color = _getStatusColor(status);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        status,
-        style: TextStyle(
-          color: color,
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
-        ),
-      ),
-    );
+    return _residents.where((resident) {
+      return resident.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          resident.nik.contains(_searchQuery);
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final filteredResidents = _getFilteredResidents();
+
     return Scaffold(
-      appBar: StandardAppBar(
-        title: 'Daftar Warga',
-      ),
+      appBar: StandardAppBar(title: 'Daftar Warga'),
       body: Column(
         children: [
           // Search Bar
@@ -245,7 +78,9 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
                 fillColor: Colors.grey[100],
               ),
               onChanged: (value) {
-                // Implement search
+                setState(() {
+                  _searchQuery = value;
+                });
               },
             ),
           ),
@@ -254,160 +89,185 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
+                : filteredResidents.isEmpty
+                ? Center(
+                    child: Text(
+                      _searchQuery.isEmpty
+                          ? 'Tidak ada data warga'
+                          : 'Tidak ada hasil pencarian',
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  )
                 : RefreshIndicator(
                     onRefresh: _loadResidents,
                     child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: _residents.length,
-                itemBuilder: (context, index) {
-                  final resident = _residents[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: InkWell(
-                      onTap: () {
-                        // Convert ResidentListItem to Resident model
-                        final residentModel = Resident(
-                          id: resident.no,
-                          name: resident.nama,
-                          nik: resident.nik,
-                          email: '${resident.nama.toLowerCase().replaceAll(' ', '')}@example.com',
-                          gender: resident.jenisKelamin,
-                          status: resident.statusDomisili,
-                          registrationStatus: resident.statusDomisili == 'Aktif' 
-                              ? RegistrationStatus.accepted 
-                              : RegistrationStatus.inactive,
-                          phone: null,
-                          birthDate: null,
-                          address: null,
-                          familyId: null,
-                          photoUrl: null,
-                        );
-                        
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ResidentsDetailPage(resident: residentModel),
-                          ),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            // Avatar
-                            CircleAvatar(
-                              radius: 28,
-                              backgroundColor: const Color(0xFF0891B2).withOpacity(0.1),
-                              child: Text(
-                                resident.nama[0].toUpperCase(),
-                                style: const TextStyle(
-                                  color: Color(0xFF0891B2),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
-                              ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: filteredResidents.length,
+                      itemBuilder: (context, index) {
+                        final resident = filteredResidents[index];
+                        return Dismissible(
+                          key: Key(resident.id.toString()),
+                          direction: DismissDirection.endToStart,
+                          confirmDismiss: (direction) async {
+                            return await _showDeleteConfirmation(
+                              context,
+                              resident,
+                            );
+                          },
+                          onDismissed: (direction) {
+                            // Delete akan dijalankan setelah confirmasi
+                            _deleteResident(resident);
+                          },
+                          background: Container(
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.only(right: 24),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            const SizedBox(width: 16),
-                            
-                            // Content
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Nama
-                                  Text(
-                                    resident.nama,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
+                            child: const Icon(
+                              Icons.delete_outline,
+                              color: Colors.red,
+                              size: 28,
+                            ),
+                          ),
+                          child: Card(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: InkWell(
+                              onTap: () async {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ResidentsDetailPage(resident: resident),
                                   ),
-                                  const SizedBox(height: 4),
-                                  
-                                  // NIK
-                                  Text(
-                                    'NIK: ${resident.nik}',
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  
-                                  // Keluarga
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.family_restroom,
-                                        size: 14,
-                                        color: Colors.grey[600],
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Expanded(
-                                        child: Text(
-                                          resident.keluarga,
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 12,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
+                                );
+                                // Refresh jika ada perubahan di detail page
+                                if (result == true) {
+                                  _loadResidents();
+                                }
+                              },
+                              borderRadius: BorderRadius.circular(12),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  children: [
+                                    // Avatar
+                                    CircleAvatar(
+                                      radius: 28,
+                                      backgroundColor: const Color(
+                                        0xFF0891B2,
+                                      ).withOpacity(0.1),
+                                      child: Text(
+                                        resident.name[0].toUpperCase(),
+                                        style: const TextStyle(
+                                          color: Color(0xFF0891B2),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  
-                                  // Status Row
-                                  Wrap(
-                                    spacing: 8,
-                                    runSpacing: 4,
-                                    children: [
-                                      // Jenis Kelamin
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
+                                    ),
+                                    const SizedBox(width: 16),
+
+                                    // Content
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Icon(
-                                            resident.jenisKelamin == 'Laki-laki'
-                                                ? Icons.male
-                                                : Icons.female,
-                                            size: 16,
-                                            color: resident.jenisKelamin == 'Laki-laki'
-                                                ? Colors.blue
-                                                : Colors.pink,
-                                          ),
-                                          const SizedBox(width: 4),
+                                          // Nama
                                           Text(
-                                            resident.jenisKelamin,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey[700],
+                                            resident.name,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
                                             ),
+                                          ),
+                                          const SizedBox(height: 4),
+
+                                          // NIK
+                                          Text(
+                                            'NIK: ${resident.nik}',
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+
+                                          // Status Row
+                                          Row(
+                                            children: [
+                                              // Jenis Kelamin
+                                              Icon(
+                                                resident.gender == 'Laki-laki'
+                                                    ? Icons.male
+                                                    : Icons.female,
+                                                size: 16,
+                                                color:
+                                                    resident.gender ==
+                                                        'Laki-laki'
+                                                    ? Colors.blue
+                                                    : Colors.pink,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                resident.gender,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey[700],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 16),
+
+                                              // Status
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 4,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      resident.status == 'aktif'
+                                                      ? Colors.green
+                                                            .withOpacity(0.1)
+                                                      : Colors.grey.withOpacity(
+                                                          0.1,
+                                                        ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                child: Text(
+                                                  resident.status.toUpperCase(),
+                                                  style: TextStyle(
+                                                    color:
+                                                        resident.status ==
+                                                            'aktif'
+                                                        ? Colors.green
+                                                        : Colors.grey,
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 11,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
-                                      
-                                      // Status Domisili
-                                      _buildStatusChip(resident.statusDomisili),
-                                      
-                                      // Status Hidup
-                                      _buildStatusChip(resident.statusHidup),
-                                    ],
-                                  ),
-                                ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
                   ),
           ),
         ],
@@ -425,5 +285,213 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
         backgroundColor: const Color(0xFF0891B2),
       ),
     );
+  }
+
+  Future<bool?> _showDeleteConfirmation(
+    BuildContext context,
+    Resident resident,
+  ) {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.12),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon Warning
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.warning_rounded,
+                    color: Colors.red,
+                    size: 32,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Title
+                const Text(
+                  'Hapus Warga',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1F2937),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+
+                // Description
+                const Text(
+                  'Data akan dihapus secara permanen.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey,
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+
+                // Resident Info Card
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.06),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Colors.red.withOpacity(0.2),
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.person_outline,
+                            color: Colors.red[500],
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              resident.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: Color(0xFF1F2937),
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.badge_outlined,
+                            color: Colors.red[500],
+                            size: 16,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'NIK: ${resident.nik}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Action Buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 44,
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(
+                              color: Color(0xFF0891B2),
+                              width: 1,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Text(
+                            'Batal',
+                            style: TextStyle(
+                              color: Color(0xFF0891B2),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: SizedBox(
+                        height: 44,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 0,
+                            padding: EdgeInsets.zero,
+                          ),
+                          child: const Text(
+                            'Hapus',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteResident(Resident resident) async {
+    try {
+      await ResidentsService.deleteResident(resident.id);
+      if (mounted) {
+        ToastHelper.showSuccess(context, '${resident.name} berhasil dihapus');
+        _loadResidents();
+      }
+    } catch (e) {
+      if (mounted) {
+        ToastHelper.showError(context, 'Gagal menghapus warga: $e');
+      }
+    }
   }
 }

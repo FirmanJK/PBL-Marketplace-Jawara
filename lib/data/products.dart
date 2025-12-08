@@ -1,11 +1,10 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:jawara/models/product.dart';
 
 class ProductService {
   // Base URL untuk API - sesuaikan dengan backend Anda
   static const String baseUrl = 'http://your-api-url.com/api';
-  
+
   // Simulasi data dummy untuk development
   static List<Product> _dummyProducts = [
     Product(
@@ -33,8 +32,10 @@ class ProductService {
     int page = 1,
     int limit = 10,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulasi network delay
-    
+    await Future.delayed(
+      const Duration(milliseconds: 500),
+    ); // Simulasi network delay
+
     // TODO: Implementasi real API call
     // final response = await http.get(
     //   Uri.parse('$baseUrl/products?page=$page&limit=$limit'),
@@ -43,7 +44,7 @@ class ProductService {
     //   final List<dynamic> data = json.decode(response.body);
     //   return data.map((json) => Product.fromJson(json)).toList();
     // }
-    
+
     // Return dummy data untuk development
     final start = (page - 1) * limit;
     final end = start + limit;
@@ -63,7 +64,7 @@ class ProductService {
     required int userId,
   }) async {
     await Future.delayed(const Duration(seconds: 1)); // Simulasi network delay
-    
+
     // TODO: Implementasi real API call dengan multipart
     // var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/products'));
     // request.fields['name'] = name;
@@ -76,7 +77,7 @@ class ProductService {
     //   final responseData = await response.stream.bytesToString();
     //   return Product.fromJson(json.decode(responseData));
     // }
-    
+
     // Simulasi create untuk development
     final newProduct = Product(
       id: _dummyProducts.length + 1,
@@ -100,7 +101,7 @@ class ProductService {
     File? imageFile,
   }) async {
     await Future.delayed(const Duration(seconds: 1));
-    
+
     // TODO: Implementasi real API call
     // var request = http.MultipartRequest('PUT', Uri.parse('$baseUrl/products/$id'));
     // request.fields['name'] = name;
@@ -109,7 +110,7 @@ class ProductService {
     // if (imageFile != null) {
     //   request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
     // }
-    
+
     final index = _dummyProducts.indexWhere((p) => p.id == id);
     if (index != -1) {
       final updated = _dummyProducts[index].copyWith(
@@ -127,24 +128,24 @@ class ProductService {
   // Delete product
   static Future<void> deleteProduct(int id) async {
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     // TODO: Implementasi real API call
     // final response = await http.delete(Uri.parse('$baseUrl/products/$id'));
     // if (response.statusCode != 200) throw Exception('Failed to delete');
-    
+
     _dummyProducts.removeWhere((p) => p.id == id);
   }
 
   // Get product by ID
   static Future<Product> getProductById(int id) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    
+
     // TODO: Implementasi real API call
     // final response = await http.get(Uri.parse('$baseUrl/products/$id'));
     // if (response.statusCode == 200) {
     //   return Product.fromJson(json.decode(response.body));
     // }
-    
+
     final product = _dummyProducts.firstWhere((p) => p.id == id);
     return product;
   }

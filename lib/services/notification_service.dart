@@ -9,12 +9,11 @@ class NotificationService {
   NotificationService._internal();
 
   final DatabaseService _db = DatabaseService();
-  bool _isInitialized = false;
 
   Future<void> initialize() async {
     try {
       // Simple initialization without native notifications
-      _isInitialized = true;
+      // TODO: Implement actual notification service
       print('✅ Notification service initialized (database only)');
     } catch (e) {
       print('⚠️ Notification initialization error: $e');
@@ -45,8 +44,9 @@ class NotificationService {
     required DateTime dueDate,
   }) async {
     final title = 'Pengingat Pembayaran Iuran';
-    final body = 'Iuran untuk $familyName sebesar Rp ${amount.toStringAsFixed(0)} jatuh tempo pada ${dueDate.day}/${dueDate.month}/${dueDate.year}';
-    
+    final body =
+        'Iuran untuk $familyName sebesar Rp ${amount.toStringAsFixed(0)} jatuh tempo pada ${dueDate.day}/${dueDate.month}/${dueDate.year}';
+
     await showNotification(
       id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
       title: title,
@@ -123,10 +123,7 @@ class NotificationService {
   // Get all notifications
   Future<List<Map<String, dynamic>>> getAllNotifications() async {
     try {
-      return await _db.query(
-        'notifications',
-        orderBy: 'created_at DESC',
-      );
+      return await _db.query('notifications', orderBy: 'created_at DESC');
     } catch (e) {
       print('⚠️ Error getting notifications: $e');
       return [];
@@ -175,11 +172,7 @@ class NotificationService {
   // Delete notification
   Future<void> deleteNotification(int id) async {
     try {
-      await _db.delete(
-        'notifications',
-        where: 'id = ?',
-        whereArgs: [id],
-      );
+      await _db.delete('notifications', where: 'id = ?', whereArgs: [id]);
     } catch (e) {
       print('⚠️ Error deleting notification: $e');
     }
@@ -205,12 +198,7 @@ class NotificationService {
   }) async {
     // For now, just save to database
     // In production, you would implement actual scheduling
-    await showNotification(
-      id: id,
-      title: title,
-      body: body,
-      payload: payload,
-    );
+    await showNotification(id: id, title: title, body: body, payload: payload);
   }
 
   // Cancel notification (no-op in this simplified version)
@@ -226,10 +214,4 @@ class NotificationService {
   }
 }
 
-enum NotificationType {
-  general,
-  payment,
-  announcement,
-  marketplace,
-  activity,
-}
+enum NotificationType { general, payment, announcement, marketplace, activity }

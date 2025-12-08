@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:jawara/shared/base_layout.dart';
-import 'package:jawara/shared/card.dart';
+
 import 'package:jawara/shared/theme.dart';
 
 class DashboardFinancePage extends StatefulWidget {
@@ -233,10 +233,7 @@ class _DashboardFinancePageState extends State<DashboardFinancePage> {
         color: Colors.white,
         gradient: gradient,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1.5,
-        ),
+        border: Border.all(color: color.withOpacity(0.2), width: 1.5),
         boxShadow: [
           BoxShadow(
             color: color.withOpacity(0.15),
@@ -254,10 +251,7 @@ class _DashboardFinancePageState extends State<DashboardFinancePage> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      color.withOpacity(0.25),
-                      color.withOpacity(0.15),
-                    ],
+                    colors: [color.withOpacity(0.25), color.withOpacity(0.15)],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
@@ -323,10 +317,7 @@ class _DashboardFinancePageState extends State<DashboardFinancePage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: color.withOpacity(0.15),
-          width: 1,
-        ),
+        border: Border.all(color: color.withOpacity(0.15), width: 1),
         boxShadow: [
           BoxShadow(
             color: color.withOpacity(0.1),
@@ -345,10 +336,7 @@ class _DashboardFinancePageState extends State<DashboardFinancePage> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      color.withOpacity(0.2),
-                      color.withOpacity(0.1),
-                    ],
+                    colors: [color.withOpacity(0.2), color.withOpacity(0.1)],
                   ),
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -417,8 +405,16 @@ class _DashboardFinancePageState extends State<DashboardFinancePage> {
         createSection(const Color(0xFF34D399), 100000, '2%'),
       ];
       legendData = [
-        {'label': 'Pemasukan Lain', 'value': 'Rp 5,01 M', 'color': AppTheme.accentGreen},
-        {'label': 'Tagihan Iuran', 'value': 'Rp 100 rb', 'color': const Color(0xFF34D399)},
+        {
+          'label': 'Pemasukan Lain',
+          'value': 'Rp 5,01 M',
+          'color': AppTheme.accentGreen,
+        },
+        {
+          'label': 'Tagihan Iuran',
+          'value': 'Rp 100 rb',
+          'color': const Color(0xFF34D399),
+        },
       ];
     } else {
       // Data pengeluaran berdasarkan kategori aktual
@@ -428,9 +424,21 @@ class _DashboardFinancePageState extends State<DashboardFinancePage> {
         createSection(const Color(0xFFFBBF24), 1000, '1%'),
       ];
       legendData = [
-        {'label': 'Operasional', 'value': 'Rp 100 rb', 'color': AppTheme.accentRed},
-        {'label': 'Pemeliharaan', 'value': 'Rp 51 rb', 'color': AppTheme.accentOrange},
-        {'label': 'Lainnya', 'value': 'Rp 1 rb', 'color': const Color(0xFFFBBF24)},
+        {
+          'label': 'Operasional',
+          'value': 'Rp 100 rb',
+          'color': AppTheme.accentRed,
+        },
+        {
+          'label': 'Pemeliharaan',
+          'value': 'Rp 51 rb',
+          'color': AppTheme.accentOrange,
+        },
+        {
+          'label': 'Lainnya',
+          'value': 'Rp 1 rb',
+          'color': const Color(0xFFFBBF24),
+        },
       ];
     }
 

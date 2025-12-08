@@ -1,44 +1,62 @@
 import 'package:flutter/material.dart';
-import 'package:jawara/data/residents.dart';
-import 'package:jawara/models/resident.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:jawara/data/messages.dart';
+import 'package:jawara/models/message.dart';
 import 'package:jawara/shared/standard_app_bar.dart';
 
-class ResidentApprovalsPage extends StatefulWidget {
-  const ResidentApprovalsPage({super.key});
+class CitizenMessagesPage extends StatefulWidget {
+  const CitizenMessagesPage({super.key});
 
   @override
-  State<ResidentApprovalsPage> createState() => _ResidentApprovalsPageState();
+  State<CitizenMessagesPage> createState() => _CitizenMessagesPageState();
 }
 
-class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
-  Widget _buildStatusChip(RegistrationStatus status) {
+class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
+  bool _isLocaleInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeLocale();
+  }
+
+  Future<void> _initializeLocale() async {
+    await initializeDateFormatting('id_ID', null);
+    setState(() {
+      _isLocaleInitialized = true;
+    });
+  }
+
+  Widget _buildStatusChip(Status status) {
     Color color;
     String label;
+    Color textColor;
+
     switch (status) {
-      case RegistrationStatus.accepted:
-        color = Colors.green;
+      case Status.accepted:
+        color = const Color(0xFFD1FAE5);
+        textColor = const Color(0xFF047857);
         label = 'Diterima';
         break;
-      case RegistrationStatus.pending:
-        color = Colors.orange;
+      case Status.pending:
+        color = const Color(0xFFFEF3C7);
+        textColor = const Color(0xFFD97706);
         label = 'Pending';
         break;
-      case RegistrationStatus.inactive:
-        color = Colors.grey;
-        label = 'Nonaktif';
-        break;
+
     }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: color,
+          color: textColor,
           fontWeight: FontWeight.w600,
           fontSize: 13,
         ),
@@ -48,9 +66,27 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_isLocaleInitialized) {
+      return Scaffold(
+        appBar: StandardAppBar(title: 'Pesan Warga'),
+        body: const Center(
+          child: CircularProgressIndicator(color: Color(0xFF0891B2)),
+        ),
+      );
+    }
+
+    final dateFormatter = DateFormat('d MMMM yyyy', 'id_ID');
+
     return Scaffold(
       appBar: StandardAppBar(
         title: 'Penerimaan Warga',
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_alt),
+            onPressed: () {},
+            tooltip: 'Filter',
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -58,7 +94,7 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
             padding: const EdgeInsets.all(16),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Cari permohonan...',
+                hintText: 'Cari pesan warga...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -71,9 +107,9 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: dummyResidents.length,
+              itemCount: dummyCitizenMessages.length,
               itemBuilder: (context, index) {
-                final resident = dummyResidents[index];
+                final message = dummyCitizenMessages[index];
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
                   elevation: 2,
@@ -87,18 +123,18 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
                       child: Icon(Icons.person_add, color: const Color(0xFF0891B2)),
                     ),
                     title: Text(
-                      resident.name,
+                      message.title,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 4),
-                        Text('NIK: ${resident.nik}'),
+                        Text('Pengirim: ${message.senderName}'),
                         const SizedBox(height: 4),
-                        Text('Email: ${resident.email}'),
+                        Text('Email: ${message.senderName}'),
                         const SizedBox(height: 8),
-                        _buildStatusChip(resident.registrationStatus),
+                        _buildStatusChip(message.status),
                       ],
                     ),
                     trailing: Row(

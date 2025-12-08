@@ -21,7 +21,7 @@ class RoleBasedSidebar extends StatelessWidget {
           children: [
             // Header
             _buildHeader(currentUser.name, currentUser.role),
-            
+
             // Menu List
             Expanded(
               child: ListView(
@@ -120,201 +120,222 @@ class RoleBasedSidebar extends StatelessWidget {
   }
 
   List<Widget> _buildMenuItems(BuildContext context, UserRole role) {
-    final authService = AuthService();
     final List<Widget> menuItems = [];
 
-    // Dashboard - Semua role kecuali warga biasa bisa akses penuh
-    if (authService.hasPermission(AppModule.dashboard, view: true)) {
-      menuItems.add(_buildMenuItem(
-        icon: Icons.dashboard_rounded,
-        title: 'Dashboard',
-        route: '/dashboard/finance',
-        context: context,
-      ));
+    // Dashboard - All except warga
+    if (role != UserRole.warga) {
+      menuItems.add(
+        _buildMenuItem(
+          icon: Icons.dashboard_rounded,
+          title: 'Dashboard',
+          route: '/dashboard/finance',
+          context: context,
+        ),
+      );
     }
 
     // Data Warga & Rumah - Admin, Ketua RT, Sekretaris
-    if (authService.hasPermission(AppModule.dataWarga, view: true)) {
-      menuItems.add(_buildExpandableMenu(
-        icon: Icons.people_rounded,
-        title: 'Data Warga & Rumah',
-        children: [
-          _buildSubMenuItem(
-            icon: Icons.person_outline_rounded,
-            title: 'Warga - Daftar',
-            route: '/residents/list',
-            context: context,
-          ),
-          if (authService.hasPermission(AppModule.dataWarga, create: true))
+    if (role == UserRole.adminSistem ||
+        role == UserRole.ketuaRT ||
+        role == UserRole.sekretaris) {
+      final canAdd = role == UserRole.adminSistem || role == UserRole.ketuaRT;
+
+      menuItems.add(
+        _buildExpandableMenu(
+          icon: Icons.people_rounded,
+          title: 'Data Warga & Rumah',
+          children: [
             _buildSubMenuItem(
-              icon: Icons.person_add_rounded,
-              title: 'Warga - Tambah',
-              route: '/residents/add',
+              icon: Icons.person_outline_rounded,
+              title: 'Warga - Daftar',
+              route: '/residents/list',
               context: context,
             ),
-          _buildSubMenuItem(
-            icon: Icons.family_restroom_rounded,
-            title: 'Keluarga',
-            route: '/families',
-            context: context,
-          ),
-          _buildSubMenuItem(
-            icon: Icons.home_outlined,
-            title: 'Rumah - Daftar',
-            route: '/houses/list',
-            context: context,
-          ),
-          if (authService.hasPermission(AppModule.dataWarga, create: true))
+            if (canAdd)
+              _buildSubMenuItem(
+                icon: Icons.person_add_rounded,
+                title: 'Warga - Tambah',
+                route: '/residents/add',
+                context: context,
+              ),
             _buildSubMenuItem(
-              icon: Icons.add_home_rounded,
-              title: 'Rumah - Tambah',
-              route: '/houses/add',
+              icon: Icons.family_restroom_rounded,
+              title: 'Keluarga',
+              route: '/families',
               context: context,
             ),
-        ],
-      ));
+            _buildSubMenuItem(
+              icon: Icons.home_outlined,
+              title: 'Rumah - Daftar',
+              route: '/houses/list',
+              context: context,
+            ),
+            if (canAdd)
+              _buildSubMenuItem(
+                icon: Icons.add_home_rounded,
+                title: 'Rumah - Tambah',
+                route: '/houses/add',
+                context: context,
+              ),
+          ],
+        ),
+      );
     }
 
     // Keuangan - Admin, Bendahara (full), Warga (read only riwayat)
-    if (authService.hasPermission(AppModule.keuangan, view: true)) {
-      final canManage = authService.hasPermission(AppModule.keuangan, create: true);
-      
-      menuItems.add(_buildExpandableMenu(
-        icon: Icons.account_balance_wallet_rounded,
-        title: 'Keuangan',
-        children: [
-          if (canManage) ...[
-            _buildSubMenuItem(
-              icon: Icons.list_alt_rounded,
-              title: 'Iuran - Daftar',
-              route: '/income/bills',
-              context: context,
-            ),
-            _buildSubMenuItem(
-              icon: Icons.category_rounded,
-              title: 'Kategori Iuran',
-              route: '/income/categories',
-              context: context,
-            ),
-            _buildSubMenuItem(
-              icon: Icons.format_list_bulleted_rounded,
-              title: 'Daftar Pengeluaran',
-              route: '/spending/list',
-              context: context,
-            ),
-            _buildSubMenuItem(
-              icon: Icons.add_shopping_cart_rounded,
-              title: 'Tambah Pengeluaran',
-              route: '/spending/add',
-              context: context,
-            ),
-          ] else ...[
-            // Warga hanya bisa lihat riwayat transaksi sendiri
-            _buildSubMenuItem(
-              icon: Icons.history_rounded,
-              title: 'Riwayat Transaksi',
-              route: '/income/bills',
-              context: context,
-            ),
+    if (role == UserRole.adminSistem ||
+        role == UserRole.bendahara ||
+        role == UserRole.warga) {
+      final canManage =
+          role == UserRole.adminSistem || role == UserRole.bendahara;
+
+      menuItems.add(
+        _buildExpandableMenu(
+          icon: Icons.account_balance_wallet_rounded,
+          title: 'Keuangan',
+          children: [
+            if (canManage) ...[
+              _buildSubMenuItem(
+                icon: Icons.list_alt_rounded,
+                title: 'Iuran - Daftar',
+                route: '/income/bills',
+                context: context,
+              ),
+              _buildSubMenuItem(
+                icon: Icons.category_rounded,
+                title: 'Kategori Iuran',
+                route: '/income/categories',
+                context: context,
+              ),
+              _buildSubMenuItem(
+                icon: Icons.format_list_bulleted_rounded,
+                title: 'Daftar Pengeluaran',
+                route: '/spending/list',
+                context: context,
+              ),
+              _buildSubMenuItem(
+                icon: Icons.add_shopping_cart_rounded,
+                title: 'Tambah Pengeluaran',
+                route: '/spending/add',
+                context: context,
+              ),
+            ] else ...[
+              // Warga hanya bisa lihat riwayat transaksi sendiri
+              _buildSubMenuItem(
+                icon: Icons.history_rounded,
+                title: 'Riwayat Transaksi',
+                route: '/income/bills',
+                context: context,
+              ),
+            ],
           ],
-        ],
-      ));
+        ),
+      );
     }
 
     // Marketplace - Admin (full), Warga (full)
-    if (authService.hasPermission(AppModule.marketplace, view: true)) {
-      menuItems.add(_buildExpandableMenu(
-        icon: Icons.shopping_bag_rounded,
-        title: 'Marketplace',
-        children: [
-          if (authService.hasPermission(AppModule.marketplace, create: true))
+    if (role == UserRole.adminSistem || role == UserRole.warga) {
+      menuItems.add(
+        _buildExpandableMenu(
+          icon: Icons.shopping_bag_rounded,
+          title: 'Marketplace',
+          children: [
             _buildSubMenuItem(
               icon: Icons.camera_alt_rounded,
               title: 'Unggah Produk',
               route: '/marketplace/upload',
               context: context,
             ),
-          _buildSubMenuItem(
-            icon: Icons.grid_view_rounded,
-            title: 'Katalog Produk',
-            route: '/marketplace/catalog',
-            context: context,
-          ),
-        ],
-      ));
+            _buildSubMenuItem(
+              icon: Icons.grid_view_rounded,
+              title: 'Katalog Produk',
+              route: '/marketplace/catalog',
+              context: context,
+            ),
+          ],
+        ),
+      );
     }
 
     // Notifikasi - Admin, Ketua RT, Sekretaris (full), Warga (read only)
-    if (authService.hasPermission(AppModule.notifikasi, view: true)) {
-      menuItems.add(_buildExpandableMenu(
-        icon: Icons.notifications_rounded,
-        title: 'Notifikasi & Pesan',
-        children: [
-          _buildSubMenuItem(
-            icon: Icons.message_rounded,
-            title: 'Pesan Warga',
-            route: '/messages',
-            context: context,
-          ),
-          if (authService.hasPermission(AppModule.notifikasi, create: true))
+    if (role != UserRole.bendahara) {
+      final canCreate = role != UserRole.warga;
+
+      menuItems.add(
+        _buildExpandableMenu(
+          icon: Icons.notifications_rounded,
+          title: 'Notifikasi & Pesan',
+          children: [
             _buildSubMenuItem(
-              icon: Icons.campaign_rounded,
-              title: 'Broadcast',
-              route: '/broadcast/list',
+              icon: Icons.message_rounded,
+              title: 'Pesan Warga',
+              route: '/messages',
               context: context,
             ),
-        ],
-      ));
+            if (canCreate)
+              _buildSubMenuItem(
+                icon: Icons.campaign_rounded,
+                title: 'Broadcast',
+                route: '/broadcast/list',
+                context: context,
+              ),
+          ],
+        ),
+      );
     }
 
     // Laporan - Admin, Bendahara, Ketua RT, Sekretaris
-    if (authService.hasPermission(AppModule.dashboard, export: true)) {
-      menuItems.add(_buildExpandableMenu(
-        icon: Icons.assessment_rounded,
-        title: 'Laporan',
-        children: [
-          _buildSubMenuItem(
-            icon: Icons.trending_up_rounded,
-            title: 'Laporan Pemasukan',
-            route: '/reports/income',
-            context: context,
-          ),
-          _buildSubMenuItem(
-            icon: Icons.trending_down_rounded,
-            title: 'Laporan Pengeluaran',
-            route: '/reports/spending',
-            context: context,
-          ),
-          _buildSubMenuItem(
-            icon: Icons.print_rounded,
-            title: 'Cetak Laporan',
-            route: '/reports/print',
-            context: context,
-          ),
-        ],
-      ));
+    if (role != UserRole.warga) {
+      menuItems.add(
+        _buildExpandableMenu(
+          icon: Icons.assessment_rounded,
+          title: 'Laporan',
+          children: [
+            _buildSubMenuItem(
+              icon: Icons.trending_up_rounded,
+              title: 'Laporan Pemasukan',
+              route: '/reports/income',
+              context: context,
+            ),
+            _buildSubMenuItem(
+              icon: Icons.trending_down_rounded,
+              title: 'Laporan Pengeluaran',
+              route: '/reports/spending',
+              context: context,
+            ),
+            _buildSubMenuItem(
+              icon: Icons.print_rounded,
+              title: 'Cetak Laporan',
+              route: '/reports/print',
+              context: context,
+            ),
+          ],
+        ),
+      );
     }
 
     // Admin only menus
     if (role == UserRole.adminSistem) {
-      menuItems.add(_buildExpandableMenu(
-        icon: Icons.admin_panel_settings_rounded,
-        title: 'Manajemen Sistem',
-        children: [
-          _buildSubMenuItem(
-            icon: Icons.group_rounded,
-            title: 'Manajemen Pengguna',
-            route: '/users',
-            context: context,
-          ),
-          _buildSubMenuItem(
-            icon: Icons.history_rounded,
-            title: 'Log Aktivitas',
-            route: '/activity-logs',
-            context: context,
-          ),
-        ],
-      ));
+      menuItems.add(
+        _buildExpandableMenu(
+          icon: Icons.admin_panel_settings_rounded,
+          title: 'Manajemen Sistem',
+          children: [
+            _buildSubMenuItem(
+              icon: Icons.group_rounded,
+              title: 'Manajemen Pengguna',
+              route: '/users',
+              context: context,
+            ),
+            _buildSubMenuItem(
+              icon: Icons.history_rounded,
+              title: 'Log Aktivitas',
+              route: '/activity-logs',
+              context: context,
+            ),
+          ],
+        ),
+      );
     }
 
     return menuItems;

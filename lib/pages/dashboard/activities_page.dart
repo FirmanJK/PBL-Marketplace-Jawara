@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:jawara/shared/base_layout.dart';
-import 'package:jawara/shared/card.dart';
+
 import 'package:jawara/shared/theme.dart';
 
 class DashboardActivitiesPage extends StatefulWidget {
@@ -146,11 +146,23 @@ class _DashboardActivitiesPageState extends State<DashboardActivitiesPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              _buildTimeRow('Sudah Lewat', '1', AppTheme.textMedium),
+                              _buildTimeRow(
+                                'Sudah Lewat',
+                                '1',
+                                AppTheme.textMedium,
+                              ),
                               const SizedBox(height: 12),
-                              _buildTimeRow('Hari ini', '0', AppTheme.accentOrange),
+                              _buildTimeRow(
+                                'Hari ini',
+                                '0',
+                                AppTheme.accentOrange,
+                              ),
                               const SizedBox(height: 12),
-                              _buildTimeRow('Akan Datang', '0', AppTheme.primary),
+                              _buildTimeRow(
+                                'Akan Datang',
+                                '0',
+                                AppTheme.primary,
+                              ),
                             ],
                           ),
                         ),
@@ -171,7 +183,8 @@ class _DashboardActivitiesPageState extends State<DashboardActivitiesPage> {
                                 child: Row(
                                   children: [
                                     CircleAvatar(
-                                      backgroundColor: AppTheme.accentPurple.withOpacity(0.15),
+                                      backgroundColor: AppTheme.accentPurple
+                                          .withOpacity(0.15),
                                       child: Icon(
                                         Icons.person,
                                         color: AppTheme.accentPurple,
@@ -197,7 +210,9 @@ class _DashboardActivitiesPageState extends State<DashboardActivitiesPage> {
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.accentPurple.withOpacity(0.15),
+                                  color: AppTheme.accentPurple.withOpacity(
+                                    0.15,
+                                  ),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
@@ -244,16 +259,10 @@ class _DashboardActivitiesPageState extends State<DashboardActivitiesPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         gradient: LinearGradient(
-          colors: [
-            color.withOpacity(0.08),
-            Colors.white,
-          ],
+          colors: [color.withOpacity(0.08), Colors.white],
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1.5,
-        ),
+        border: Border.all(color: color.withOpacity(0.2), width: 1.5),
         boxShadow: [
           BoxShadow(
             color: color.withOpacity(0.15),
@@ -271,10 +280,7 @@ class _DashboardActivitiesPageState extends State<DashboardActivitiesPage> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      color.withOpacity(0.25),
-                      color.withOpacity(0.15),
-                    ],
+                    colors: [color.withOpacity(0.25), color.withOpacity(0.15)],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
@@ -320,10 +326,7 @@ class _DashboardActivitiesPageState extends State<DashboardActivitiesPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: color.withOpacity(0.15),
-          width: 1,
-        ),
+        border: Border.all(color: color.withOpacity(0.15), width: 1),
         boxShadow: [
           BoxShadow(
             color: color.withOpacity(0.1),
@@ -341,10 +344,7 @@ class _DashboardActivitiesPageState extends State<DashboardActivitiesPage> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      color.withOpacity(0.2),
-                      color.withOpacity(0.1),
-                    ],
+                    colors: [color.withOpacity(0.2), color.withOpacity(0.1)],
                   ),
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -380,18 +380,12 @@ class _DashboardActivitiesPageState extends State<DashboardActivitiesPage> {
             Container(
               width: 8,
               height: 8,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             ),
             const SizedBox(width: 8),
             Text(
               label,
-              style: TextStyle(
-                fontSize: 14,
-                color: AppTheme.textMedium,
-              ),
+              style: TextStyle(fontSize: 14, color: AppTheme.textMedium),
             ),
           ],
         ),

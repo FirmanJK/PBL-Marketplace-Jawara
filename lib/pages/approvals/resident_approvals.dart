@@ -51,7 +51,7 @@ class ResidentApprovalsPage extends StatelessWidget {
         Text(resident.id.toString()),
         Text(resident.name, overflow: TextOverflow.ellipsis),
         Text(resident.nik, overflow: TextOverflow.ellipsis),
-        Text(resident.email, overflow: TextOverflow.ellipsis),
+        Text(resident.email ?? '-', overflow: TextOverflow.ellipsis),
         Text(resident.gender, overflow: TextOverflow.ellipsis),
         TextButton(onPressed: () {}, child: const Text('Lihat')),
         _buildStatusChip(resident.registrationStatus),
@@ -82,9 +82,7 @@ class ResidentApprovalsPage extends StatelessWidget {
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: constraints.maxWidth,
-                ),
+                constraints: BoxConstraints(minWidth: constraints.maxWidth),
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: CustomDataTable(

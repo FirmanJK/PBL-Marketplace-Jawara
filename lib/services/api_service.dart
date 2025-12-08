@@ -3,12 +3,14 @@ import 'package:http/http.dart' as http;
 
 /// Base API Service untuk semua HTTP requests
 class ApiService {
-  // Base URL - ganti dengan URL backend Anda
-  // Untuk Android Emulator gunakan: http://10.0.2.2:3000/api
-  // Untuk iOS Simulator gunakan: http://localhost:3000/api
-  // Untuk Physical Device gunakan: http://YOUR_IP:3000/api
-  static const String baseUrl = 'http://10.0.2.2:3000/api';
+  // Base URL - Backend FastAPI berjalan di port 8000
+  // Untuk Android Emulator gunakan: http://10.0.2.2:8000
+  // Untuk iOS Simulator gunakan: http://localhost:8000
+  // Untuk Physical Device gunakan: http://YOUR_IP:8000
+  // static const String baseUrl = 'http://10.0.2.2:8000';
+  static const String baseUrl = 'http://localhost:8000';
   
+
   // Timeout duration
   static const Duration timeout = Duration(seconds: 30);
 
@@ -94,10 +96,7 @@ class ApiService {
   }
 
   /// DELETE request
-  static Future<dynamic> delete(
-    String endpoint, {
-    String? token,
-  }) async {
+  static Future<dynamic> delete(String endpoint, {String? token}) async {
     try {
       final uri = Uri.parse('$baseUrl$endpoint');
       final response = await http
@@ -156,27 +155,27 @@ class ApiService {
     if (statusCode >= 200 && statusCode < 300) {
       if (body.isEmpty) return null;
       return json.decode(body);
-    } else if (statusCode == 401) {
-      throw ApiException('Unauthorized', statusCode);
-    } else if (statusCode == 403) {
-      throw ApiException('Forbidden', statusCode);
-    } else if (statusCode == 404) {
-      throw ApiException('Not Found', statusCode);
-    } else if (statusCode >= 500) {
-      throw ApiException('Server Error', statusCode);
     } else {
+      // Extract error message from response body
       final errorMessage = _extractErrorMessage(body);
       throw ApiException(errorMessage, statusCode);
     }
   }
 
-  /// Extract error message from response body
+  /// Extract error message from response body (from FastAPI error response)
   static String _extractErrorMessage(String body) {
     try {
       final decoded = json.decode(body);
-      return decoded['message'] ?? decoded['error'] ?? 'Unknown error';
+      // FastAPI returns 'detail' field for error messages
+      if (decoded is Map) {
+        return decoded['detail'] ??
+            decoded['message'] ??
+            decoded['error'] ??
+            'Terjadi kesalahan';
+      }
+      return 'Terjadi kesalahan';
     } catch (e) {
-      return 'Unknown error';
+      return 'Terjadi kesalahan';
     }
   }
 

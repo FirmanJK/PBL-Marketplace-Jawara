@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jawara/shared/sidebar.dart';
 
 class BaseLayout extends StatefulWidget {
   final Widget child;
@@ -19,6 +20,8 @@ class BaseLayout extends StatefulWidget {
 }
 
 class _BaseLayoutState extends State<BaseLayout> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,7 +100,11 @@ class _BaseLayoutState extends State<BaseLayout> {
                   ),
                   onSelected: (value) {
                     if (value == 'logout') {
-                      _showLogoutConfirmation(context);
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        '/login',
+                        (route) => false,
+                      );
                     } else if (value == 'profile') {
                       Navigator.pushNamed(context, '/profile');
                     } else if (value == 'settings') {

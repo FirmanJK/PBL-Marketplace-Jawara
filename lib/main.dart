@@ -5,8 +5,7 @@ import 'package:jawara/pages/activities/activities_add.dart';
 import 'package:jawara/pages/activities/activities_list.dart';
 import 'package:jawara/pages/activities/broadcast_add.dart';
 import 'package:jawara/pages/activities/broadcast_list.dart';
-import 'package:jawara/pages/activity_logs_page.dart';
-// Import dari subfolder
+import 'package:jawara/pages/activities/activity_logs_page.dart';
 import 'package:jawara/pages/auth/login_page.dart';
 import 'package:jawara/pages/auth/register_page.dart';
 import 'package:jawara/pages/channels/channels_add.dart';
@@ -14,7 +13,7 @@ import 'package:jawara/pages/channels/channels_list.dart';
 import 'package:jawara/pages/dashboard/activities_page.dart';
 import 'package:jawara/pages/dashboard/finance_page.dart';
 import 'package:jawara/pages/dashboard/population_page.dart';
-import 'package:jawara/pages/income.dart';
+import 'package:jawara/pages/income/income.dart';
 import 'package:jawara/pages/income/income_bill.dart';
 import 'package:jawara/pages/income/income_bills.dart';
 import 'package:jawara/pages/income/income_categories.dart';
@@ -27,71 +26,82 @@ import 'package:jawara/pages/profile/profile_page.dart';
 import 'package:jawara/pages/reports/reports_income.dart';
 import 'package:jawara/pages/reports/reports_print.dart';
 import 'package:jawara/pages/reports/reports_spending.dart';
-import 'package:jawara/pages/resident_approvals.dart';
-import 'package:jawara/pages/resident_messages.dart';
+import 'package:jawara/pages/approvals/resident_approvals.dart';
+import 'package:jawara/pages/messages/resident_messages.dart';
 import 'package:jawara/pages/residents/families_page.dart';
 import 'package:jawara/pages/residents/houses_add.dart';
 import 'package:jawara/pages/residents/houses_list.dart';
 import 'package:jawara/pages/residents/residents_add.dart';
-import 'package:jawara/pages/residents/residents_detail.dart';
 import 'package:jawara/pages/residents/residents_edit.dart';
 import 'package:jawara/pages/residents/residents_list.dart';
 import 'package:jawara/pages/settings/settings_page.dart';
-import 'package:jawara/pages/spending.dart';
+import 'package:jawara/pages/spending/spending.dart';
 import 'package:jawara/pages/spending/spending_add.dart';
 import 'package:jawara/pages/spending/spending_list.dart';
 import 'package:jawara/pages/users/user_management.dart';
 import 'package:jawara/pages/users/users_add.dart';
-import 'package:jawara/pages/marketplace_page.dart';
+import 'package:jawara/pages/marketplace/marketplace_page.dart';
+import 'package:jawara/pages/marketplace/marketplace_upload_page.dart';
+import 'package:jawara/pages/marketplace/marketplace_catalog_page.dart';
 import 'package:jawara/pages/admin_dashboard_page.dart';
-import 'package:jawara/pages/help_page.dart';
 import 'package:jawara/pages/about_page.dart';
+import 'package:jawara/pages/help_page.dart';
 import 'package:jawara/shared/theme.dart';
 import 'package:jawara/services/notification_service.dart';
 import 'package:jawara/services/database_service.dart';
+import 'package:jawara/services/auth_service.dart';
 import 'package:jawara/models/resident.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Set system UI overlay style for white navigation bar
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      systemNavigationBarColor: Colors.white,
-      systemNavigationBarIconBrightness: Brightness.dark,
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-    ),
-  );
-  
   // Initialize database service with error handling
   try {
     await DatabaseService().database;
-    print(' Database initialized');
+    print('✓ Database initialized');
   } catch (e) {
-    print(' Database initialization failed: $e');
+    print('✗ Database initialization failed: $e');
   }
-  
+
   // Initialize notification service (database-only version)
   try {
     await NotificationService().initialize();
-    print(' Notification service initialized');
+    print('✓ Notification service initialized');
   } catch (e) {
-    print(' Notification service initialization failed: $e');
+    print('✗ Notification service initialization failed: $e');
   }
-  
+
+  // Initialize auth service - restore session
+  try {
+    final authService = AuthService();
+    await authService.initialize();
+    print('✓ Auth service initialized');
+    if (authService.isLoggedIn) {
+      print('✓ Session restored - User: ${authService.currentUser?.name}');
+    }
+  } catch (e) {
+    print('✗ Auth service initialization failed: $e');
+  }
+
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Jawara Pintar',
       theme: AppTheme.lightTheme,
-      initialRoute: '/login',
+      initialRoute: _authService.isLoggedIn ? '/admin-dashboard' : '/login',
       builder: (context, child) => ResponsiveBreakpoints.builder(
         child: child!,
         breakpoints: [
@@ -118,7 +128,8 @@ class MyApp extends StatelessWidget {
         '/residents/list': (context) => const ResidentsListPage(),
         '/residents/add': (context) => const ResidentsAddPage(),
         '/residents/edit': (context) {
-          final resident = ModalRoute.of(context)!.settings.arguments as Resident;
+          final resident =
+              ModalRoute.of(context)!.settings.arguments as Resident;
           return ResidentsEditPage(resident: resident);
         },
         '/families': (context) => const FamiliesPage(),
@@ -173,8 +184,8 @@ class MyApp extends StatelessWidget {
 
         // Marketplace
         '/marketplace': (context) => const MarketplacePage(),
-        '/marketplace/upload': (context) => const MarketplacePage(),
-        '/marketplace/catalog': (context) => const MarketplacePage(),
+        '/marketplace/upload': (context) => const MarketplaceUploadPage(),
+        '/marketplace/catalog': (context) => const MarketplaceCatalogPage(),
 
         // Notifikasi
         '/notifications': (context) => const NotificationsPage(),

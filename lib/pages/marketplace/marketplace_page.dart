@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:jawara/pages/marketplace_catalog_page.dart';
-import 'package:jawara/pages/marketplace_upload_page.dart';
+import 'package:jawara/pages/marketplace/marketplace_catalog_page.dart';
+import 'package:jawara/pages/marketplace/marketplace_upload_page.dart';
 
 class MarketplacePage extends StatefulWidget {
   const MarketplacePage({super.key});
@@ -52,10 +52,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
                 ),
                 title: const Text(
                   'Profil',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                 ),
                 onTap: () {
                   Navigator.pop(context);
@@ -63,7 +60,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
                 },
               ),
               const Divider(height: 1),
-              
+
               // Settings Option
               ListTile(
                 leading: Container(
@@ -80,10 +77,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
                 ),
                 title: const Text(
                   'Pengaturan',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                 ),
                 onTap: () {
                   Navigator.pop(context);
@@ -91,7 +85,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
                 },
               ),
               const Divider(height: 1),
-              
+
               // Logout Option
               ListTile(
                 leading: Container(
@@ -184,7 +178,11 @@ class _MarketplacePageState extends State<MarketplacePage> {
                   value: 'upload',
                   child: Row(
                     children: [
-                      Icon(Icons.camera_alt, size: 18, color: Color(0xFF0891B2)),
+                      Icon(
+                        Icons.camera_alt,
+                        size: 18,
+                        color: Color(0xFF0891B2),
+                      ),
                       SizedBox(width: 8),
                       Text('Unggah Produk'),
                     ],
@@ -208,7 +206,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
               },
             ),
           ),
-          
+
           // Profile Icon Button
           IconButton(
             onPressed: () => _showProfileMenu(context),
@@ -218,11 +216,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
                 color: const Color(0xFF0891B2),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.person,
-                color: Colors.white,
-                size: 20,
-              ),
+              child: const Icon(Icons.person, color: Colors.white, size: 20),
             ),
             tooltip: 'Profil',
           ),

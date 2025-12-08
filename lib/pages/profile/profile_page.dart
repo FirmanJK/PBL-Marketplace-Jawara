@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jawara/shared/standard_app_bar.dart';
 import 'package:jawara/shared/button.dart';
 import 'package:jawara/shared/input.dart';
+import 'package:jawara/shared/theme.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -11,26 +12,27 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final _nameController = TextEditingController(text: 'Admin Sistem');
-  final _emailController = TextEditingController(text: 'admin@jawara.com');
-  final _phoneController = TextEditingController(text: '081234567890');
+  final _nameController = TextEditingController(text: 'Admin');
+  final _emailController = TextEditingController(text: 'admin@jawara.id');
+  final _phoneController = TextEditingController(text: '08xxxxxxxxxx');
 
   final _currentPassController = TextEditingController();
   final _newPassController = TextEditingController();
   final _confirmPassController = TextEditingController();
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    _currentPassController.dispose();
-    _newPassController.dispose();
-    _confirmPassController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    // Initialize controllers dengan data dari AuthService
+    // TODO: Uncomment when AuthService is properly integrated
+    // final user = AuthService().currentUser;
+    // _nameController.text = user?.name ?? '';
+    // _emailController.text = user?.email ?? '';
+    // _phoneController.text = user?.phone ?? '';
   }
 
   void _saveProfile() {
+    // TODO: Implementasi API call untuk update profile
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Profil berhasil disimpan.'),
@@ -49,12 +51,24 @@ class _ProfilePageState extends State<ProfilePage> {
       );
       return;
     }
+    // TODO: Implementasi API call untuk change password
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Kata sandi diperbarui.'),
         behavior: SnackBarBehavior.floating,
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _currentPassController.dispose();
+    _newPassController.dispose();
+    _confirmPassController.dispose();
+    super.dispose();
   }
 
   @override
