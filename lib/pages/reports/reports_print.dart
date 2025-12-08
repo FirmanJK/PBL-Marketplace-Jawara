@@ -54,11 +54,136 @@ class _ReportsPrintPageState extends State<ReportsPrintPage> {
   }
 
   void _downloadPdf() {
-    // Implement PDF generation and download logic here
-    debugPrint('Start Date: ${_startDate != null ? DateFormat('dd/MM/yyyy').format(_startDate!) : 'N/A'}');
-    debugPrint('End Date: ${_endDate != null ? DateFormat('dd/MM/yyyy').format(_endDate!) : 'N/A'}');
-    debugPrint('Report Type: $_selectedReportType');
-    // Panggil fungsi generate PDF
+    if (_startDate == null || _endDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Mohon pilih rentang tanggal terlebih dahulu')),
+      );
+      return;
+    }
+
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    // Simulate PDF generation
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.pop(context); // Close loading
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Laporan PDF berhasil diunduh'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    });
+  }
+
+  void _printReport() {
+    if (_startDate == null || _endDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Mohon pilih rentang tanggal terlebih dahulu')),
+      );
+      return;
+    }
+
+    // Show print dialog
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cetak Laporan'),
+        content: const Text('Fitur cetak akan membuka dialog cetak perangkat Anda.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Membuka dialog cetak...')),
+              );
+              // TODO: Implement actual print functionality
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0891B2)),
+            child: const Text('Cetak'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _shareReport() {
+    if (_startDate == null || _endDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Mohon pilih rentang tanggal terlebih dahulu')),
+      );
+      return;
+    }
+
+    // Show share options
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  'Bagikan Laporan',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.email, color: Color(0xFF0891B2)),
+                title: const Text('Email'),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Membuka aplikasi email...')),
+                  );
+                  // TODO: Implement email sharing
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.message, color: Color(0xFF0891B2)),
+                title: const Text('Pesan'),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Membuka aplikasi pesan...')),
+                  );
+                  // TODO: Implement message sharing
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.share, color: Color(0xFF0891B2)),
+                title: const Text('Lainnya'),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Membuka opsi berbagi...')),
+                  );
+                  // TODO: Implement general sharing
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -72,18 +197,25 @@ class _ReportsPrintPageState extends State<ReportsPrintPage> {
 
     return BaseLayout(
       title: 'Cetak Laporan',
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Container(
-          padding: const EdgeInsets.all(32.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: AppTheme.borderRadiusXLarge,
-            boxShadow: AppTheme.shadowMedium,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight - 48,
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(32.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: AppTheme.borderRadiusXLarge,
+                  boxShadow: AppTheme.shadowMedium,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
               Text(
                 'Cetak Laporan Keuangan',
                 style: AppTheme.headingMedium,
@@ -91,25 +223,29 @@ class _ReportsPrintPageState extends State<ReportsPrintPage> {
               const SizedBox(height: 32),
 
               // Input Rentang Tanggal
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: _buildDateField(
-                      label: 'Tanggal Mulai',
-                      formattedDate: formattedStartDate,
-                      onTapIcon: () => _selectDate(context, true), // true for start date
-                    ),
-                  ),
-                  const SizedBox(width: 24), // Spacing between date fields
-                  Expanded(
-                    child: _buildDateField(
-                      label: 'Tanggal Akhir',
-                      formattedDate: formattedEndDate,
-                      onTapIcon: () => _selectDate(context, false), // false for end date
-                    ),
-                  ),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Flexible(
+                        child: _buildDateField(
+                          label: 'Tanggal Mulai',
+                          formattedDate: formattedStartDate,
+                          onTapIcon: () => _selectDate(context, true),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Flexible(
+                        child: _buildDateField(
+                          label: 'Tanggal Akhir',
+                          formattedDate: formattedEndDate,
+                          onTapIcon: () => _selectDate(context, false),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 24),
 
@@ -125,32 +261,53 @@ class _ReportsPrintPageState extends State<ReportsPrintPage> {
                   });
                 },
               ),
-              const SizedBox(height: 32),
+                    const SizedBox(height: 32),
 
-              // Tombol Aksi
-              Row(
-                children: [
-                  SizedBox(
-                    // Lebarkan tombol Download sedikit
-                    child: CustomButton(
-                      text: 'Download PDF',
-                      icon: Icons.download_rounded,
-                      onPressed: _downloadPdf,
+                    // Tombol Aksi
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: [
+                        CustomButton(
+                          text: 'Download PDF',
+                          icon: Icons.download_rounded,
+                          onPressed: _downloadPdf,
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: _printReport,
+                          icon: const Icon(Icons.print),
+                          label: const Text('Cetak'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFF0891B2),
+                            side: const BorderSide(color: Color(0xFF0891B2)),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                          ),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: _shareReport,
+                          icon: const Icon(Icons.share),
+                          label: const Text('Bagikan'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFF0891B2),
+                            side: const BorderSide(color: Color(0xFF0891B2)),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: _resetForm,
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                          ),
+                          child: const Text('Reset', style: TextStyle(color: AppTheme.textMedium)),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  TextButton(
-                    onPressed: _resetForm,
-                    child: const Text('Reset', style: TextStyle(color: AppTheme.textMedium)),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -178,15 +335,18 @@ class _ReportsPrintPageState extends State<ReportsPrintPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  formattedDate,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: formattedDate.startsWith('--') ? Colors.grey[400] : AppTheme.textDark,
+                Flexible(
+                  child: Text(
+                    formattedDate,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: formattedDate.startsWith('--') ? Colors.grey[400] : AppTheme.textDark,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                // Icon kalender tetap ada, tapi InkWell di atas menangani tap
-                const Icon(Icons.calendar_month_outlined, color: AppTheme.textMedium),
+                const SizedBox(width: 8),
+                const Icon(Icons.calendar_month_outlined, color: AppTheme.textMedium, size: 20),
               ],
             ),
           ),

@@ -1,29 +1,9 @@
 import 'package:flutter/material.dart';
-// import 'package:intl/intl.dart'; // Tidak perlu format tanggal spesifik di sini
-import 'package:jawara/shared/base_layout.dart';
-import 'package:jawara/shared/table.dart'; // Import CustomDataTable
-import 'package:jawara/shared/theme.dart'; // Import tema
-
-// Dummy data model untuk halaman ini
-class ResidentListItem {
-  final int no;
-  final String nama;
-  final String nik;
-  final String keluarga;
-  final String jenisKelamin;
-  final String statusDomisili; // Aktif, Nonaktif
-  final String statusHidup; // Hidup, Wafat
-
-  ResidentListItem({
-    required this.no,
-    required this.nama,
-    required this.nik,
-    required this.keluarga,
-    required this.jenisKelamin,
-    required this.statusDomisili,
-    required this.statusHidup,
-  });
-}
+import 'package:jawara/shared/standard_app_bar.dart';
+import 'package:jawara/pages/residents/residents_detail.dart';
+import 'package:jawara/models/resident.dart';
+import 'package:jawara/services/residents_service.dart';
+import 'package:jawara/utils/toast_helper.dart';
 
 class ResidentsListPage extends StatefulWidget {
   const ResidentsListPage({super.key});
@@ -33,359 +13,485 @@ class ResidentsListPage extends StatefulWidget {
 }
 
 class _ResidentsListPageState extends State<ResidentsListPage> {
-  // Dummy data sesuai screenshot
-  final List<ResidentListItem> _residents = [
-    ResidentListItem(
-      no: 1,
-      nama: 'yyyyy',
-      nik: '1234567891234567',
-      keluarga: 'Keluarga Mara Nunez',
-      jenisKelamin: 'Perempuan',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 2,
-      nama: 'Varizky Naldiba Rimra',
-      nik: '1371111011030005',
-      keluarga: 'Keluarga Varizky Naldiba Rimra',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 3,
-      nama: 'Tes',
-      nik: '2222222222222222',
-      keluarga: 'Keluarga Tes',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Wafat',
-    ),
-    ResidentListItem(
-      no: 4,
-      nama: 'Farhan',
-      nik: '456789086456456',
-      keluarga: 'Keluarga Farhan',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 5,
-      nama: 'Rendha Putra Rahmadya',
-      nik: '3505111512040002',
-      keluarga: 'Keluarga Rendha Putra Rahmadya',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 6,
-      nama: 'Anti Micin',
-      nik: '1234567890987654',
-      keluarga: 'Keluarga Anti Micin',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 7,
-      nama: 'varizky naldiba rimra',
-      nik: '1234123412341234',
-      keluarga: 'Keluarga varizky naldiba rimra',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 8,
-      nama: 'lalalal',
-      nik: '1234567890123456',
-      keluarga: 'Keluarga Ijat',
-      jenisKelamin: 'Perempuan',
-      statusDomisili: 'Nonaktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 9,
-      nama: 'Ijat',
-      nik: '2025202520252025',
-      keluarga: 'Keluarga Ijat',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Nonaktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 10,
-      nama: 'Raudhil Firdaus Naufal',
-      nik: '3201122501050002',
-      keluarga: 'Keluarga Raudhil Firdaus Naufal',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-    // Tambahkan data lain untuk halaman 2 dst.
-    ResidentListItem(
-      no: 11,
-      nama: 'Warga 11',
-      nik: '1111111111111111',
-      keluarga: 'Keluarga 11',
-      jenisKelamin: 'Laki-laki',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-    ResidentListItem(
-      no: 12,
-      nama: 'Warga 12',
-      nik: '1212121212121212',
-      keluarga: 'Keluarga 12',
-      jenisKelamin: 'Perempuan',
-      statusDomisili: 'Aktif',
-      statusHidup: 'Hidup',
-    ),
-  ];
+  List<Resident> _residents = [];
+  bool _isLoading = true;
+  String _searchQuery = '';
 
-  int _currentPage = 1;
-  final int _rowsPerPage = 10; // Jumlah item per halaman
+  @override
+  void initState() {
+    super.initState();
+    _loadResidents();
+  }
 
-  // Helper widget untuk status chip
-  Widget _buildStatusChip(String status) {
-    Color chipColor;
-    Color textColor;
+  Future<void> _loadResidents() async {
+    setState(() => _isLoading = true);
 
-    switch (status.toLowerCase()) {
-      case 'aktif':
-      case 'hidup':
-        chipColor = Colors.green.shade100;
-        textColor = Colors.green.shade800;
-        break;
-      case 'nonaktif':
-      case 'wafat':
-        chipColor = Colors.grey.shade200; // Warna berbeda untuk nonaktif/wafat
-        textColor = Colors.grey.shade700;
-        break;
-      default:
-        chipColor = Colors.grey.shade100;
-        textColor = Colors.grey.shade800;
+    try {
+      final residents = await ResidentsService.getResidents(
+        skip: 0,
+        limit: 100,
+      );
+      setState(() {
+        _residents = residents;
+        _isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error loading residents: $e');
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        ToastHelper.showError(context, 'Gagal memuat warga: $e');
+      }
     }
+  }
 
-    return Chip(
-      label: Text(
-        status,
-        style: TextStyle(
-          color: textColor,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
-        ),
-      ),
-      backgroundColor: chipColor,
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-      side: BorderSide.none,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-    );
+  List<Resident> _getFilteredResidents() {
+    if (_searchQuery.isEmpty) {
+      return _residents;
+    }
+    return _residents.where((resident) {
+      return resident.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          resident.nik.contains(_searchQuery);
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final bool isMobile = screenWidth < 600;
+    final filteredResidents = _getFilteredResidents();
 
-    // Define table headers
-    final headers = [
-      'NO',
-      'NAMA',
-      'NIK',
-      'KELUARGA',
-      'JENIS KELAMIN',
-      'STATUS DOMISILI',
-      'STATUS HIDUP',
-      'AKSI',
-    ];
-    // Define sortable columns
-    final sortable = [
-      'NAMA',
-      'NIK',
-      'KELUARGA',
-      'STATUS DOMISILI',
-      'STATUS HIDUP',
-    ];
-
-    // Pagination Calculation
-    final startIndex = (_currentPage - 1) * _rowsPerPage;
-    final endIndex = startIndex + _rowsPerPage > _residents.length
-        ? _residents.length
-        : startIndex + _rowsPerPage;
-    final paginatedResidents = _residents.sublist(startIndex, endIndex);
-    final totalPages = (_residents.length / _rowsPerPage).ceil();
-
-    final rows = paginatedResidents.map((resident) {
-      return <Widget>[
-        Text(resident.no.toString()),
-        Text(resident.nama),
-        Text(resident.nik),
-        Text(resident.keluarga),
-        Text(resident.jenisKelamin),
-        _buildStatusChip(resident.statusDomisili), // Chip
-        _buildStatusChip(resident.statusHidup), // Chip
-        IconButton(
-          icon: const Icon(Icons.more_horiz),
-          onPressed: () {},
-          tooltip: 'Opsi Lain',
-          color: Colors.grey.shade600,
-        ),
-      ];
-    }).toList();
-
-    return BaseLayout(
-      title: 'Daftar Warga', // AppBar title
-      child: SingleChildScrollView(
-        padding: EdgeInsets.all(isMobile ? 16.0 : 24.0), // Responsive padding
-        child: Column(
-          children: [
-            // White container as the main Card
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: AppTheme.borderRadiusXLarge, // From theme
-                boxShadow: AppTheme.shadowMedium, // From theme
+    return Scaffold(
+      appBar: StandardAppBar(title: 'Daftar Warga'),
+      body: Column(
+        children: [
+          // Search Bar
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Cari nama, NIK...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.grey[100],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Header row with Filter button
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton.icon(
-                        // Filter Button
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.filter_list,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        label: const Text(
-                          'Filter',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primary, // From theme
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                AppTheme.borderRadiusSmall, // From theme
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                      ),
-                      // Tambahkan tombol lain jika perlu (misal: Tambah Warga)
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Data Table
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minWidth: constraints.maxWidth,
-                          ), // Min width
-                          child: CustomDataTable(
-                            headers: headers,
-                            rows: rows,
-                            sortable: sortable,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Pagination Controls
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.chevron_left),
-                        onPressed: _currentPage > 1
-                            ? () => setState(() => _currentPage--)
-                            : null,
-                        tooltip: 'Halaman Sebelumnya',
-                        color: _currentPage > 1
-                            ? AppTheme.primary
-                            : Colors.grey[300], // Warna disable
-                      ),
-                      // Tampilkan nomor halaman
-                      _buildPageNumber(1, _currentPage == 1),
-                      if (totalPages >= 2)
-                        _buildPageNumber(2, _currentPage == 2),
-                      // Ellipsis jika lebih dari 2 halaman
-                      if (totalPages > 2)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text('...'),
-                        ),
-                      // Jangan tampilkan nomor terakhir jika hanya ada 2 halaman
-                      if (totalPages > 2)
-                        _buildPageNumber(
-                          totalPages,
-                          _currentPage == totalPages,
-                        ),
-
-                      IconButton(
-                        icon: const Icon(Icons.chevron_right),
-                        onPressed: _currentPage < totalPages
-                            ? () => setState(() => _currentPage++)
-                            : null,
-                        tooltip: 'Halaman Berikutnya',
-                        color: _currentPage < totalPages
-                            ? AppTheme.primary
-                            : Colors.grey[300], // Warna disable
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
             ),
-          ],
-        ),
+          ),
+
+          // List View
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : filteredResidents.isEmpty
+                ? Center(
+                    child: Text(
+                      _searchQuery.isEmpty
+                          ? 'Tidak ada data warga'
+                          : 'Tidak ada hasil pencarian',
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _loadResidents,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: filteredResidents.length,
+                      itemBuilder: (context, index) {
+                        final resident = filteredResidents[index];
+                        return Dismissible(
+                          key: Key(resident.id.toString()),
+                          direction: DismissDirection.endToStart,
+                          confirmDismiss: (direction) async {
+                            return await _showDeleteConfirmation(
+                              context,
+                              resident,
+                            );
+                          },
+                          onDismissed: (direction) {
+                            // Delete akan dijalankan setelah confirmasi
+                            _deleteResident(resident);
+                          },
+                          background: Container(
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.only(right: 24),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.delete_outline,
+                              color: Colors.red,
+                              size: 28,
+                            ),
+                          ),
+                          child: Card(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: InkWell(
+                              onTap: () async {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ResidentsDetailPage(resident: resident),
+                                  ),
+                                );
+                                // Refresh jika ada perubahan di detail page
+                                if (result == true) {
+                                  _loadResidents();
+                                }
+                              },
+                              borderRadius: BorderRadius.circular(12),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  children: [
+                                    // Avatar
+                                    CircleAvatar(
+                                      radius: 28,
+                                      backgroundColor: const Color(
+                                        0xFF0891B2,
+                                      ).withOpacity(0.1),
+                                      child: Text(
+                                        resident.name[0].toUpperCase(),
+                                        style: const TextStyle(
+                                          color: Color(0xFF0891B2),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+
+                                    // Content
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          // Nama
+                                          Text(
+                                            resident.name,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+
+                                          // NIK
+                                          Text(
+                                            'NIK: ${resident.nik}',
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+
+                                          // Status Row
+                                          Row(
+                                            children: [
+                                              // Jenis Kelamin
+                                              Icon(
+                                                resident.gender == 'Laki-laki'
+                                                    ? Icons.male
+                                                    : Icons.female,
+                                                size: 16,
+                                                color:
+                                                    resident.gender ==
+                                                        'Laki-laki'
+                                                    ? Colors.blue
+                                                    : Colors.pink,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                resident.gender,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey[700],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 16),
+
+                                              // Status
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 4,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      resident.status == 'aktif'
+                                                      ? Colors.green
+                                                            .withOpacity(0.1)
+                                                      : Colors.grey.withOpacity(
+                                                          0.1,
+                                                        ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                child: Text(
+                                                  resident.status.toUpperCase(),
+                                                  style: TextStyle(
+                                                    color:
+                                                        resident.status ==
+                                                            'aktif'
+                                                        ? Colors.green
+                                                        : Colors.grey,
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 11,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          final result = await Navigator.pushNamed(context, '/residents/add');
+          // Refresh list jika berhasil tambah data
+          if (result == true) {
+            _loadResidents();
+          }
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Tambah Warga'),
+        backgroundColor: const Color(0xFF0891B2),
       ),
     );
   }
 
-  // Helper widget untuk nomor halaman pagination (sama seperti di income_bills.dart)
-  Widget _buildPageNumber(int page, bool isActive) {
-    return InkWell(
-      onTap: () {
-        if (!isActive) {
-          setState(() {
-            _currentPage = page;
-          });
-        }
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive ? AppTheme.primary : Colors.transparent,
-          borderRadius: AppTheme.borderRadiusSmall,
-          border: isActive ? null : Border.all(color: Colors.grey.shade300),
-        ),
-        child: Text(
-          '$page',
-          style: TextStyle(
-            color: isActive ? Colors.white : AppTheme.textMedium,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+  Future<bool?> _showDeleteConfirmation(
+    BuildContext context,
+    Resident resident,
+  ) {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-        ),
-      ),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.12),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon Warning
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.warning_rounded,
+                    color: Colors.red,
+                    size: 32,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Title
+                const Text(
+                  'Hapus Warga',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1F2937),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+
+                // Description
+                const Text(
+                  'Data akan dihapus secara permanen.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey,
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+
+                // Resident Info Card
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.06),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Colors.red.withOpacity(0.2),
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.person_outline,
+                            color: Colors.red[500],
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              resident.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: Color(0xFF1F2937),
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.badge_outlined,
+                            color: Colors.red[500],
+                            size: 16,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'NIK: ${resident.nik}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Action Buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 44,
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(
+                              color: Color(0xFF0891B2),
+                              width: 1,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Text(
+                            'Batal',
+                            style: TextStyle(
+                              color: Color(0xFF0891B2),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: SizedBox(
+                        height: 44,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 0,
+                            padding: EdgeInsets.zero,
+                          ),
+                          child: const Text(
+                            'Hapus',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
+  }
+
+  Future<void> _deleteResident(Resident resident) async {
+    try {
+      await ResidentsService.deleteResident(resident.id);
+      if (mounted) {
+        ToastHelper.showSuccess(context, '${resident.name} berhasil dihapus');
+        _loadResidents();
+      }
+    } catch (e) {
+      if (mounted) {
+        ToastHelper.showError(context, 'Gagal menghapus warga: $e');
+      }
+    }
   }
 }

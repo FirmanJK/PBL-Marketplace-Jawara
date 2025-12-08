@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:jawara/shared/base_layout.dart';
-import 'package:jawara/shared/table.dart';
-import 'package:jawara/shared/theme.dart';
+import 'package:jawara/shared/standard_app_bar.dart';
 
 class BroadcastMessage {
   final int no;
@@ -66,144 +64,87 @@ class _BroadcastListPageState extends State<BroadcastListPage> {
   @override
   Widget build(BuildContext context) {
     if (!_isLocaleInitialized) {
-      return const BaseLayout(
-        title: 'Daftar Broadcast',
-        child: Center(
+      return Scaffold(
+        appBar: StandardAppBar(title: 'Daftar Broadcast'),
+        body: const Center(
           child: CircularProgressIndicator(color: Color(0xFF0891B2)),
         ),
       );
     }
 
-    final headers = ['NO', 'PENGIRIM', 'JUDUL', 'TANGGAL', 'AKSI'];
-    final sortable = ['PENGIRIM', 'JUDUL', 'TANGGAL'];
+    final dateFormatter = DateFormat('d MMMM yyyy', 'id_ID');
 
-    // Siapkan data baris untuk tabel
-    final rows = _broadcasts.map((broadcast) {
-      return <Widget>[
-        Text(broadcast.no.toString()),
-        Text(broadcast.pengirim),
-        Text(broadcast.judul),
-        Text(DateFormat('d MMMM yyyy', 'id_ID').format(broadcast.tanggal)),
-        IconButton(
-          icon: const Icon(Icons.more_horiz),
-          onPressed: () {
-            // Aksi detail/edit/hapus
-          },
-          tooltip: 'Opsi Lain',
-        ),
-      ];
-    }).toList();
-
-    return BaseLayout(
-      title: 'Daftar Broadcast', // Judul AppBar
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0), // Padding utama konten
-        child: Column(
-          children: [
-            // Container putih sebagai Card utama
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius:
-                    AppTheme.borderRadiusXLarge, // Menggunakan dari tema
-                boxShadow: AppTheme.shadowMedium, // Menggunakan dari tema
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Baris Header dengan tombol Filter
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          // Aksi filter
-                        },
-                        icon: const Icon(
-                          Icons.filter_list,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        label: const Text(
-                          'Filter',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primary, // Dari tema
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                AppTheme.borderRadiusSmall, // Dari tema
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Tabel Data
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minWidth: constraints.maxWidth,
-                          ), // Lebar minimal
-                          child: CustomDataTable(
-                            headers: headers,
-                            rows: rows,
-                            sortable: sortable,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Kontrol Pagination
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.chevron_left),
-                        onPressed: () {},
-                        tooltip: 'Halaman Sebelumnya',
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primary, // Dari tema
-                          borderRadius: AppTheme.borderRadiusSmall, // Dari tema
-                        ),
-                        child: const Text(
-                          '1',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.chevron_right),
-                        onPressed: () {},
-                        tooltip: 'Halaman Berikutnya',
-                      ),
-                    ],
-                  ),
-                ],
+    return Scaffold(
+      appBar: StandardAppBar(
+        title: 'Daftar Broadcast',
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Cari broadcast...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.grey[100],
               ),
             ),
-          ],
-        ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: _broadcasts.length,
+              itemBuilder: (context, index) {
+                final broadcast = _broadcasts[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.all(16),
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.purple.withOpacity(0.1),
+                      child: Icon(Icons.campaign, color: Colors.purple),
+                    ),
+                    title: Text(
+                      broadcast.judul,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 4),
+                        Text('Pengirim: ${broadcast.pengirim}'),
+                        const SizedBox(height: 4),
+                        Text(
+                          dateFormatter.format(broadcast.tanggal),
+                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                        ),
+                      ],
+                    ),
+                    onTap: () {
+                      // TODO: Navigate to broadcast detail page
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.pushNamed(context, '/broadcast/add');
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Tambah Broadcast'),
+        backgroundColor: const Color(0xFF0891B2),
       ),
     );
   }

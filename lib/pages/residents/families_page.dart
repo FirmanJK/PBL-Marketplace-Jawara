@@ -1,27 +1,9 @@
 import 'package:flutter/material.dart';
-// import 'package:intl/intl.dart'; // Tidak perlu format khusus di sini
-import 'package:jawara/shared/base_layout.dart';
-import 'package:jawara/shared/table.dart'; // Import CustomDataTable
-import 'package:jawara/shared/theme.dart'; // Import tema
-
-// Dummy data model
-class FamilyItem {
-  final int no;
-  final String namaKeluarga;
-  final String kepalaKeluarga;
-  final String alamatRumah;
-  final String statusKepemilikan; // Pemilik, Penyewa
-  final String status; // Aktif, Nonaktif
-
-  FamilyItem({
-    required this.no,
-    required this.namaKeluarga,
-    required this.kepalaKeluarga,
-    required this.alamatRumah,
-    required this.statusKepemilikan,
-    required this.status,
-  });
-}
+import 'package:jawara/shared/standard_app_bar.dart';
+import 'package:jawara/pages/residents/family_detail.dart';
+import 'package:jawara/utils/toast_helper.dart';
+import 'package:jawara/models/family.dart';
+import 'package:jawara/services/families_service.dart';
 
 class FamiliesPage extends StatefulWidget {
   const FamiliesPage({super.key});
@@ -31,309 +13,682 @@ class FamiliesPage extends StatefulWidget {
 }
 
 class _FamiliesPageState extends State<FamiliesPage> {
-  // Dummy data sesuai screenshot
-  final List<FamilyItem> _families = [
-    FamilyItem(
-      no: 1,
-      namaKeluarga: 'Keluarga Varizky Naldiba Rimra',
-      kepalaKeluarga: 'Varizky Naldiba Rimra',
-      alamatRumah: 'i',
-      statusKepemilikan: 'Pemilik',
-      status: 'Aktif',
-    ),
-    FamilyItem(
-      no: 2,
-      namaKeluarga: 'Keluarga Tes',
-      kepalaKeluarga: 'Tes',
-      alamatRumah: 'tes',
-      statusKepemilikan: 'Penyewa',
-      status: 'Aktif',
-    ),
-    FamilyItem(
-      no: 3,
-      namaKeluarga: 'Keluarga Farhan',
-      kepalaKeluarga: 'Farhan',
-      alamatRumah: 'Griyashanta L203',
-      statusKepemilikan: 'Pemilik',
-      status: 'Aktif',
-    ),
-    FamilyItem(
-      no: 4,
-      namaKeluarga: 'Keluarga Rendha Putra Rahmadya',
-      kepalaKeluarga: 'Rendha Putra Rahmadya',
-      alamatRumah: 'Malang',
-      statusKepemilikan: 'Pemilik',
-      status: 'Aktif',
-    ),
-    FamilyItem(
-      no: 5,
-      namaKeluarga: 'Keluarga Anti Micin',
-      kepalaKeluarga: 'Anti Micin',
-      alamatRumah: 'malang',
-      statusKepemilikan: 'Penyewa',
-      status: 'Aktif',
-    ),
-    FamilyItem(
-      no: 6,
-      namaKeluarga: 'Keluarga varizky naldiba rimra',
-      kepalaKeluarga: 'varizky naldiba rimra',
-      alamatRumah: 'i',
-      statusKepemilikan: 'Pemilik',
-      status: 'Aktif',
-    ),
-    FamilyItem(
-      no: 7,
-      namaKeluarga: 'Keluarga Ijat',
-      kepalaKeluarga: 'Ijat',
-      alamatRumah: 'Keluar Wilayah',
-      statusKepemilikan: 'Penyewa',
-      status: 'Nonaktif',
-    ),
-    FamilyItem(
-      no: 8,
-      namaKeluarga: 'Keluarga Raudhil Firdaus Naufal',
-      kepalaKeluarga: 'Raudhil Firdaus Naufal',
-      alamatRumah: 'Bogor Raya Permai FJ 2 no 11',
-      statusKepemilikan: 'Pemilik',
-      status: 'Aktif',
-    ),
-    FamilyItem(
-      no: 9,
-      namaKeluarga: 'Keluarga Mara Nunez',
-      kepalaKeluarga: 'Mara Nunez',
-      alamatRumah: 'malang',
-      statusKepemilikan: 'Pemilik',
-      status: 'Aktif',
-    ),
-    FamilyItem(
-      no: 10,
-      namaKeluarga: 'Keluarga Habibie Ed Dien',
-      kepalaKeluarga: 'Habibie Ed Dien',
-      alamatRumah: 'Blok A49',
-      statusKepemilikan: 'Pemilik',
-      status: 'Aktif',
-    ),
-    // Tambahkan data lain jika perlu
-  ];
+  List<Family> _families = [];
+  bool _isLoading = true;
+  String _searchQuery = '';
 
-  int _currentPage = 1;
-  final int _rowsPerPage = 10; // Sesuaikan jika perlu
-
-  // Helper widget untuk status chip
-  Widget _buildStatusChip(String status) {
-    bool isActive = status.toLowerCase() == 'aktif';
-    Color chipColor = isActive
-        ? Colors.green.shade100
-        : Colors.red.shade100; // Merah untuk Nonaktif
-    Color textColor = isActive ? Colors.green.shade800 : Colors.red.shade800;
-
-    return Chip(
-      label: Text(
-        status,
-        style: TextStyle(
-          color: textColor,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
-        ),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: StandardAppBar(title: 'Data Keluarga'),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Cari keluarga...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.grey[100],
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+            ),
+          ),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : RefreshIndicator(
+                    onRefresh: _loadFamilies,
+                    child: _getFilteredFamilies().isEmpty
+                        ? ListView(
+                            children: [
+                              Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(24),
+                                  child: Text(
+                                    _searchQuery.isEmpty
+                                        ? 'Tidak ada data keluarga'
+                                        : 'Tidak ada hasil pencarian',
+                                    style: const TextStyle(color: Colors.grey),
+                                  ),
+                                ),
+                              )
+                            ],
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: _getFilteredFamilies().length,
+                            itemBuilder: (context, index) {
+                              final family = _getFilteredFamilies()[index];
+                              return Card(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: InkWell(
+                                  onTap: () async {
+                                    final result = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => FamilyDetailPage(family: family),
+                                      ),
+                                    );
+                                    if (result == true) {
+                                      if (!mounted) return;
+                                      await _loadFamilies();
+                                    }
+                                  },
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 28,
+                                          backgroundColor: Color.fromRGBO(8, 145, 178, 0.1),
+                                          child: const Icon(
+                                            Icons.family_restroom,
+                                            color: Color(0xFF0891B2),
+                                            size: 28,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                family.namaKeluarga,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                family.headResidentName != null
+                                                  ? family.headResidentName!
+                                                  : 'Kepala: -',
+                                                style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.people,
+                                                    size: 14,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    '${family.residentCount} anggota',
+                                                    style: TextStyle(
+                                                      color: Colors.grey[600],
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  Icon(
+                                                    Icons.calendar_today,
+                                                    size: 14,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    family.createdAt != null ? family.createdAt!.toLocal().toString().split(' ').first : '-',
+                                                    style: TextStyle(
+                                                      color: Colors.grey[600],
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Wrap(
+                                                spacing: 8,
+                                                children: [
+                                                  Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                                    decoration: BoxDecoration(
+                                                      color: Color.fromRGBO(33, 150, 243, 0.1),
+                                                      borderRadius: BorderRadius.circular(12),
+                                                    ),
+                                                    child: Text(
+                                                      '${family.residentCount} anggota',
+                                                      style: const TextStyle(
+                                                        color: Colors.blue,
+                                                        fontWeight: FontWeight.w600,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  if (family.updatedAt != null) ...[
+                                                    Container(
+                                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                                      decoration: BoxDecoration(
+                                                        color: Color.fromRGBO(158, 158, 158, 0.1),
+                                                        borderRadius: BorderRadius.circular(12),
+                                                      ),
+                                                      child: Text(
+                                                        'Terakhir: ${family.updatedAt!.toLocal().toString().split(' ').first}',
+                                                        style: const TextStyle(
+                                                          color: Colors.grey,
+                                                          fontWeight: FontWeight.w600,
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ]
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+          ),
+        ],
       ),
-      backgroundColor: chipColor,
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-      side: BorderSide.none,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showAddFamilyForm(context),
+        icon: const Icon(Icons.add),
+        label: const Text('Tambah Keluarga'),
+        backgroundColor: const Color(0xFF0891B2),
+      ),
     );
   }
 
   @override
-  Widget build(BuildContext context) {
-    // Define table headers
-    final headers = [
-      'NO',
-      'NAMA KELUARGA',
-      'KEPALA KELUARGA',
-      'ALAMAT RUMAH',
-      'STATUS KEPEMILIKAN',
-      'STATUS',
-      'AKSI',
-    ];
-    // Define sortable columns
-    final sortable = [
-      'NAMA KELUARGA',
-      'KEPALA KELUARGA',
-      'ALAMAT RUMAH',
-      'STATUS KEPEMILIKAN',
-      'STATUS',
-    ];
+  void initState() {
+    super.initState();
+    _loadFamilies();
+  }
 
-    // Pagination Calculation
-    final startIndex = (_currentPage - 1) * _rowsPerPage;
-    final endIndex = startIndex + _rowsPerPage > _families.length
-        ? _families.length
-        : startIndex + _rowsPerPage;
-    final paginatedFamilies = _families.sublist(startIndex, endIndex);
-    final totalPages = (_families.length / _rowsPerPage).ceil();
+  Future<void> _loadFamilies() async {
+    if (!mounted) return;
+    setState(() => _isLoading = true);
+    try {
+      final families = await FamiliesService.getFamilies(skip: 0, limit: 200);
+      if (!mounted) return;
+      setState(() {
+        _families = families;
+        _isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error loading families: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ToastHelper.showError(context, 'Gagal memuat keluarga: $e');
+      }
+    }
+  }
 
-    final rows = paginatedFamilies.map((family) {
-      return <Widget>[
-        Text(family.no.toString()),
-        Text(family.namaKeluarga),
-        Text(family.kepalaKeluarga),
-        Text(family.alamatRumah),
-        Text(family.statusKepemilikan),
-        _buildStatusChip(family.status), // Chip
-        IconButton(
-          icon: const Icon(Icons.more_horiz),
-          onPressed: () {},
-          tooltip: 'Opsi Lain',
-          color: Colors.grey.shade600,
-        ),
-      ];
+  List<Family> _getFilteredFamilies() {
+    if (_searchQuery.isEmpty) return _families;
+    return _families.where((f) {
+      final q = _searchQuery.toLowerCase();
+      final headIdStr = f.headResidentId?.toString() ?? '';
+      return f.namaKeluarga.toLowerCase().contains(q) || headIdStr.contains(q);
     }).toList();
+  }
 
-    return BaseLayout(
-      title: 'Data Keluarga', // AppBar title
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0), // Main content padding
-        child: Column(
-          children: [
-            // White container as the main Card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: AppTheme.borderRadiusXLarge, // From theme
-                boxShadow: AppTheme.shadowMedium, // From theme
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Header row with Filter button
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton.icon(
-                        // Filter Button
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.filter_list,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        label: const Text(
-                          'Filter',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primary, // From theme
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                AppTheme.borderRadiusSmall, // From theme
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                      ),
-                      // Tambahkan tombol lain jika perlu (misal: Tambah Keluarga)
+  void _showAddFamilyForm(BuildContext context) {
+    final parentContext = context;
+    final namaKeluargaController = TextEditingController();
+    final kepalaKeluargaController = TextEditingController();
+    final alamatController = TextEditingController();
+    String? selectedStatus = 'Pemilik';
+
+    showDialog(
+      context: parentContext,
+      builder: (dialogContext) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+        child: SizedBox(
+          width: MediaQuery.of(parentContext).size.width - 40,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                                  const Color(0xFF0891B2),
+                          Color.fromRGBO(8, 145, 178, 0.8),
                     ],
                   ),
-                  const SizedBox(height: 16),
-
-                  // Data Table
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minWidth: constraints.maxWidth,
-                          ), // Min width
-                          child: CustomDataTable(
-                            headers: headers,
-                            rows: rows,
-                            sortable: sortable,
-                          ),
-                        ),
-                      );
-                    },
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
                   ),
-                  const SizedBox(height: 16),
-
-                  // Pagination Controls
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.chevron_left),
-                        onPressed: _currentPage > 1
-                            ? () => setState(() => _currentPage--)
-                            : null,
-                        tooltip: 'Halaman Sebelumnya',
-                        color: _currentPage > 1
-                            ? AppTheme.primary
-                            : Colors.grey[300], // Warna disable
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Color.fromRGBO(255, 255, 255, 0.2),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      // Tampilkan nomor halaman
-                      _buildPageNumber(1, _currentPage == 1),
-                      // Ellipsis jika lebih dari 1 halaman (sesuaikan logic jika perlu halaman 2, dst.)
-                      if (totalPages > 1)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text('...'), // Placeholder
-                        ),
-                      if (totalPages > 1)
-                        _buildPageNumber(
-                          totalPages,
-                          _currentPage == totalPages,
-                        ), // Halaman terakhir
+                      child: const Icon(
+                        Icons.family_restroom,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Tambah Keluarga',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
-                      IconButton(
-                        icon: const Icon(Icons.chevron_right),
-                        onPressed: _currentPage < totalPages
-                            ? () => setState(() => _currentPage++)
-                            : null,
-                        tooltip: 'Halaman Berikutnya',
-                        color: _currentPage < totalPages
-                            ? AppTheme.primary
-                            : Colors.grey[300], // Warna disable
+              // Content
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextField(
+                        controller: namaKeluargaController,
+                        decoration: InputDecoration(
+                          labelText: 'Nama Keluarga',
+                          hintText: 'Masukkan nama keluarga',
+                          prefixIcon: const Icon(
+                            Icons.people,
+                            color: Color(0xFF0891B2),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF0891B2),
+                              width: 2,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[50],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: kepalaKeluargaController,
+                        decoration: InputDecoration(
+                          labelText: 'Kepala Keluarga',
+                          hintText: 'Masukkan nama kepala keluarga',
+                          prefixIcon: const Icon(
+                            Icons.person,
+                            color: Color(0xFF0891B2),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF0891B2),
+                              width: 2,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[50],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: alamatController,
+                        decoration: InputDecoration(
+                          labelText: 'Alamat Rumah',
+                          hintText: 'Masukkan alamat lengkap',
+                          prefixIcon: const Icon(
+                            Icons.location_on,
+                            color: Color(0xFF0891B2),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF0891B2),
+                              width: 2,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[50],
+                        ),
+                        maxLines: 2,
+                      ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        initialValue: selectedStatus,
+                        decoration: InputDecoration(
+                          labelText: 'Status Kepemilikan',
+                          prefixIcon: const Icon(
+                            Icons.home,
+                            color: Color(0xFF0891B2),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF0891B2),
+                              width: 2,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[50],
+                        ),
+                        items: ['Pemilik', 'Penyewa'].map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          selectedStatus = newValue;
+                        },
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+
+              // Actions
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                                  onPressed: () => Navigator.of(parentContext).pop(),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                      child: const Text(
+                        'Batal',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                      ElevatedButton(
+                      onPressed: () async {
+                        final familyNumber = namaKeluargaController.text.trim();
+                        if (familyNumber.isEmpty) {
+                          ToastHelper.showWarning(
+                            parentContext,
+                            'Mohon lengkapi data keluarga',
+                          );
+                          return;
+                        }
+
+                        // Call API to create family. Use public endpoint when no token.
+                        try {
+                          await FamiliesService.createFamily({
+                            'family_number': familyNumber,
+                          });
+                          if (!mounted) return;
+                                     Navigator.of(parentContext).pop();
+                          ToastHelper.showSuccess(
+                            parentContext,
+                            'Keluarga berhasil ditambahkan',
+                          );
+                          // Refresh list
+                          if (!mounted) return;
+                          await _loadFamilies();
+                        } catch (e) {
+                          if (!mounted) return;
+                          ToastHelper.showError(parentContext, 'Gagal menambahkan keluarga: $e');
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0891B2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Simpan',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // Helper widget untuk nomor halaman pagination (sama seperti sebelumnya)
-  Widget _buildPageNumber(int page, bool isActive) {
-    return InkWell(
-      onTap: () {
-        if (!isActive) {
-          setState(() {
-            _currentPage = page;
-          });
-        }
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive ? AppTheme.primary : Colors.transparent,
-          borderRadius: AppTheme.borderRadiusSmall,
-          border: isActive ? null : Border.all(color: Colors.grey.shade300),
+  // ignore: unused_element
+  void _showFamilyDetail(BuildContext context, Family family) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+            title: Text(family.namaKeluarga),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildDetailRow('Kepala Keluarga', family.headResidentId != null ? '#${family.headResidentId}' : '-'),
+            const SizedBox(height: 8),
+            _buildDetailRow('Jumlah Anggota', '${family.residentCount}'),
+            const SizedBox(height: 8),
+            _buildDetailRow('Dibuat', family.createdAt != null ? family.createdAt!.toLocal().toString().split(' ').first : '-'),
+            const SizedBox(height: 8),
+            _buildDetailRow('Terakhir diperbarui', family.updatedAt != null ? family.updatedAt!.toLocal().toString().split(' ').first : '-'),
+          ],
         ),
-        child: Text(
-          '$page',
-          style: TextStyle(
-            color: isActive ? Colors.white : AppTheme.textMedium,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tutup'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 120,
+          child: Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
+        const Text(': '),
+        Expanded(child: Text(value)),
+      ],
+    );
+  }
+
+  // ignore: unused_element
+  void _showEditFamilyForm(BuildContext context, Family family) {
+    final parentContext = context;
+    final namaKeluargaController = TextEditingController(
+      text: family.namaKeluarga,
+    );
+    final kepalaKeluargaController = TextEditingController(
+      text: family.headResidentId != null ? '${family.headResidentId}' : '',
+    );
+    final alamatController = TextEditingController(text: '');
+    String? selectedStatus = 'Pemilik';
+
+    showDialog(
+      context: parentContext,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Edit Keluarga'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: namaKeluargaController,
+                decoration: const InputDecoration(
+                  labelText: 'Nama Keluarga',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: kepalaKeluargaController,
+                decoration: const InputDecoration(
+                  labelText: 'Kepala Keluarga',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: alamatController,
+                decoration: const InputDecoration(
+                  labelText: 'Alamat Rumah',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                initialValue: selectedStatus,
+                decoration: const InputDecoration(
+                  labelText: 'Status Kepemilikan',
+                  border: OutlineInputBorder(),
+                ),
+                items: ['Pemilik', 'Penyewa'].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  selectedStatus = newValue;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+                        onPressed: () => Navigator.of(parentContext).pop(),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final newNumber = namaKeluargaController.text.trim();
+              if (newNumber.isEmpty) {
+                ToastHelper.showWarning(parentContext, 'Nomor keluarga tidak boleh kosong');
+                return;
+              }
+
+                          try {
+                            await FamiliesService.updateFamily(family.id, {'family_number': newNumber});
+                            if (!mounted) return;
+                            Navigator.of(parentContext).pop();
+                            ToastHelper.showSuccess(parentContext, 'Keluarga berhasil diperbarui');
+                            if (!mounted) return;
+                            await _loadFamilies();
+                          } catch (e) {
+                            if (!mounted) return;
+                            ToastHelper.showError(parentContext, 'Gagal memperbarui keluarga: $e');
+                          }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF0891B2),
+            ),
+            child: const Text('Simpan'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ignore: unused_element
+  void _showDeleteConfirmation(BuildContext context, Family family) {
+    final parentContext = context;
+    showDialog(
+      context: parentContext,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Hapus Keluarga'),
+        content: Text(
+          'Apakah Anda yakin ingin menghapus ${family.namaKeluarga}?',
+        ),
+        actions: [
+          TextButton(
+                        onPressed: () => Navigator.of(parentContext).pop(),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+                            try {
+                              await FamiliesService.deleteFamily(family.id);
+                              if (!mounted) return;
+                              Navigator.of(parentContext).pop();
+                              ToastHelper.showSuccess(
+                                parentContext,
+                                '${family.namaKeluarga} berhasil dihapus',
+                              );
+                              if (!mounted) return;
+                              await _loadFamilies();
+                            } catch (e) {
+                              if (!mounted) return;
+                              Navigator.of(parentContext).pop();
+                              ToastHelper.showError(parentContext, 'Gagal menghapus keluarga: $e');
+                            }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Hapus'),
+          ),
+        ],
       ),
     );
   }

@@ -152,8 +152,6 @@ class _SidebarState extends State<Sidebar> {
                     ),
                   ],
 
-                  const Divider(height: 16),
-
                   // Data Warga & Rumah
                   _buildMenuItem(
                     icon: Icons.people_rounded,
@@ -194,8 +192,6 @@ class _SidebarState extends State<Sidebar> {
                     ),
                   ],
 
-                  const Divider(height: 16),
-
                   // Pemasukan
                   _buildMenuItem(
                     icon: Icons.attach_money_rounded,
@@ -234,8 +230,6 @@ class _SidebarState extends State<Sidebar> {
                     ),
                   ],
 
-                  const Divider(height: 16),
-
                   // Pengeluaran
                   _buildMenuItem(
                     icon: Icons.money_off_rounded,
@@ -260,8 +254,6 @@ class _SidebarState extends State<Sidebar> {
                       route: '/spending/add',
                     ),
                   ],
-
-                  const Divider(height: 16),
 
                   // Laporan Keuangan
                   _buildMenuItem(
@@ -293,8 +285,6 @@ class _SidebarState extends State<Sidebar> {
                       route: '/reports/print',
                     ),
                   ],
-
-                  const Divider(height: 16),
 
                   // Kegiatan & Broadcast
                   _buildMenuItem(
@@ -331,8 +321,6 @@ class _SidebarState extends State<Sidebar> {
                     ),
                   ],
 
-                  const Divider(height: 16),
-
                   // Pesan Warga
                   _buildMenuItem(
                     icon: Icons.message_rounded,
@@ -358,8 +346,6 @@ class _SidebarState extends State<Sidebar> {
                     ),
                   ],
 
-                  const Divider(height: 16),
-
                   // Penerimaan Warga
                   _buildMenuItem(
                     icon: Icons.how_to_reg_rounded,
@@ -379,8 +365,6 @@ class _SidebarState extends State<Sidebar> {
                       route: '/resident-approvals',
                     ),
                   ],
-
-                  const Divider(height: 16),
 
                   // Mutasi Keluarga
                   _buildMenuItem(
@@ -408,8 +392,6 @@ class _SidebarState extends State<Sidebar> {
                     ),
                   ],
 
-                  const Divider(height: 16),
-
                   // Log Aktivitas
                   _buildMenuItem(
                     icon: Icons.history_rounded,
@@ -429,8 +411,6 @@ class _SidebarState extends State<Sidebar> {
                       route: '/activity-logs',
                     ),
                   ],
-
-                  const Divider(height: 16),
 
                   // Manajemen Pengguna
                   _buildMenuItem(
@@ -458,8 +438,6 @@ class _SidebarState extends State<Sidebar> {
                     ),
                   ],
 
-                  const Divider(height: 16),
-
                   // Channel Transfer
                   _buildMenuItem(
                     icon: Icons.compare_arrows_rounded,
@@ -485,8 +463,6 @@ class _SidebarState extends State<Sidebar> {
                       route: '/channels/add',
                     ),
                   ],
-
-                  const Divider(height: 16),
 
                   // Marketplace
                   _buildMenuItem(
@@ -589,78 +565,6 @@ class _SidebarState extends State<Sidebar> {
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
-    );
-  }
-}
-
-// Popup item styled to match sidebar tiles
-class _ProfilePopupTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final Color color;
-  final bool isDestructive;
-  final bool hasTopDivider;
-
-  const _ProfilePopupTile({
-    required this.icon,
-    required this.title,
-    required this.color,
-    this.isDestructive = false,
-    this.hasTopDivider = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textColor = isDestructive
-        ? const Color(0xFFEF4444)
-        : const Color(0xFF1F2937);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (hasTopDivider) Container(height: 1, color: const Color(0xFFE5E7EB)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      color.withValues(alpha: 0.18),
-                      color.withValues(alpha: 0.10),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  icon,
-                  size: 18,
-                  color: isDestructive ? const Color(0xFFEF4444) : color,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: textColor,
-                  ),
-                ),
-              ),
-              const Icon(
-                Icons.chevron_right_rounded,
-                size: 18,
-                color: Color(0xFF9CA3AF),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

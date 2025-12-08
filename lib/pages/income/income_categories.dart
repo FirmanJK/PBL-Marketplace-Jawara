@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Untuk format angka
-import 'package:jawara/shared/base_layout.dart';
-import 'package:jawara/shared/table.dart'; // Import CustomDataTable
-import 'package:jawara/shared/theme.dart'; // Import tema
+import 'package:intl/intl.dart';
+import 'package:jawara/shared/standard_app_bar.dart';
+import 'package:jawara/pages/income/category_detail.dart';
 
 // Dummy data model
 class DuesCategory {
@@ -45,156 +44,327 @@ class _IncomeCategoriesPageState extends State<IncomeCategoriesPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Define table headers
-    final headers = ['NO', 'NAMA IURAN', 'JENIS IURAN', 'NOMINAL', 'AKSI'];
-    // Define sortable columns
-    final sortable = ['NAMA IURAN', 'JENIS IURAN', 'NOMINAL'];
-
-    // Prepare table rows with formatting
     final currencyFormatter = NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp ',
-      decimalDigits: 2,
+      decimalDigits: 0,
     );
 
-    final rows = _categories.map((category) {
-      return <Widget>[
-        Text(category.no.toString()),
-        Text(category.nama),
-        Text(category.jenis),
-        Text(currencyFormatter.format(category.nominal)), // Format nominal
-        IconButton(
-          icon: const Icon(Icons.more_horiz),
-          onPressed: () {},
-          tooltip: 'Opsi Lain',
-        ),
-      ];
-    }).toList();
-
-    return BaseLayout(
-      title: 'Kategori Iuran', // AppBar title
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0), // Main content padding
-        child: Column(
-          children: [
-            // White container as the main Card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: AppTheme.borderRadiusXLarge, // From theme
-                boxShadow: AppTheme.shadowMedium, // From theme
+    return Scaffold(
+      appBar: StandardAppBar(
+        title: 'Kategori Iuran',
+      ),
+      body: Column(
+        children: [
+          // Info Box
+          Container(
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0891B2).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFF0891B2).withOpacity(0.3),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Info Box
-                  Container(
-                    padding: const EdgeInsets.all(16.0),
-                    margin: const EdgeInsets.only(bottom: 16.0),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryLight.withOpacity(
-                        0.1,
-                      ), // Warna biru muda
-                      borderRadius: AppTheme.borderRadiusMedium,
-                      border: Border.all(
-                        color: AppTheme.primaryLight.withOpacity(0.3),
-                      ),
-                    ),
-                    child: Text(
-                      'Info: Iuran Bulanan: Dibayar setiap bulan sekali secara rutin. '
-                      'Iuran Khusus: Dibayar sesuai jadwal atau kebutuhan tertentu, misalnya iuran untuk acara khusus, renovasi, atau kegiatan lain yang tidak rutin.',
-                      style: AppTheme.bodyMedium.copyWith(
-                        color: AppTheme.primaryDark,
-                      ),
-                    ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.info_outline, color: Color(0xFF0891B2), size: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Iuran Bulanan: Dibayar setiap bulan. Iuran Khusus: Dibayar sesuai kebutuhan tertentu.',
+                    style: const TextStyle(fontSize: 12),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                   ),
+                ),
+              ],
+            ),
+          ),
 
-                  // Header row with Action buttons
-                  Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween, // Tombol di kedua sisi
-                    children: [
-                      // Tombol kiri (Tambah/Refresh?) - Ganti ikon sesuai kebutuhan
-                      ElevatedButton(
-                        onPressed: () {
-                          // Aksi tombol kiri (misal: Tambah Kategori)
-                          Navigator.pushNamed(
-                            context,
-                            '/income/categories/add',
-                          ); // Contoh navigasi
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              AppTheme.accentPurple, // Warna berbeda
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppTheme.borderRadiusSmall,
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.add,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                      // Tombol Filter kanan
-                      ElevatedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.filter_list,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        label: const Text(
-                          'Filter',
-                          style: TextStyle(color: Colors.white),
-                        ), // Tambahkan teks jika perlu
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primary, // From theme
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                AppTheme.borderRadiusSmall, // From theme
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                      ),
-                    ],
+          // Search Bar
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Cari kategori iuran...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.grey[100],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // List View
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: _categories.length,
+              itemBuilder: (context, index) {
+                final category = _categories[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const SizedBox(height: 16),
-
-                  // Data Table
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minWidth: constraints.maxWidth,
-                          ), // Min width
-                          child: CustomDataTable(
-                            headers: headers,
-                            rows: rows,
-                            sortable: sortable,
-                          ),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CategoryDetailPage(category: category),
                         ),
                       );
                     },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 28,
+                            backgroundColor: const Color(0xFF0891B2).withOpacity(0.1),
+                            child: const Icon(
+                              Icons.category,
+                              color: Color(0xFF0891B2),
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  category.nama,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  category.jenis,
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  currencyFormatter.format(category.nominal),
+                                  style: const TextStyle(
+                                    color: Color(0xFF0891B2),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  // Tidak ada pagination di screenshot ini
-                  // const SizedBox(height: 16),
-                  // Row( ... pagination controls ... ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showAddCategoryForm(context),
+        icon: const Icon(Icons.add),
+        label: const Text('Tambah Kategori'),
+        backgroundColor: const Color(0xFF0891B2),
+      ),
+    );
+  }
+
+  void _showAddCategoryForm(BuildContext context) {
+    final namaController = TextEditingController();
+    final nominalController = TextEditingController();
+    String? selectedJenis = 'Iuran Bulanan';
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.75,
+                maxWidth: 500,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFF0891B2),
+                          const Color(0xFF0891B2).withOpacity(0.8),
+                        ],
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(Icons.add, color: Colors.white, size: 24),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Tambah Kategori',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Content
+                  Flexible(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextField(
+                            controller: namaController,
+                            decoration: InputDecoration(
+                              labelText: 'Nama Kategori',
+                              prefixIcon: const Icon(Icons.label, color: Color(0xFF0891B2)),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: Color(0xFF0891B2), width: 2),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          DropdownButtonFormField<String>(
+                            value: selectedJenis,
+                            decoration: InputDecoration(
+                              labelText: 'Jenis',
+                              prefixIcon: const Icon(Icons.category, color: Color(0xFF0891B2)),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: Color(0xFF0891B2), width: 2),
+                              ),
+                            ),
+                            items: ['Iuran Bulanan', 'Iuran Khusus'].map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              selectedJenis = newValue;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          TextField(
+                            controller: nominalController,
+                            decoration: InputDecoration(
+                              labelText: 'Nominal',
+                              prefixIcon: const Icon(Icons.attach_money, color: Color(0xFF0891B2)),
+                              prefixText: 'Rp ',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: Color(0xFF0891B2), width: 2),
+                              ),
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  // Actions
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          ),
+                          child: const Text(
+                            'Batal',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (namaController.text.isNotEmpty && nominalController.text.isNotEmpty) {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Kategori berhasil ditambahkan'),
+                                  backgroundColor: Color(0xFF0891B2),
+                                ),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0891B2),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text('Simpan', style: TextStyle(fontSize: 16)),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );

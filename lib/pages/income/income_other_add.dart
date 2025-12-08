@@ -24,7 +24,7 @@ class _IncomeOtherAddPageState extends State<IncomeOtherAddPage> {
 
   // Options for dropdown
   final List<String> _kategoriOptions = [
-    'Dana Bantuan Pemerintah',
+    'Bantuan Pemerintah',
     'Sumbangan Warga',
     'Hasil Usaha RT',
     'Lainnya',
@@ -277,8 +277,9 @@ class _IncomeOtherAddPageState extends State<IncomeOtherAddPage> {
         Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: value,
+          value: items.contains(value) ? value : null,
           hint: Text(hint, style: TextStyle(color: Colors.grey[400])),
+          isExpanded: true,
           decoration: InputDecoration(
              border: OutlineInputBorder(
               borderRadius: AppTheme.borderRadiusLarge,
@@ -299,10 +300,14 @@ class _IncomeOtherAddPageState extends State<IncomeOtherAddPage> {
           items: items.map((String item) {
             return DropdownMenuItem<String>(
               value: item,
-              child: Text(item),
+              child: Text(
+                item,
+                overflow: TextOverflow.ellipsis,
+              ),
             );
           }).toList(),
           onChanged: onChanged,
+          menuMaxHeight: 300,
         ),
       ],
     );
