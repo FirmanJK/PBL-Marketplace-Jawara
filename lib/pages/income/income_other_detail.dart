@@ -31,7 +31,17 @@ class _IncomeOtherDetailPageState extends State<IncomeOtherDetailPage> {
   void _showEditDialog(BuildContext context) {
     final namaController = TextEditingController(text: widget.item.nama);
     final nominalController = TextEditingController(text: widget.item.nominal.toString());
-    String? selectedJenis = widget.item.jenisPemasukan;
+    
+    // Validasi selectedJenis agar sesuai dengan dropdown items
+    final validJenis = [
+      'Dana Bantuan Pemerintah',
+      'Sumbangan Warga',
+      'Hasil Usaha RT',
+      'Pendapatan Lainnya',
+    ];
+    String? selectedJenis = validJenis.contains(widget.item.jenisPemasukan) 
+        ? widget.item.jenisPemasukan 
+        : validJenis.first;
 
     showDialog(
       context: context,
@@ -200,12 +210,20 @@ class _IncomeOtherDetailPageState extends State<IncomeOtherDetailPage> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF10B981),
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Simpan', style: TextStyle(fontSize: 16, color: Colors.white)),
+                      child: const Text(
+                        'Simpan',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ],
                 ),
