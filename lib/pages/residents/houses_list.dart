@@ -5,6 +5,7 @@ import 'package:jawara/models/house.dart';
 import 'package:jawara/services/house_service.dart';
 import 'package:jawara/pages/residents/house_detail.dart';
 import 'package:jawara/utils/toast_helper.dart';
+import 'package:jawara/data/houses.dart';
 
 class HousesListPage extends StatefulWidget {
   const HousesListPage({super.key});
@@ -18,6 +19,7 @@ class _HousesListPageState extends State<HousesListPage> {
   bool _isLoading = true;
   List<House> _displayed = [];
   final TextEditingController _searchController = TextEditingController();
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -33,7 +35,10 @@ class _HousesListPageState extends State<HousesListPage> {
 
   Future<void> _loadHouses() async {
     if (!mounted) return;
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
     try {
       final houses = await HouseService.getHouses(skip: 0, limit: 200);
       if (!mounted) return;
@@ -43,9 +48,18 @@ class _HousesListPageState extends State<HousesListPage> {
         _isLoading = false;
       });
     } catch (e) {
+      // Gunakan data dummy jika API gagal
       if (!mounted) return;
-      setState(() => _isLoading = false);
-      ToastHelper.showError(context, 'Gagal memuat rumah: $e');
+      setState(() {
+        _houses = dummyHouses;
+        _displayed = List.from(dummyHouses);
+        _isLoading = false;
+        _errorMessage = null; // Tidak tampilkan error, langsung pakai dummy data
+      });
+      ToastHelper.showWarning(
+        context,
+        'Menggunakan data offline. Backend tidak tersedia.',
+      );
     }
   }
 
@@ -88,6 +102,53 @@ class _HousesListPageState extends State<HousesListPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
+          : _errorMessage != null
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red[300],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Gagal memuat rumah',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[800],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: _loadHouses,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Coba Lagi'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0891B2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
           : Column(
               children: [
                 // Search Bar

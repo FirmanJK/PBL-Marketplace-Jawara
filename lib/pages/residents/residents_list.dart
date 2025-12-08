@@ -4,6 +4,7 @@ import 'package:jawara/pages/residents/residents_detail.dart';
 import 'package:jawara/models/resident.dart';
 import 'package:jawara/services/residents_service.dart';
 import 'package:jawara/utils/toast_helper.dart';
+import 'package:jawara/data/residents.dart';
 
 class ResidentsListPage extends StatefulWidget {
   const ResidentsListPage({super.key});
@@ -23,8 +24,14 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
     _loadResidents();
   }
 
+  String? _errorMessage;
+  bool _useDummyData = false;
+
   Future<void> _loadResidents() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
     try {
       final residents = await ResidentsService.getResidents(
@@ -34,14 +41,22 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
       setState(() {
         _residents = residents;
         _isLoading = false;
+        _useDummyData = false;
       });
     } catch (e) {
       debugPrint('Error loading residents: $e');
+      // Gunakan data dummy jika API gagal
       setState(() {
+        _residents = dummyResidents;
         _isLoading = false;
+        _useDummyData = true;
+        _errorMessage = null; // Tidak tampilkan error, langsung pakai dummy data
       });
       if (mounted) {
-        ToastHelper.showError(context, 'Gagal memuat warga: $e');
+        ToastHelper.showWarning(
+          context,
+          'Menggunakan data offline. Backend tidak tersedia.',
+        );
       }
     }
   }
@@ -89,6 +104,53 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
+                : _errorMessage != null
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            size: 64,
+                            color: Colors.red[300],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Gagal memuat warga',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _errorMessage!,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton.icon(
+                            onPressed: _loadResidents,
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Coba Lagi'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF0891B2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
                 : filteredResidents.isEmpty
                 ? Center(
                     child: Text(

@@ -4,6 +4,7 @@ import 'package:jawara/pages/residents/family_detail.dart';
 import 'package:jawara/utils/toast_helper.dart';
 import 'package:jawara/models/family.dart';
 import 'package:jawara/services/families_service.dart';
+import 'package:jawara/data/families.dart';
 
 class FamiliesPage extends StatefulWidget {
   const FamiliesPage({super.key});
@@ -16,6 +17,7 @@ class _FamiliesPageState extends State<FamiliesPage> {
   List<Family> _families = [];
   bool _isLoading = true;
   String _searchQuery = '';
+  String? _errorMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +47,53 @@ class _FamiliesPageState extends State<FamiliesPage> {
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
+                : _errorMessage != null
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            size: 64,
+                            color: Colors.red[300],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Gagal memuat keluarga',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _errorMessage!,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton.icon(
+                            onPressed: _loadFamilies,
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Coba Lagi'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF0891B2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
                 : RefreshIndicator(
                     onRefresh: _loadFamilies,
                     child: _getFilteredFamilies().isEmpty
@@ -224,7 +273,10 @@ class _FamiliesPageState extends State<FamiliesPage> {
 
   Future<void> _loadFamilies() async {
     if (!mounted) return;
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
     try {
       final families = await FamiliesService.getFamilies(skip: 0, limit: 200);
       if (!mounted) return;
@@ -234,9 +286,17 @@ class _FamiliesPageState extends State<FamiliesPage> {
       });
     } catch (e) {
       debugPrint('Error loading families: $e');
+      // Gunakan data dummy jika API gagal
       if (mounted) {
-        setState(() => _isLoading = false);
-        ToastHelper.showError(context, 'Gagal memuat keluarga: $e');
+        setState(() {
+          _families = dummyFamilies;
+          _isLoading = false;
+          _errorMessage = null; // Tidak tampilkan error, langsung pakai dummy data
+        });
+        ToastHelper.showWarning(
+          context,
+          'Menggunakan data offline. Backend tidak tersedia.',
+        );
       }
     }
   }

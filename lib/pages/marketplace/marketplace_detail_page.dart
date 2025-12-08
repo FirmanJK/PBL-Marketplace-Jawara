@@ -6,6 +6,7 @@ import 'package:jawara/pages/marketplace/marketplace_cart_page.dart';
 import 'package:jawara/data/products.dart';
 import 'package:jawara/services/cart_service.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class MarketplaceDetailPage extends StatefulWidget {
   final Product product;
@@ -18,6 +19,22 @@ class MarketplaceDetailPage extends StatefulWidget {
 
 class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
   final CartService _cartService = CartService();
+  bool _isLocaleInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeLocale();
+  }
+
+  Future<void> _initializeLocale() async {
+    await initializeDateFormatting('id_ID', null);
+    if (mounted) {
+      setState(() {
+        _isLocaleInitialized = true;
+      });
+    }
+  }
 
   void _addToCart() {
     _cartService.addToCart(widget.product);
@@ -106,6 +123,20 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Show loading while locale is being initialized
+    if (!_isLocaleInitialized) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Detail Produk'),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFF0891B2),
+          ),
+        ),
+      );
+    }
+
     final currencyFormat = NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp ',
@@ -310,24 +341,24 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
         ),
         child: Row(
           children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: _addToCart,
-                icon: const Icon(Icons.add_shopping_cart),
-                label: const Text('Keranjang'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF0891B2),
-                  side: const BorderSide(color: Color(0xFF0891B2)),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+            // Button Keranjang - Hanya Icon
+            IconButton(
+              onPressed: _addToCart,
+              icon: const Icon(Icons.shopping_cart),
+              style: IconButton.styleFrom(
+                backgroundColor: const Color(0xFF0891B2),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
+              iconSize: 28,
+              tooltip: 'Tambah ke Keranjang',
             ),
             const SizedBox(width: 12),
+            // Button Beli Sekarang
             Expanded(
-              flex: 2,
               child: ElevatedButton.icon(
                 onPressed: () {
                   Navigator.push(
@@ -338,10 +369,18 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                     ),
                   );
                 },
-                icon: const Icon(Icons.shopping_bag),
-                label: const Text('Beli Sekarang'),
+                icon: const Icon(Icons.shopping_bag, color: Colors.white),
+                label: const Text(
+                  'Beli Sekarang',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0891B2),
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

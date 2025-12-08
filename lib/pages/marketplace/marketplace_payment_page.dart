@@ -80,9 +80,13 @@ class _MarketplacePaymentPageState extends State<MarketplacePaymentPage> {
               _showSuccessDialog();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF10B981),
+              backgroundColor: const Color(0xFF0891B2),
+              foregroundColor: Colors.white,
             ),
-            child: const Text('Sudah Bayar'),
+            child: const Text(
+              'Sudah Bayar',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -135,9 +139,13 @@ class _MarketplacePaymentPageState extends State<MarketplacePaymentPage> {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF10B981),
+                backgroundColor: const Color(0xFF0891B2),
+                foregroundColor: Colors.white,
               ),
-              child: const Text('Kembali ke Beranda'),
+              child: const Text(
+                'Kembali ke Beranda',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ),
         ],
@@ -429,7 +437,8 @@ class _MarketplacePaymentPageState extends State<MarketplacePaymentPage> {
           child: ElevatedButton(
             onPressed: _isPaid ? null : _confirmPayment,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF10B981),
+              backgroundColor: const Color(0xFF0891B2),
+              foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -438,6 +447,7 @@ class _MarketplacePaymentPageState extends State<MarketplacePaymentPage> {
             child: Text(
               _isPaid ? 'Pembayaran Dikonfirmasi' : 'Konfirmasi Pembayaran',
               style: const TextStyle(
+                color: Colors.white,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
