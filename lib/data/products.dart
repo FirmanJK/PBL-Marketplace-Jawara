@@ -105,9 +105,6 @@ class ProductService {
     ),
   ];
 
-// Export dummy products untuk digunakan di tempat lain
-List<Product> get dummyProducts => ProductService._dummyProducts;
-
   // Fetch products dengan pagination
   static Future<List<Product>> fetchProducts({
     int page = 1,
@@ -230,4 +227,7 @@ List<Product> get dummyProducts => ProductService._dummyProducts;
     final product = _dummyProducts.firstWhere((p) => p.id == id);
     return product;
   }
+  
+  // Getter untuk mengakses dummy products dari luar
+  static List<Product> get dummyProducts => _dummyProducts;
 }

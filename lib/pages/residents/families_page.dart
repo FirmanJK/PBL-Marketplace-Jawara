@@ -481,7 +481,7 @@ class _FamiliesPageState extends State<FamiliesPage> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     TextButton(
-                                  onPressed: () => Navigator.of(parentContext).pop(),
+                      onPressed: () => Navigator.of(parentContext).pop(),
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 24,
@@ -490,11 +490,11 @@ class _FamiliesPageState extends State<FamiliesPage> {
                       ),
                       child: const Text(
                         'Batal',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                        style: TextStyle(fontSize: 16, color: Colors.black),
                       ),
                     ),
                     const SizedBox(width: 12),
-                      ElevatedButton(
+                    ElevatedButton(
                       onPressed: () async {
                         final familyNumber = namaKeluargaController.text.trim();
                         if (familyNumber.isEmpty) {
@@ -511,7 +511,7 @@ class _FamiliesPageState extends State<FamiliesPage> {
                             'family_number': familyNumber,
                           });
                           if (!mounted) return;
-                                     Navigator.of(parentContext).pop();
+                          Navigator.of(parentContext).pop();
                           ToastHelper.showSuccess(
                             parentContext,
                             'Keluarga berhasil ditambahkan',
@@ -526,6 +526,7 @@ class _FamiliesPageState extends State<FamiliesPage> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF0891B2),
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 24,
                           vertical: 12,
@@ -536,7 +537,7 @@ class _FamiliesPageState extends State<FamiliesPage> {
                       ),
                       child: const Text(
                         'Simpan',
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 16, color: Colors.white),
                       ),
                     ),
                   ],

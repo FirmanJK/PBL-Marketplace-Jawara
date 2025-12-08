@@ -1297,8 +1297,6 @@ class AllFeaturesPage extends StatelessWidget {
             [
               FeatureItem('Pemasukan', Icons.arrow_downward, const Color(0xFF10B981), '/income'),
               FeatureItem('Pengeluaran', Icons.arrow_upward, const Color(0xFFEF4444), '/spending'),
-              FeatureItem('Laporan', Icons.assessment, const Color(0xFF3B82F6), '/reports/income'),
-              FeatureItem('Iuran', Icons.receipt, const Color(0xFFF59E0B), '/income/bills'),
             ],
           ),
 

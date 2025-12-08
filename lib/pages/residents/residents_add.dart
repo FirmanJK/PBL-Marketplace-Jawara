@@ -214,26 +214,17 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
   }
 
   Future<void> _loadFamilies() async {
-    setState(() => _isLoadingFamilies = true);
-    try {
-      final families = await ResidentsService.getFamilies();
-      setState(() {
-        _families = families
-            .map(
-              (f) => {
-                'id': f['id'],
-                'name': f['family_number'] ?? 'Keluarga ${f['id']}',
-              },
-            )
-            .toList();
-      });
-    } catch (e) {
-      if (mounted) {
-        ToastHelper.showError(context, 'Gagal load keluarga: $e');
-      }
-    } finally {
-      setState(() => _isLoadingFamilies = false);
-    }
+    // Langsung gunakan data dummy tanpa loading
+    setState(() {
+      _families = [
+        {'id': 1, 'name': 'Keluarga Budi Santoso'},
+        {'id': 2, 'name': 'Keluarga Ahmad Yani'},
+        {'id': 3, 'name': 'Keluarga Siti Aminah'},
+        {'id': 4, 'name': 'Keluarga Dewi Lestari'},
+        {'id': 5, 'name': 'Keluarga Eko Prasetyo'},
+      ];
+      _isLoadingFamilies = false;
+    });
   }
 
   Future<void> _selectDate(BuildContext context) async {

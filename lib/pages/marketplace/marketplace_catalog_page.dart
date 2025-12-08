@@ -23,7 +23,7 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
   void initState() {
     super.initState();
     // Langsung load data dummy tanpa loading
-    _products.addAll(dummyProducts);
+    _products.addAll(ProductService.dummyProducts);
     _isLoading = false;
     _hasMore = false;
     _scrollController.addListener(_onScroll);
@@ -49,7 +49,7 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
     if (mounted) {
       setState(() {
         _products.clear();
-        _products.addAll(dummyProducts);
+        _products.addAll(ProductService.dummyProducts);
         _isLoading = false;
         _hasMore = false;
       });
@@ -80,6 +80,124 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0891B2),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Icon(Icons.inventory_2, color: Colors.white, size: 16),
+            ),
+            const SizedBox(width: 10),
+            const Text('Marketplace', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18)),
+          ],
+        ),
+        actions: [
+          // Tab Katalog/Unggah
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.apps, color: Color(0xFF0891B2)),
+            onSelected: (value) {
+              if (value == 'catalog') {
+                // Already on catalog
+              } else if (value == 'upload') {
+                Navigator.pushNamed(context, '/marketplace/upload');
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'catalog',
+                child: Row(
+                  children: [
+                    Icon(Icons.grid_view, color: Color(0xFF0891B2)),
+                    SizedBox(width: 12),
+                    Text('Katalog Produk'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'upload',
+                child: Row(
+                  children: [
+                    Icon(Icons.upload, color: Color(0xFF0891B2)),
+                    SizedBox(width: 12),
+                    Text('Unggah Produk'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          // Profile Menu
+          PopupMenuButton<String>(
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: Color(0xFF0891B2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.person, color: Colors.white, size: 20),
+            ),
+            onSelected: (value) {
+              if (value == 'profile') {
+                Navigator.pushNamed(context, '/profile');
+              } else if (value == 'settings') {
+                Navigator.pushNamed(context, '/settings');
+              } else if (value == 'logout') {
+                _showLogoutDialog(context);
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'profile',
+                child: Row(
+                  children: [
+                    Icon(Icons.person, color: Color(0xFF0891B2)),
+                    SizedBox(width: 12),
+                    Text('Profil'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'settings',
+                child: Row(
+                  children: [
+                    Icon(Icons.settings, color: Color(0xFF0891B2)),
+                    SizedBox(width: 12),
+                    Text('Pengaturan'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout, color: Colors.red),
+                    SizedBox(width: 12),
+                    Text('Keluar', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
     if (_products.isEmpty && _isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -137,6 +255,34 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
             onTap: () => _viewDetail(product),
           );
         },
+      ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Keluar'),
+        content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Batal', style: TextStyle(color: Colors.black)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Keluar', style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }

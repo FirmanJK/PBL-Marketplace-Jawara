@@ -153,7 +153,7 @@ class SpendingDetailPage extends StatelessWidget {
                           ),
                           child: const Text(
                             'Batal',
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                            style: TextStyle(fontSize: 16, color: Colors.black),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -169,12 +169,13 @@ class SpendingDetailPage extends StatelessWidget {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text('Simpan', style: TextStyle(fontSize: 16)),
+                          child: const Text('Simpan', style: TextStyle(fontSize: 16, color: Colors.white)),
                         ),
                   ],
                 ),

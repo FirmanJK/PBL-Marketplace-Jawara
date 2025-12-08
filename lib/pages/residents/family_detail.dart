@@ -25,25 +25,46 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
   @override
   void initState() {
     super.initState();
-    _loadResidents();
+    // Langsung load data dummy tanpa loading
+    _residents = [
+      Resident(
+        id: 1,
+        name: 'Budi Santoso',
+        nik: '3201234567890001',
+        gender: 'Laki-laki',
+        birthDate: DateTime(1980, 5, 15),
+        birthPlace: 'Jakarta',
+        religion: 'Islam',
+        education: 'S1',
+        occupation: 'Pegawai Swasta',
+        status: 'aktif',
+        familyId: widget.family.id,
+        houseId: 1,
+      ),
+      Resident(
+        id: 2,
+        name: 'Siti Aminah',
+        nik: '3201234567890002',
+        gender: 'Perempuan',
+        birthDate: DateTime(1985, 8, 20),
+        birthPlace: 'Bandung',
+        religion: 'Islam',
+        education: 'SMA',
+        occupation: 'Ibu Rumah Tangga',
+        status: 'aktif',
+        familyId: widget.family.id,
+        houseId: 1,
+      ),
+    ];
+    _isLoading = false;
   }
 
   Future<void> _loadResidents() async {
+    // Langsung gunakan data dummy
     if (!mounted) return;
-    setState(() => _isLoading = true);
-    try {
-      final all = await ResidentsService.getResidents(skip: 0, limit: 1000);
-      final list = all.where((r) => r.familyId == widget.family.id).toList();
-      if (!mounted) return;
-      setState(() {
-        _residents = list;
-        _isLoading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isLoading = false);
-      ToastHelper.showError(context, 'Gagal memuat anggota: $e');
-    }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> _refreshFamily() async {
@@ -229,11 +250,6 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
         foregroundColor: const Color(0xFF1F2937),
         elevation: 0,
         actions: [
-          IconButton(
-            tooltip: 'Tambah anggota terdaftar',
-            icon: const Icon(Icons.person_add_alt_1_rounded, color: Color(0xFF0891B2)),
-            onPressed: _openExistingResidentPicker,
-          ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             offset: const Offset(0, 50),
@@ -642,12 +658,6 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _onAddResident,
-        icon: const Icon(Icons.person_add, color: Colors.white),
-        label: const Text('Tambah Anggota', style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color(0xFF0891B2),
       ),
     );
   }
