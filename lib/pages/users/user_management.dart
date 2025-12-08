@@ -153,8 +153,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
         onPressed: () {
           Navigator.pushNamed(context, '/users/add');
         },
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah Pengguna'),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Tambah Pengguna', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF0891B2),
       ),
     );

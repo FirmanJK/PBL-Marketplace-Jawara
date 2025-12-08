@@ -22,7 +22,10 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
   @override
   void initState() {
     super.initState();
-    _loadProducts();
+    // Langsung load data dummy tanpa loading
+    _products.addAll(dummyProducts);
+    _isLoading = false;
+    _hasMore = false;
     _scrollController.addListener(_onScroll);
   }
 
@@ -42,36 +45,14 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
   }
 
   Future<void> _loadProducts() async {
-    if (_isLoading) return;
-
-    setState(() => _isLoading = true);
-
-    try {
-      final newProducts = await ProductService.fetchProducts(
-        page: _currentPage,
-        limit: 10,
-      );
-
-      if (mounted) {
-        setState(() {
-          if (newProducts.isEmpty) {
-            _hasMore = false;
-          } else {
-            _products.addAll(newProducts);
-            _currentPage++;
-          }
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Gagal memuat produk: $e')));
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    // Langsung gunakan data dummy
+    if (mounted) {
+      setState(() {
+        _products.clear();
+        _products.addAll(dummyProducts);
+        _isLoading = false;
+        _hasMore = false;
+      });
     }
   }
 
@@ -186,19 +167,21 @@ class _ProductCard extends StatelessWidget {
             Expanded(
               child: Container(
                 width: double.infinity,
-                color: Colors.grey[200],
-                child: product.imageUrl.startsWith('http')
-                    ? Image.network(
-                        product.imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(
-                            Icons.image_not_supported,
-                            size: 48,
-                          );
-                        },
-                      )
-                    : const Icon(Icons.image, size: 48),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFF0891B2).withOpacity(0.7),
+                      const Color(0xFF06B6D4).withOpacity(0.5),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Icon(
+                  Icons.shopping_bag,
+                  size: 64,
+                  color: Colors.white.withOpacity(0.8),
+                ),
               ),
             ),
             // Info

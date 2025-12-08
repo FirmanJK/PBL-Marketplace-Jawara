@@ -131,8 +131,8 @@ class _ChannelsListPageState extends State<ChannelsListPage> {
         onPressed: () {
           Navigator.pushNamed(context, '/channels/add');
         },
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah Channel'),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Tambah Channel', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF0891B2),
       ),
     );

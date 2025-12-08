@@ -135,8 +135,8 @@ class _FamilyMutationsListPageState extends State<FamilyMutationsListPage> {
         onPressed: () {
           Navigator.pushNamed(context, '/family-mutations/add');
         },
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah Mutasi'),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Tambah Mutasi', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF0891B2),
       ),
     );

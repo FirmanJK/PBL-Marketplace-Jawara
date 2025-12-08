@@ -21,44 +21,23 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
   @override
   void initState() {
     super.initState();
-    _loadResidents();
+    // Langsung load data dummy tanpa loading
+    _residents = dummyResidents;
+    _isLoading = false;
+    _useDummyData = true;
   }
 
   String? _errorMessage;
   bool _useDummyData = false;
 
   Future<void> _loadResidents() async {
+    // Langsung gunakan data dummy
     setState(() {
-      _isLoading = true;
+      _residents = dummyResidents;
+      _isLoading = false;
+      _useDummyData = true;
       _errorMessage = null;
     });
-
-    try {
-      final residents = await ResidentsService.getResidents(
-        skip: 0,
-        limit: 100,
-      );
-      setState(() {
-        _residents = residents;
-        _isLoading = false;
-        _useDummyData = false;
-      });
-    } catch (e) {
-      debugPrint('Error loading residents: $e');
-      // Gunakan data dummy jika API gagal
-      setState(() {
-        _residents = dummyResidents;
-        _isLoading = false;
-        _useDummyData = true;
-        _errorMessage = null; // Tidak tampilkan error, langsung pakai dummy data
-      });
-      if (mounted) {
-        ToastHelper.showWarning(
-          context,
-          'Menggunakan data offline. Backend tidak tersedia.',
-        );
-      }
-    }
   }
 
   List<Resident> _getFilteredResidents() {
@@ -342,8 +321,8 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
             _loadResidents();
           }
         },
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah Warga'),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Tambah Warga', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF0891B2),
       ),
     );

@@ -330,8 +330,8 @@ class _ResidentsGridPageState extends State<ResidentsGridPage> {
           onPressed: () {
             Navigator.pushNamed(context, '/residents/add');
           },
-          icon: const Icon(Icons.add),
-          label: const Text('Tambah Warga'),
+          icon: const Icon(Icons.add, color: Colors.white),
+          label: const Text('Tambah Warga', style: TextStyle(color: Colors.white)),
           backgroundColor: const Color(0xFF0891B2),
         ),
       ),

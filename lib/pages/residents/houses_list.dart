@@ -24,7 +24,10 @@ class _HousesListPageState extends State<HousesListPage> {
   @override
   void initState() {
     super.initState();
-    _loadHouses();
+    // Langsung load data dummy tanpa loading
+    _houses = dummyHouses;
+    _displayed = List.from(dummyHouses);
+    _isLoading = false;
   }
 
   @override
@@ -34,33 +37,14 @@ class _HousesListPageState extends State<HousesListPage> {
   }
 
   Future<void> _loadHouses() async {
+    // Langsung gunakan data dummy
     if (!mounted) return;
     setState(() {
-      _isLoading = true;
+      _houses = dummyHouses;
+      _displayed = List.from(dummyHouses);
+      _isLoading = false;
       _errorMessage = null;
     });
-    try {
-      final houses = await HouseService.getHouses(skip: 0, limit: 200);
-      if (!mounted) return;
-      setState(() {
-        _houses = houses;
-        _displayed = List.from(houses);
-        _isLoading = false;
-      });
-    } catch (e) {
-      // Gunakan data dummy jika API gagal
-      if (!mounted) return;
-      setState(() {
-        _houses = dummyHouses;
-        _displayed = List.from(dummyHouses);
-        _isLoading = false;
-        _errorMessage = null; // Tidak tampilkan error, langsung pakai dummy data
-      });
-      ToastHelper.showWarning(
-        context,
-        'Menggunakan data offline. Backend tidak tersedia.',
-      );
-    }
   }
 
   void _onSearchChanged(String q) {
@@ -297,8 +281,8 @@ class _HousesListPageState extends State<HousesListPage> {
         onPressed: () {
           Navigator.pushNamed(context, '/houses/add');
         },
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah Rumah'),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Tambah Rumah', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF0891B2),
       ),
     );

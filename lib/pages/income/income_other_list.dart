@@ -193,14 +193,6 @@ class _IncomeOtherListPageState extends State<IncomeOtherListPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.pushNamed(context, '/income/other/add');
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah Pemasukan'),
-        backgroundColor: const Color(0xFF0891B2),
-      ),
     );
   }
 

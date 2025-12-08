@@ -140,7 +140,7 @@ class BillDetailPage extends StatelessWidget {
                       ),
                       child: const Text(
                         'Batal',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                        style: TextStyle(fontSize: 16, color: Colors.black),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -161,7 +161,7 @@ class BillDetailPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Simpan', style: TextStyle(fontSize: 16)),
+                      child: const Text('Simpan', style: TextStyle(fontSize: 16, color: Colors.white)),
                     ),
                   ],
                 ),

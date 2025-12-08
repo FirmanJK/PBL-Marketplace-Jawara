@@ -122,8 +122,8 @@ class _ActivitiesListPageState extends State<ActivitiesListPage> {
         onPressed: () {
           Navigator.pushNamed(context, '/activities/add');
         },
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah Kegiatan'),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Tambah Kegiatan', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF0891B2),
       ),
     );

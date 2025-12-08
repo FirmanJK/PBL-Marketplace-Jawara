@@ -183,7 +183,7 @@ class _MyAppState extends State<MyApp> {
         '/channels/add': (context) => const ChannelsAddPage(),
 
         // Marketplace
-        '/marketplace': (context) => const MarketplacePage(),
+        '/marketplace': (context) => const MarketplaceCatalogPage(),
         '/marketplace/upload': (context) => const MarketplaceUploadPage(),
         '/marketplace/catalog': (context) => const MarketplaceCatalogPage(),
 

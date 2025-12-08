@@ -142,8 +142,8 @@ class _BroadcastListPageState extends State<BroadcastListPage> {
         onPressed: () {
           Navigator.pushNamed(context, '/broadcast/add');
         },
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah Broadcast'),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Tambah Broadcast', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF0891B2),
       ),
     );

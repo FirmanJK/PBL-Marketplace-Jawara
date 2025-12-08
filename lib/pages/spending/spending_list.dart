@@ -204,8 +204,8 @@ class _SpendingListPageState extends State<SpendingListPage> {
         onPressed: () {
           Navigator.pushNamed(context, '/spending/add');
         },
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah Pengeluaran'),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Tambah Pengeluaran', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF0891B2),
       ),
     );

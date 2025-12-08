@@ -258,8 +258,8 @@ class _FamiliesPageState extends State<FamiliesPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddFamilyForm(context),
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah Keluarga'),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Tambah Keluarga', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF0891B2),
       ),
     );
@@ -268,37 +268,19 @@ class _FamiliesPageState extends State<FamiliesPage> {
   @override
   void initState() {
     super.initState();
-    _loadFamilies();
+    // Langsung load data dummy tanpa loading
+    _families = dummyFamilies;
+    _isLoading = false;
   }
 
   Future<void> _loadFamilies() async {
+    // Langsung gunakan data dummy
     if (!mounted) return;
     setState(() {
-      _isLoading = true;
+      _families = dummyFamilies;
+      _isLoading = false;
       _errorMessage = null;
     });
-    try {
-      final families = await FamiliesService.getFamilies(skip: 0, limit: 200);
-      if (!mounted) return;
-      setState(() {
-        _families = families;
-        _isLoading = false;
-      });
-    } catch (e) {
-      debugPrint('Error loading families: $e');
-      // Gunakan data dummy jika API gagal
-      if (mounted) {
-        setState(() {
-          _families = dummyFamilies;
-          _isLoading = false;
-          _errorMessage = null; // Tidak tampilkan error, langsung pakai dummy data
-        });
-        ToastHelper.showWarning(
-          context,
-          'Menggunakan data offline. Backend tidak tersedia.',
-        );
-      }
-    }
   }
 
   List<Family> _getFilteredFamilies() {

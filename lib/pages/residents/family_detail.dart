@@ -645,8 +645,8 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _onAddResident,
-        icon: const Icon(Icons.person_add),
-        label: const Text('Tambah Anggota'),
+        icon: const Icon(Icons.person_add, color: Colors.white),
+        label: const Text('Tambah Anggota', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF0891B2),
       ),
     );

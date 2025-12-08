@@ -184,7 +184,7 @@ class _IncomeOtherDetailPageState extends State<IncomeOtherDetailPage> {
                       ),
                       child: const Text(
                         'Batal',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                        style: TextStyle(fontSize: 16, color: Colors.black),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -205,7 +205,7 @@ class _IncomeOtherDetailPageState extends State<IncomeOtherDetailPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Simpan', style: TextStyle(fontSize: 16)),
+                      child: const Text('Simpan', style: TextStyle(fontSize: 16, color: Colors.white)),
                     ),
                   ],
                 ),
