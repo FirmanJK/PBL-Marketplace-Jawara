@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:jawara/pages/activities/activities_add.dart';
 import 'package:jawara/pages/activities/activities_list.dart';
@@ -42,6 +43,9 @@ import 'package:jawara/pages/spending/spending_list.dart';
 import 'package:jawara/pages/users/user_management.dart';
 import 'package:jawara/pages/users/users_add.dart';
 import 'package:jawara/pages/marketplace_page.dart';
+import 'package:jawara/pages/admin_dashboard_page.dart';
+import 'package:jawara/pages/help_page.dart';
+import 'package:jawara/pages/about_page.dart';
 import 'package:jawara/shared/theme.dart';
 import 'package:jawara/services/notification_service.dart';
 import 'package:jawara/services/database_service.dart';
@@ -49,6 +53,16 @@ import 'package:jawara/models/resident.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Set system UI overlay style for white navigation bar
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+    ),
+  );
   
   // Initialize database service with error handling
   try {
@@ -91,6 +105,9 @@ class MyApp extends StatelessWidget {
         // Auth
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
+
+        // Admin Dashboard (New Gojek-style)
+        '/admin-dashboard': (context) => const AdminDashboardPage(),
 
         // Dashboard
         '/dashboard/finance': (context) => const DashboardFinancePage(),
@@ -165,6 +182,8 @@ class MyApp extends StatelessWidget {
         // Profil & Pengaturan
         '/profile': (context) => const ProfilePage(),
         '/settings': (context) => const SettingsPage(),
+        '/help': (context) => const HelpPage(),
+        '/about': (context) => const AboutPage(),
       },
       debugShowCheckedModeBanner: false,
     );

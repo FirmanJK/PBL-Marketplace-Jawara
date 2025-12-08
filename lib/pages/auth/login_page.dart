@@ -45,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
 
     // If no errors, proceed to login
     if (_emailError == null && _passwordError == null) {
-      Navigator.pushReplacementNamed(context, '/dashboard/finance');
+      Navigator.pushReplacementNamed(context, '/admin-dashboard');
     }
   }
 

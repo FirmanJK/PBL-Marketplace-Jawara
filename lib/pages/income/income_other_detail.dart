@@ -122,7 +122,7 @@ class _IncomeOtherDetailPageState extends State<IncomeOtherDetailPage> {
                         isExpanded: true,
                         items: const [
                           DropdownMenuItem(
-                            value: 'Bantuan Pemerintah',
+                            value: 'Dana Bantuan Pemerintah',
                             child: Text('Bantuan Pemerintah', overflow: TextOverflow.ellipsis),
                           ),
                           DropdownMenuItem(

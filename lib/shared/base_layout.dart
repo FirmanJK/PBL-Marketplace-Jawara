@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:jawara/shared/sidebar.dart';
 
 class BaseLayout extends StatefulWidget {
   final Widget child;
@@ -20,26 +19,35 @@ class BaseLayout extends StatefulWidget {
 }
 
 class _BaseLayoutState extends State<BaseLayout> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(
-              Icons.menu_rounded,
-              color: Color(0xFF0891B2),
-              size: 28,
-            ),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-            tooltip: 'Menu',
-          ),
-        ),
+        leading: widget.showBackButton
+            ? IconButton(
+                icon: const Icon(
+                  Icons.arrow_back,
+                  color: Color(0xFF0891B2),
+                  size: 24,
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                tooltip: 'Kembali',
+              )
+            : Builder(
+                builder: (context) => IconButton(
+                  icon: const Icon(
+                    Icons.menu_rounded,
+                    color: Color(0xFF0891B2),
+                    size: 28,
+                  ),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                  tooltip: 'Menu',
+                ),
+              ),
         title: Text(widget.title, overflow: TextOverflow.ellipsis, maxLines: 1),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -89,11 +97,7 @@ class _BaseLayoutState extends State<BaseLayout> {
                   ),
                   onSelected: (value) {
                     if (value == 'logout') {
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        '/login',
-                        (route) => false,
-                      );
+                      _showLogoutConfirmation(context);
                     } else if (value == 'profile') {
                       Navigator.pushNamed(context, '/profile');
                     } else if (value == 'settings') {
@@ -183,8 +187,36 @@ class _BaseLayoutState extends State<BaseLayout> {
               ),
             ],
       ),
-      drawer: const Sidebar(),
       body: SafeArea(child: widget.child),
+    );
+  }
+
+  void _showLogoutConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Konfirmasi Keluar'),
+        content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/login',
+                (route) => false,
+              );
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Keluar'),
+          ),
+        ],
+      ),
     );
   }
 }

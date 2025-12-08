@@ -137,7 +137,7 @@ class _FamilyMutationsListPageState extends State<FamilyMutationsListPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.pushNamed(context, '/mutations/add');
+          Navigator.pushNamed(context, '/family-mutations/add');
         },
         icon: const Icon(Icons.add),
         label: const Text('Tambah Mutasi'),

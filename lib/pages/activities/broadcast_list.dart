@@ -140,7 +140,7 @@ class _BroadcastListPageState extends State<BroadcastListPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.pushNamed(context, '/activities/broadcast/add');
+          Navigator.pushNamed(context, '/broadcast/add');
         },
         icon: const Icon(Icons.add),
         label: const Text('Tambah Broadcast'),

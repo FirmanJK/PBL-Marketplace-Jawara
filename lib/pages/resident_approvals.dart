@@ -51,13 +51,6 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
     return Scaffold(
       appBar: StandardAppBar(
         title: 'Penerimaan Warga',
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: () {},
-            tooltip: 'Filter',
-          ),
-        ],
       ),
       body: Column(
         children: [

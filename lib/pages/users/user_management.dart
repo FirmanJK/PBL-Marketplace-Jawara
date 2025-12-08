@@ -124,13 +124,19 @@ class _UserManagementPageState extends State<UserManagementPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.edit_outlined),
-                          onPressed: () {},
+                          icon: const Icon(Icons.edit_outlined, color: Color(0xFF0891B2)),
+                          onPressed: () {
+                            // Show edit dialog
+                            _showEditDialog(context, user);
+                          },
                           tooltip: 'Edit',
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete_outline, color: Colors.red),
-                          onPressed: () {},
+                          onPressed: () {
+                            // Show delete confirmation
+                            _showDeleteDialog(context, user['name']!);
+                          },
                           tooltip: 'Hapus',
                         ),
                       ],
@@ -150,6 +156,58 @@ class _UserManagementPageState extends State<UserManagementPage> {
         icon: const Icon(Icons.add),
         label: const Text('Tambah Pengguna'),
         backgroundColor: const Color(0xFF0891B2),
+      ),
+    );
+  }
+
+  void _showEditDialog(BuildContext context, Map<String, String> user) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Pengguna'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Edit data untuk: ${user['name']}'),
+            const SizedBox(height: 16),
+            const Text('Fitur edit akan segera tersedia.'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tutup'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context, String userName) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Hapus Pengguna'),
+        content: Text('Apakah Anda yakin ingin menghapus $userName?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('$userName berhasil dihapus'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Hapus'),
+          ),
+        ],
       ),
     );
   }
