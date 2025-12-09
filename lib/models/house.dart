@@ -5,6 +5,10 @@ class House {
   final String? rt;
   final String? rw;
   final int residentCount;
+<<<<<<< HEAD
+=======
+  final String? status;
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -15,6 +19,10 @@ class House {
     this.rt,
     this.rw,
     this.residentCount = 0,
+<<<<<<< HEAD
+=======
+    this.status = 'available',
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
     this.createdAt,
     this.updatedAt,
   });
@@ -27,6 +35,10 @@ class House {
       rt: json['rt'] as String?,
       rw: json['rw'] as String?,
       residentCount: json['resident_count'] is int ? json['resident_count'] as int : int.tryParse('${json['resident_count'] ?? 0}') ?? 0,
+<<<<<<< HEAD
+=======
+      status: json['status'] as String? ?? 'available',
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) : null,
       updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at'] as String) : null,
     );
@@ -39,6 +51,10 @@ class House {
       'address': address,
       'rt': rt,
       'rw': rw,
+<<<<<<< HEAD
+=======
+      'status': status,
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
       'resident_count': residentCount,
       'created_at': createdAt?.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),

@@ -5,6 +5,10 @@ import 'package:jawara/models/house.dart';
 import 'package:jawara/services/house_service.dart';
 import 'package:jawara/pages/residents/house_detail.dart';
 import 'package:jawara/utils/toast_helper.dart';
+<<<<<<< HEAD
+=======
+import 'package:jawara/data/houses.dart';
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 
 class HousesListPage extends StatefulWidget {
   const HousesListPage({super.key});
@@ -18,11 +22,22 @@ class _HousesListPageState extends State<HousesListPage> {
   bool _isLoading = true;
   List<House> _displayed = [];
   final TextEditingController _searchController = TextEditingController();
+<<<<<<< HEAD
+=======
+  String? _errorMessage;
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 
   @override
   void initState() {
     super.initState();
+<<<<<<< HEAD
     _loadHouses();
+=======
+    // Langsung load data dummy tanpa loading
+    _houses = dummyHouses;
+    _displayed = List.from(dummyHouses);
+    _isLoading = false;
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   }
 
   @override
@@ -32,6 +47,7 @@ class _HousesListPageState extends State<HousesListPage> {
   }
 
   Future<void> _loadHouses() async {
+<<<<<<< HEAD
     if (!mounted) return;
     setState(() => _isLoading = true);
     try {
@@ -47,6 +63,16 @@ class _HousesListPageState extends State<HousesListPage> {
       setState(() => _isLoading = false);
       ToastHelper.showError(context, 'Gagal memuat rumah: $e');
     }
+=======
+    // Langsung gunakan data dummy
+    if (!mounted) return;
+    setState(() {
+      _houses = dummyHouses;
+      _displayed = List.from(dummyHouses);
+      _isLoading = false;
+      _errorMessage = null;
+    });
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   }
 
   void _onSearchChanged(String q) {
@@ -88,6 +114,56 @@ class _HousesListPageState extends State<HousesListPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
+<<<<<<< HEAD
+=======
+          : _errorMessage != null
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red[300],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Gagal memuat rumah',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[800],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: _loadHouses,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Coba Lagi'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0891B2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
           : Column(
               children: [
                 // Search Bar
@@ -236,8 +312,13 @@ class _HousesListPageState extends State<HousesListPage> {
         onPressed: () {
           Navigator.pushNamed(context, '/houses/add');
         },
+<<<<<<< HEAD
         icon: const Icon(Icons.add),
         label: const Text('Tambah Rumah'),
+=======
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Tambah Rumah', style: TextStyle(color: Colors.white)),
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
         backgroundColor: const Color(0xFF0891B2),
       ),
     );

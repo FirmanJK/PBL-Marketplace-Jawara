@@ -1,4 +1,8 @@
 import 'package:jawara/models/family.dart';
+<<<<<<< HEAD
+=======
+import 'package:jawara/models/resident.dart';
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 import 'package:jawara/services/api_service.dart';
 import 'package:jawara/services/auth_service.dart';
 // residents_service no longer required for families; server provides head_resident
@@ -33,6 +37,21 @@ class FamiliesService {
     }
   }
 
+<<<<<<< HEAD
+=======
+  /// Add (or transfer) an existing resident to a family
+  static Future<Resident> addResidentToFamily(int familyId, int residentId) async {
+    try {
+      final token = _authService.accessToken;
+      final response = await ApiService.post('$endpoint/$familyId/members/$residentId', token: token);
+      final resData = response is Map ? response : response['data'] ?? response;
+      return Resident.fromJson(resData as Map<String, dynamic>);
+    } catch (e) {
+      throw Exception('Failed to add resident to family: $e');
+    }
+  }
+
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   static Future<Family> getFamilyById(int id) async {
     try {
       final token = _authService.accessToken;
@@ -77,4 +96,19 @@ class FamiliesService {
       throw Exception('Failed to delete family: $e');
     }
   }
+<<<<<<< HEAD
+=======
+
+  /// Remove an existing resident from the family (unassign resident.family_id)
+  static Future<Resident> removeResidentFromFamily(int familyId, int residentId) async {
+    try {
+      final token = _authService.accessToken;
+      final response = await ApiService.delete('$endpoint/$familyId/members/$residentId', token: token);
+      final resData = response is Map ? response : response['data'] ?? response;
+      return Resident.fromJson(resData as Map<String, dynamic>);
+    } catch (e) {
+      throw Exception('Failed to remove resident from family: $e');
+    }
+  }
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 }

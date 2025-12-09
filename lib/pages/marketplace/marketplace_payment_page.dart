@@ -80,9 +80,19 @@ class _MarketplacePaymentPageState extends State<MarketplacePaymentPage> {
               _showSuccessDialog();
             },
             style: ElevatedButton.styleFrom(
+<<<<<<< HEAD
               backgroundColor: const Color(0xFF10B981),
             ),
             child: const Text('Sudah Bayar'),
+=======
+              backgroundColor: const Color(0xFF0891B2),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text(
+              'Sudah Bayar',
+              style: TextStyle(color: Colors.white),
+            ),
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
           ),
         ],
       ),
@@ -135,9 +145,19 @@ class _MarketplacePaymentPageState extends State<MarketplacePaymentPage> {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
+<<<<<<< HEAD
                 backgroundColor: const Color(0xFF10B981),
               ),
               child: const Text('Kembali ke Beranda'),
+=======
+                backgroundColor: const Color(0xFF0891B2),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text(
+                'Kembali ke Beranda',
+                style: TextStyle(color: Colors.white),
+              ),
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
             ),
           ),
         ],
@@ -429,7 +449,12 @@ class _MarketplacePaymentPageState extends State<MarketplacePaymentPage> {
           child: ElevatedButton(
             onPressed: _isPaid ? null : _confirmPayment,
             style: ElevatedButton.styleFrom(
+<<<<<<< HEAD
               backgroundColor: const Color(0xFF10B981),
+=======
+              backgroundColor: const Color(0xFF0891B2),
+              foregroundColor: Colors.white,
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -438,6 +463,10 @@ class _MarketplacePaymentPageState extends State<MarketplacePaymentPage> {
             child: Text(
               _isPaid ? 'Pembayaran Dikonfirmasi' : 'Konfirmasi Pembayaran',
               style: const TextStyle(
+<<<<<<< HEAD
+=======
+                color: Colors.white,
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),

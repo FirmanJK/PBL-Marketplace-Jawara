@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// import 'package:flutter/services.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:jawara/pages/activities/activities_add.dart';
 import 'package:jawara/pages/activities/activities_list.dart';
@@ -40,6 +41,14 @@ import 'package:jawara/pages/spending/spending_list.dart';
 import 'package:jawara/pages/users/user_management.dart';
 import 'package:jawara/pages/users/users_add.dart';
 import 'package:jawara/pages/marketplace/marketplace_page.dart';
+<<<<<<< HEAD
+=======
+import 'package:jawara/pages/marketplace/marketplace_upload_page.dart';
+import 'package:jawara/pages/marketplace/marketplace_catalog_page.dart';
+import 'package:jawara/pages/admin_dashboard_page.dart';
+import 'package:jawara/pages/about_page.dart';
+import 'package:jawara/pages/help_page.dart';
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 import 'package:jawara/shared/theme.dart';
 import 'package:jawara/services/notification_service.dart';
 import 'package:jawara/services/database_service.dart';
@@ -48,7 +57,11 @@ import 'package:jawara/models/resident.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   // Initialize database service with error handling
   try {
     await DatabaseService().database;
@@ -95,7 +108,11 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Jawara Pintar',
       theme: AppTheme.lightTheme,
+<<<<<<< HEAD
       initialRoute: _authService.isLoggedIn ? '/dashboard/finance' : '/login',
+=======
+      initialRoute: _authService.isLoggedIn ? '/admin-dashboard' : '/login',
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
       builder: (context, child) => ResponsiveBreakpoints.builder(
         child: child!,
         breakpoints: [
@@ -109,6 +126,9 @@ class _MyAppState extends State<MyApp> {
         // Auth
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
+
+        // Admin Dashboard (New Gojek-style)
+        '/admin-dashboard': (context) => const AdminDashboardPage(),
 
         // Dashboard
         '/dashboard/finance': (context) => const DashboardFinancePage(),
@@ -174,9 +194,12 @@ class _MyAppState extends State<MyApp> {
         '/channels/add': (context) => const ChannelsAddPage(),
 
         // Marketplace
-        '/marketplace': (context) => const MarketplacePage(),
-        '/marketplace/upload': (context) => const MarketplacePage(),
-        '/marketplace/catalog': (context) => const MarketplacePage(),
+        '/marketplace': (context) => const MarketplaceCatalogPage(),
+        '/marketplace/upload': (context) => const MarketplaceUploadPage(),
+        '/marketplace/catalog': (context) => const MarketplaceCatalogPage(),
+
+        // Notifikasi
+        '/notifications': (context) => const NotificationsPage(),
 
         // Notifikasi
         '/notifications': (context) => const NotificationsPage(),
@@ -184,6 +207,8 @@ class _MyAppState extends State<MyApp> {
         // Profil & Pengaturan
         '/profile': (context) => const ProfilePage(),
         '/settings': (context) => const SettingsPage(),
+        '/help': (context) => const HelpPage(),
+        '/about': (context) => const AboutPage(),
       },
       debugShowCheckedModeBanner: false,
     );

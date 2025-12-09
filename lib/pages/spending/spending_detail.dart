@@ -153,7 +153,11 @@ class SpendingDetailPage extends StatelessWidget {
                           ),
                           child: const Text(
                             'Batal',
+<<<<<<< HEAD
                             style: TextStyle(fontSize: 16, color: Colors.grey),
+=======
+                            style: TextStyle(fontSize: 16, color: Colors.black),
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -169,12 +173,20 @@ class SpendingDetailPage extends StatelessWidget {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
+<<<<<<< HEAD
+=======
+                            foregroundColor: Colors.white,
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
+<<<<<<< HEAD
                           child: const Text('Simpan', style: TextStyle(fontSize: 16)),
+=======
+                          child: const Text('Simpan', style: TextStyle(fontSize: 16, color: Colors.white)),
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                         ),
                   ],
                 ),

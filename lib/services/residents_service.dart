@@ -11,11 +11,19 @@ class ResidentsService {
   static Future<List<Resident>> getResidents({
     int skip = 0,
     int limit = 100,
+<<<<<<< HEAD
+=======
+    String? query,
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   }) async {
     try {
       final queryParams = <String, dynamic>{
         'skip': skip.toString(),
         'limit': limit.toString(),
+<<<<<<< HEAD
+=======
+        if (query != null) 'q': query,
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
       };
 
       final token = _authService.accessToken;

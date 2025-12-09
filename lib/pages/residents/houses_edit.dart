@@ -131,10 +131,21 @@ class _HousesEditPageState extends State<HousesEditPage> {
                 onPressed: _isSaving ? null : _saveChanges,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0891B2),
+<<<<<<< HEAD
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: Text(_isSaving ? 'Menyimpan...' : 'Simpan Perubahan'),
+=======
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: Text(
+                  _isSaving ? 'Menyimpan...' : 'Simpan Perubahan',
+                  style: const TextStyle(color: Colors.white),
+                ),
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
               ),
             ],
           ),

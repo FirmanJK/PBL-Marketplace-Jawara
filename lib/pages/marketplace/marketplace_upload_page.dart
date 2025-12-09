@@ -129,13 +129,22 @@ class _MarketplaceUploadPageState extends State<MarketplaceUploadPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 1,
+        title: const Text('Unggah Produk', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
             // Image Picker Section
             GestureDetector(
               onTap: _isLoading ? null : _pickImage,
@@ -238,7 +247,8 @@ class _MarketplaceUploadPageState extends State<MarketplaceUploadPage> {
                 text: 'Unggah Produk',
                 onPressed: _submitProduct,
               ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -6,6 +6,10 @@ import 'package:jawara/pages/marketplace/marketplace_cart_page.dart';
 import 'package:jawara/data/products.dart';
 import 'package:jawara/services/cart_service.dart';
 import 'package:intl/intl.dart';
+<<<<<<< HEAD
+=======
+import 'package:intl/date_symbol_data_local.dart';
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 
 class MarketplaceDetailPage extends StatefulWidget {
   final Product product;
@@ -18,6 +22,25 @@ class MarketplaceDetailPage extends StatefulWidget {
 
 class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
   final CartService _cartService = CartService();
+<<<<<<< HEAD
+=======
+  bool _isLocaleInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeLocale();
+  }
+
+  Future<void> _initializeLocale() async {
+    await initializeDateFormatting('id_ID', null);
+    if (mounted) {
+      setState(() {
+        _isLocaleInitialized = true;
+      });
+    }
+  }
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 
   void _addToCart() {
     _cartService.addToCart(widget.product);
@@ -106,6 +129,23 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< HEAD
+=======
+    // Show loading while locale is being initialized
+    if (!_isLocaleInitialized) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Detail Produk'),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFF0891B2),
+          ),
+        ),
+      );
+    }
+
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
     final currencyFormat = NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp ',
@@ -310,6 +350,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
         ),
         child: Row(
           children: [
+<<<<<<< HEAD
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: _addToCart,
@@ -328,6 +369,26 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
             const SizedBox(width: 12),
             Expanded(
               flex: 2,
+=======
+            // Button Keranjang - Hanya Icon
+            IconButton(
+              onPressed: _addToCart,
+              icon: const Icon(Icons.shopping_cart),
+              style: IconButton.styleFrom(
+                backgroundColor: const Color(0xFF0891B2),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              iconSize: 28,
+              tooltip: 'Tambah ke Keranjang',
+            ),
+            const SizedBox(width: 12),
+            // Button Beli Sekarang
+            Expanded(
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
               child: ElevatedButton.icon(
                 onPressed: () {
                   Navigator.push(
@@ -338,10 +399,25 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                     ),
                   );
                 },
+<<<<<<< HEAD
                 icon: const Icon(Icons.shopping_bag),
                 label: const Text('Beli Sekarang'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0891B2),
+=======
+                icon: const Icon(Icons.shopping_bag, color: Colors.white),
+                label: const Text(
+                  'Beli Sekarang',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0891B2),
+                  foregroundColor: Colors.white,
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

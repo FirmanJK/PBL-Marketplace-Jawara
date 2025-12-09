@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:jawara/shared/base_layout.dart';
+import 'package:jawara/shared/standard_app_bar.dart';
 import 'package:jawara/shared/button.dart';
-import 'package:jawara/shared/card.dart';
 import 'package:jawara/shared/input.dart';
 import 'package:jawara/shared/theme.dart';
 import 'package:jawara/services/auth_service.dart';
@@ -27,10 +26,18 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     // Initialize controllers dengan data dari AuthService
+<<<<<<< HEAD
     final user = _authService.currentUser;
     _nameController = TextEditingController(text: user?.name ?? '');
     _emailController = TextEditingController(text: user?.email ?? '');
     _phoneController = TextEditingController(text: user?.phone ?? '');
+=======
+    // TODO: Uncomment when AuthService is properly integrated
+    // final user = AuthService().currentUser;
+    // _nameController.text = user?.name ?? '';
+    // _emailController.text = user?.email ?? '';
+    // _phoneController.text = user?.phone ?? '';
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   }
 
   void _saveProfile() {
@@ -75,124 +82,232 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BaseLayout(
-      title: 'Profil',
-      actions: const [],
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final isWide = constraints.maxWidth >= 1000;
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Wrap(
-                    spacing: 24,
-                    runSpacing: 24,
-                    children: [
-                      SizedBox(
-                        width: isWide ? 420 : double.infinity,
-                        child: SharedCard(
-                          title: 'Informasi Akun',
-                          icon: Icons.account_circle_rounded,
-                          color: AppTheme.primary,
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 16),
-                              CustomInputField(
-                                label: 'Nama Lengkap',
-                                hintText: 'Masukkan nama',
-                                prefixIcon: Icons.person_outline,
-                                controller: _nameController,
-                              ),
-                              const SizedBox(height: 12),
-                              CustomInputField(
-                                label: 'Email',
-                                hintText: 'Masukkan email',
-                                prefixIcon: Icons.email_outlined,
-                                controller: _emailController,
-                                inputType: TextInputType.emailAddress,
-                              ),
-                              const SizedBox(height: 12),
-                              CustomInputField(
-                                label: 'No. HP',
-                                hintText: 'Masukkan nomor HP',
-                                prefixIcon: Icons.phone_outlined,
-                                controller: _phoneController,
-                                inputType: TextInputType.phone,
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: CustomButton(
-                                      text: 'Simpan Perubahan',
-                                      icon: Icons.save_rounded,
-                                      onPressed: _saveProfile,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+    return Scaffold(
+      appBar: StandardAppBar(
+        title: 'Profil',
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Profile Header Card
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF0891B2), Color(0xFF06B6D4)],
                         ),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      SizedBox(
-                        width: isWide ? 420 : double.infinity,
-                        child: SharedCard(
-                          title: 'Ganti Kata Sandi',
-                          icon: Icons.lock_rounded,
-                          color: AppTheme.accentPurple,
-                          child: Column(
-                            children: [
-                              CustomInputField(
-                                label: 'Kata Sandi Saat Ini',
-                                hintText: '••••••••',
-                                prefixIcon: Icons.lock_outline,
-                                controller: _currentPassController,
-                                isPassword: true,
-                              ),
-                              const SizedBox(height: 12),
-                              CustomInputField(
-                                label: 'Kata Sandi Baru',
-                                hintText: 'Minimal 8 karakter',
-                                prefixIcon: Icons.lock_outline,
-                                controller: _newPassController,
-                                isPassword: true,
-                              ),
-                              const SizedBox(height: 12),
-                              CustomInputField(
-                                label: 'Konfirmasi Kata Sandi Baru',
-                                hintText: 'Ulangi kata sandi baru',
-                                prefixIcon: Icons.lock_outline,
-                                controller: _confirmPassController,
-                                isPassword: true,
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: CustomButton(
-                                      text: 'Perbarui Kata Sandi',
-                                      icon: Icons.key_rounded,
-                                      onPressed: _changePassword,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                      child: const Icon(
+                        Icons.person,
+                        size: 40,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _nameController.text,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
+                          Text(
+                            _emailController.text,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          );
-        },
+
+            const SizedBox(height: 16),
+
+            // Informasi Akun Card
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0891B2).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.account_circle,
+                            color: Color(0xFF0891B2),
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Informasi Akun',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    CustomInputField(
+                      label: 'Nama Lengkap',
+                      hintText: 'Masukkan nama',
+                      prefixIcon: Icons.person_outline,
+                      controller: _nameController,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInputField(
+                      label: 'Email',
+                      hintText: 'Masukkan email',
+                      prefixIcon: Icons.email_outlined,
+                      controller: _emailController,
+                      inputType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInputField(
+                      label: 'No. HP',
+                      hintText: 'Masukkan nomor HP',
+                      prefixIcon: Icons.phone_outlined,
+                      controller: _phoneController,
+                      inputType: TextInputType.phone,
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _saveProfile,
+                        icon: const Icon(Icons.save),
+                        label: const Text('Simpan Perubahan'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0891B2),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Ganti Kata Sandi Card
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF8B5CF6).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.lock,
+                            color: Color(0xFF8B5CF6),
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Ganti Kata Sandi',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    CustomInputField(
+                      label: 'Kata Sandi Saat Ini',
+                      hintText: '••••••••',
+                      prefixIcon: Icons.lock_outline,
+                      controller: _currentPassController,
+                      isPassword: true,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInputField(
+                      label: 'Kata Sandi Baru',
+                      hintText: 'Minimal 8 karakter',
+                      prefixIcon: Icons.lock_outline,
+                      controller: _newPassController,
+                      isPassword: true,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInputField(
+                      label: 'Konfirmasi Kata Sandi Baru',
+                      hintText: 'Ulangi kata sandi baru',
+                      prefixIcon: Icons.lock_outline,
+                      controller: _confirmPassController,
+                      isPassword: true,
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _changePassword,
+                        icon: const Icon(Icons.key),
+                        label: const Text('Perbarui Kata Sandi'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF8B5CF6),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

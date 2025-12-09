@@ -459,6 +459,10 @@ class _MarketplaceCheckoutPageState extends State<MarketplaceCheckoutPage> {
                       onPressed: _processCheckout,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF0891B2),
+<<<<<<< HEAD
+=======
+                        foregroundColor: Colors.white,
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -467,6 +471,10 @@ class _MarketplaceCheckoutPageState extends State<MarketplaceCheckoutPage> {
                       child: const Text(
                         'Buat Pesanan',
                         style: TextStyle(
+<<<<<<< HEAD
+=======
+                          color: Colors.white,
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),

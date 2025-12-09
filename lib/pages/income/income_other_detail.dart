@@ -31,7 +31,21 @@ class _IncomeOtherDetailPageState extends State<IncomeOtherDetailPage> {
   void _showEditDialog(BuildContext context) {
     final namaController = TextEditingController(text: widget.item.nama);
     final nominalController = TextEditingController(text: widget.item.nominal.toString());
+<<<<<<< HEAD
     String? selectedJenis = widget.item.jenisPemasukan;
+=======
+    
+    // Validasi selectedJenis agar sesuai dengan dropdown items
+    final validJenis = [
+      'Dana Bantuan Pemerintah',
+      'Sumbangan Warga',
+      'Hasil Usaha RT',
+      'Pendapatan Lainnya',
+    ];
+    String? selectedJenis = validJenis.contains(widget.item.jenisPemasukan) 
+        ? widget.item.jenisPemasukan 
+        : validJenis.first;
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 
     showDialog(
       context: context,
@@ -122,7 +136,11 @@ class _IncomeOtherDetailPageState extends State<IncomeOtherDetailPage> {
                         isExpanded: true,
                         items: const [
                           DropdownMenuItem(
+<<<<<<< HEAD
                             value: 'Bantuan Pemerintah',
+=======
+                            value: 'Dana Bantuan Pemerintah',
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                             child: Text('Bantuan Pemerintah', overflow: TextOverflow.ellipsis),
                           ),
                           DropdownMenuItem(
@@ -184,7 +202,11 @@ class _IncomeOtherDetailPageState extends State<IncomeOtherDetailPage> {
                       ),
                       child: const Text(
                         'Batal',
+<<<<<<< HEAD
                         style: TextStyle(fontSize: 16, color: Colors.grey),
+=======
+                        style: TextStyle(fontSize: 16, color: Colors.black),
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -200,12 +222,27 @@ class _IncomeOtherDetailPageState extends State<IncomeOtherDetailPage> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF10B981),
+<<<<<<< HEAD
+=======
+                        foregroundColor: Colors.white,
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
+<<<<<<< HEAD
                       child: const Text('Simpan', style: TextStyle(fontSize: 16)),
+=======
+                      child: const Text(
+                        'Simpan',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                     ),
                   ],
                 ),

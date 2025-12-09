@@ -182,8 +182,13 @@ class _IncomeCategoriesPageState extends State<IncomeCategoriesPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddCategoryForm(context),
+<<<<<<< HEAD
         icon: const Icon(Icons.add),
         label: const Text('Tambah Kategori'),
+=======
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Tambah Kategori', style: TextStyle(color: Colors.white)),
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
         backgroundColor: const Color(0xFF0891B2),
       ),
     );
@@ -333,7 +338,11 @@ class _IncomeCategoriesPageState extends State<IncomeCategoriesPage> {
                           ),
                           child: const Text(
                             'Batal',
+<<<<<<< HEAD
                             style: TextStyle(fontSize: 16, color: Colors.grey),
+=======
+                            style: TextStyle(fontSize: 16, color: Colors.black),
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -356,7 +365,11 @@ class _IncomeCategoriesPageState extends State<IncomeCategoriesPage> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
+<<<<<<< HEAD
                           child: const Text('Simpan', style: TextStyle(fontSize: 16)),
+=======
+                          child: const Text('Simpan', style: TextStyle(fontSize: 16, color: Colors.white)),
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                         ),
                       ],
                     ),

@@ -50,6 +50,7 @@ class _LoginPageState extends State<LoginPage> {
 
     // If no validation errors, proceed to login
     if (_emailError == null && _passwordError == null) {
+<<<<<<< HEAD
       _performLogin();
     }
   }
@@ -100,6 +101,9 @@ class _LoginPageState extends State<LoginPage> {
       if (mounted) {
         ToastHelper.showError(context, errorMessage);
       }
+=======
+      Navigator.pushReplacementNamed(context, '/admin-dashboard');
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
     }
   }
 

@@ -97,6 +97,7 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
             ],
           ),
 
+<<<<<<< HEAD
         // Profile Icon
         if (showProfile)
           Padding(
@@ -104,6 +105,84 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: IconButton(
               onPressed: () => _showProfileMenu(context),
               icon: Container(
+=======
+        // Profile Icon with Dropdown
+        if (showProfile)
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: PopupMenuButton<String>(
+              offset: const Offset(0, 50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              onSelected: (value) {
+                if (value == 'profile') {
+                  Navigator.pushNamed(context, '/profile');
+                } else if (value == 'settings') {
+                  Navigator.pushNamed(context, '/settings');
+                } else if (value == 'logout') {
+                  _showLogoutConfirmation(context);
+                }
+              },
+              itemBuilder: (BuildContext context) => [
+                const PopupMenuItem<String>(
+                  value: 'profile',
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.person_outline,
+                        color: Color(0xFF0891B2),
+                        size: 20,
+                      ),
+                      SizedBox(width: 12),
+                      Text(
+                        'Profil',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'settings',
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.settings_outlined,
+                        color: Color(0xFF0891B2),
+                        size: 20,
+                      ),
+                      SizedBox(width: 12),
+                      Text(
+                        'Pengaturan',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+                const PopupMenuDivider(),
+                const PopupMenuItem<String>(
+                  value: 'logout',
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.logout_rounded,
+                        color: Colors.red,
+                        size: 20,
+                      ),
+                      SizedBox(width: 12),
+                      Text(
+                        'Keluar',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              child: Container(
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                 padding: const EdgeInsets.all(8),
                 decoration: const BoxDecoration(
                   color: Color(0xFF0891B2),
@@ -115,7 +194,10 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
                   size: 20,
                 ),
               ),
+<<<<<<< HEAD
               tooltip: 'Profil',
+=======
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
             ),
           ),
       ],
@@ -123,6 +205,7 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
+<<<<<<< HEAD
   void _showProfileMenu(BuildContext context) {
     final authService = AuthService();
     final currentUser = authService.currentUser;
@@ -272,6 +355,8 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
+=======
+>>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   void _showLogoutConfirmation(BuildContext context) {
     showDialog(
       context: context,
