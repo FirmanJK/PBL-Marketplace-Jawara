@@ -97,15 +97,6 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
             ],
           ),
 
-<<<<<<< HEAD
-        // Profile Icon
-        if (showProfile)
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: IconButton(
-              onPressed: () => _showProfileMenu(context),
-              icon: Container(
-=======
         // Profile Icon with Dropdown
         if (showProfile)
           Padding(
@@ -182,7 +173,6 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ],
               child: Container(
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                 padding: const EdgeInsets.all(8),
                 decoration: const BoxDecoration(
                   color: Color(0xFF0891B2),
@@ -194,10 +184,6 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
                   size: 20,
                 ),
               ),
-<<<<<<< HEAD
-              tooltip: 'Profil',
-=======
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
             ),
           ),
       ],
@@ -205,158 +191,6 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-<<<<<<< HEAD
-  void _showProfileMenu(BuildContext context) {
-    final authService = AuthService();
-    final currentUser = authService.currentUser;
-
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // User Info
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0891B2).withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.person,
-                        color: Color(0xFF0891B2),
-                        size: 32,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            currentUser?.name ?? 'User',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          Text(
-                            currentUser?.role.label ?? '',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 24),
-
-              // Profile Option
-              ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0891B2).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.person_outline,
-                    color: Color(0xFF0891B2),
-                    size: 24,
-                  ),
-                ),
-                title: const Text(
-                  'Profil',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/profile');
-                },
-              ),
-
-              // Settings Option
-              ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0891B2).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.settings_outlined,
-                    color: Color(0xFF0891B2),
-                    size: 24,
-                  ),
-                ),
-                title: const Text(
-                  'Pengaturan',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/settings');
-                },
-              ),
-
-              const Divider(height: 1),
-
-              // Logout Option
-              ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.logout_rounded,
-                    color: Colors.red,
-                    size: 24,
-                  ),
-                ),
-                title: const Text(
-                  'Keluar',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                    color: Colors.red,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  _showLogoutConfirmation(context);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-=======
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   void _showLogoutConfirmation(BuildContext context) {
     showDialog(
       context: context,

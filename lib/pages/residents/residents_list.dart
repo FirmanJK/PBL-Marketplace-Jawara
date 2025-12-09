@@ -4,10 +4,7 @@ import 'package:jawara/pages/residents/residents_detail.dart';
 import 'package:jawara/models/resident.dart';
 import 'package:jawara/services/residents_service.dart';
 import 'package:jawara/utils/toast_helper.dart';
-<<<<<<< HEAD
-=======
 import 'package:jawara/data/residents.dart';
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 
 class ResidentsListPage extends StatefulWidget {
   const ResidentsListPage({super.key});
@@ -24,38 +21,6 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
   @override
   void initState() {
     super.initState();
-<<<<<<< HEAD
-    _loadResidents();
-  }
-
-  Future<void> _loadResidents() async {
-    setState(() => _isLoading = true);
-
-    try {
-      final residents = await ResidentsService.getResidents(
-        skip: 0,
-        limit: 100,
-      );
-      setState(() {
-        _residents = residents;
-        _isLoading = false;
-      });
-    } catch (e) {
-      debugPrint('Error loading residents: $e');
-      setState(() {
-        _isLoading = false;
-      });
-      if (mounted) {
-        ToastHelper.showError(context, 'Gagal memuat warga: $e');
-      }
-    }
-  }
-
-  List<Resident> _getFilteredResidents() {
-    if (_searchQuery.isEmpty) {
-      return _residents;
-    }
-=======
     // Langsung load data dummy tanpa loading
     _residents = dummyResidents;
     _isLoading = false;
@@ -79,7 +44,6 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
     if (_searchQuery.isEmpty) {
       return _residents;
     }
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
     return _residents.where((resident) {
       return resident.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           resident.nik.contains(_searchQuery);
@@ -119,8 +83,6 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
-<<<<<<< HEAD
-=======
                 : _errorMessage != null
                 ? Center(
                     child: Padding(
@@ -168,7 +130,6 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
                       ),
                     ),
                   )
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                 : filteredResidents.isEmpty
                 ? Center(
                     child: Text(
@@ -360,13 +321,8 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
             _loadResidents();
           }
         },
-<<<<<<< HEAD
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah Warga'),
-=======
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text('Tambah Warga', style: TextStyle(color: Colors.white)),
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
         backgroundColor: const Color(0xFF0891B2),
       ),
     );

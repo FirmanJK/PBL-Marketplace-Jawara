@@ -71,21 +71,6 @@ class _BaseLayoutState extends State<BaseLayout> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-<<<<<<< HEAD
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(
-              Icons.menu_rounded,
-              color: Color(0xFF0891B2),
-              size: 28,
-            ),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-            tooltip: 'Menu',
-          ),
-        ),
-=======
         leading: widget.showBackButton
             ? IconButton(
                 icon: const Icon(
@@ -111,7 +96,6 @@ class _BaseLayoutState extends State<BaseLayout> {
                   tooltip: 'Menu',
                 ),
               ),
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
         title: Text(widget.title, overflow: TextOverflow.ellipsis, maxLines: 1),
         backgroundColor: Colors.white,
         elevation: 0,

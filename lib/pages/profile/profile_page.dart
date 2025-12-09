@@ -26,18 +26,11 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     // Initialize controllers dengan data dari AuthService
-<<<<<<< HEAD
-    final user = _authService.currentUser;
-    _nameController = TextEditingController(text: user?.name ?? '');
-    _emailController = TextEditingController(text: user?.email ?? '');
-    _phoneController = TextEditingController(text: user?.phone ?? '');
-=======
     // TODO: Uncomment when AuthService is properly integrated
     // final user = AuthService().currentUser;
     // _nameController.text = user?.name ?? '';
     // _emailController.text = user?.email ?? '';
     // _phoneController.text = user?.phone ?? '';
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   }
 
   void _saveProfile() {

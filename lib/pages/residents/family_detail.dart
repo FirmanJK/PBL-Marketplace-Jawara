@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/models/family.dart';
-<<<<<<< HEAD
-import 'package:jawara/utils/toast_helper.dart';
-
-class FamilyDetailPage extends StatelessWidget {
-=======
 import 'package:jawara/models/resident.dart';
 import 'package:jawara/services/residents_service.dart';
 import 'package:jawara/services/families_service.dart';
@@ -15,41 +10,10 @@ import 'package:jawara/pages/residents/family_edit.dart';
 import 'package:jawara/utils/toast_helper.dart';
 
 class FamilyDetailPage extends StatefulWidget {
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   final Family family;
 
   const FamilyDetailPage({super.key, required this.family});
 
-<<<<<<< HEAD
-  void _showDeleteConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Hapus Keluarga'),
-        content: Text(
-          'Apakah Anda yakin ingin menghapus ${family.namaKeluarga}?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-              ToastHelper.showSuccess(
-                context,
-                '${family.namaKeluarga} berhasil dihapus',
-              );
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Hapus'),
-          ),
-        ],
-      ),
-    );
-=======
   @override
   State<FamilyDetailPage> createState() => _FamilyDetailPageState();
 }
@@ -274,15 +238,11 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
       },
     );
     debounce?.cancel();
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   }
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
-=======
     final family = widget.family;
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detail Keluarga'),
@@ -293,16 +253,6 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             offset: const Offset(0, 50),
-<<<<<<< HEAD
-            onSelected: (value) {
-              if (value == 'edit') {
-                ToastHelper.showInfo(
-                  context,
-                  'Fitur edit akan segera tersedia',
-                );
-              } else if (value == 'delete') {
-                _showDeleteConfirmation(context);
-=======
             onSelected: (value) async {
               if (value == 'edit') {
                 // Open dedicated edit page where head can be changed from members
@@ -347,7 +297,6 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
                     ToastHelper.showError(context, 'Gagal menghapus keluarga: $e');
                   }
                 }
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
               }
             },
             itemBuilder: (BuildContext context) => [
@@ -383,11 +332,7 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(24),
-<<<<<<< HEAD
-                decoration: BoxDecoration(
-=======
               decoration: BoxDecoration(
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                 gradient: LinearGradient(
                   colors: [
                     Color.fromRGBO(8, 145, 178, 0.1),
@@ -401,11 +346,7 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(20),
-<<<<<<< HEAD
-                      decoration: BoxDecoration(
-=======
                     decoration: BoxDecoration(
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                       color: Color.fromRGBO(8, 145, 178, 0.1),
                       shape: BoxShape.circle,
                     ),
@@ -426,11 +367,7 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-<<<<<<< HEAD
-                    Container(
-=======
                   Container(
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 6,
@@ -440,11 +377,7 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-<<<<<<< HEAD
-                      '${family.residentCount} anggota',
-=======
                       '${_residents.length} anggota',
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                       style: const TextStyle(
                         color: Colors.blue,
                         fontWeight: FontWeight.w600,
@@ -474,9 +407,6 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
                   _buildInfoCard(
                     icon: Icons.person,
                     label: 'Kepala Keluarga',
-<<<<<<< HEAD
-                    value: family.headResidentId != null ? '#${family.headResidentId}' : '-',
-=======
                     value: (() {
                       if (family.headResidentName != null && family.headResidentName!.isNotEmpty) return family.headResidentName!;
                       if (family.headResidentId == null) return '-';
@@ -486,7 +416,6 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
                       );
                       return head.id == -1 ? '-' : head.name;
                     })(),
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                   ),
                   const SizedBox(height: 12),
 
@@ -504,13 +433,6 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
                   ),
                   const SizedBox(height: 12),
 
-<<<<<<< HEAD
-                  _buildInfoCard(
-                    icon: Icons.numbers,
-                    label: 'No',
-                    value: family.id.toString(),
-                  ),
-=======
                   // removed 'No' card per UI request
                   const SizedBox(height: 16),
 
@@ -731,7 +653,6 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
                                 );
                               },
                             ),
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                 ],
               ),
             ),

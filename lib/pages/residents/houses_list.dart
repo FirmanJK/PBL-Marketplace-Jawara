@@ -5,10 +5,7 @@ import 'package:jawara/models/house.dart';
 import 'package:jawara/services/house_service.dart';
 import 'package:jawara/pages/residents/house_detail.dart';
 import 'package:jawara/utils/toast_helper.dart';
-<<<<<<< HEAD
-=======
 import 'package:jawara/data/houses.dart';
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 
 class HousesListPage extends StatefulWidget {
   const HousesListPage({super.key});
@@ -22,22 +19,15 @@ class _HousesListPageState extends State<HousesListPage> {
   bool _isLoading = true;
   List<House> _displayed = [];
   final TextEditingController _searchController = TextEditingController();
-<<<<<<< HEAD
-=======
   String? _errorMessage;
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 
   @override
   void initState() {
     super.initState();
-<<<<<<< HEAD
-    _loadHouses();
-=======
     // Langsung load data dummy tanpa loading
     _houses = dummyHouses;
     _displayed = List.from(dummyHouses);
     _isLoading = false;
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   }
 
   @override
@@ -47,23 +37,6 @@ class _HousesListPageState extends State<HousesListPage> {
   }
 
   Future<void> _loadHouses() async {
-<<<<<<< HEAD
-    if (!mounted) return;
-    setState(() => _isLoading = true);
-    try {
-      final houses = await HouseService.getHouses(skip: 0, limit: 200);
-      if (!mounted) return;
-      setState(() {
-        _houses = houses;
-        _displayed = List.from(houses);
-        _isLoading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isLoading = false);
-      ToastHelper.showError(context, 'Gagal memuat rumah: $e');
-    }
-=======
     // Langsung gunakan data dummy
     if (!mounted) return;
     setState(() {
@@ -72,7 +45,6 @@ class _HousesListPageState extends State<HousesListPage> {
       _isLoading = false;
       _errorMessage = null;
     });
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   }
 
   void _onSearchChanged(String q) {
@@ -114,8 +86,6 @@ class _HousesListPageState extends State<HousesListPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-<<<<<<< HEAD
-=======
           : _errorMessage != null
           ? Center(
               child: Padding(
@@ -163,7 +133,6 @@ class _HousesListPageState extends State<HousesListPage> {
                 ),
               ),
             )
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
           : Column(
               children: [
                 // Search Bar
@@ -312,13 +281,8 @@ class _HousesListPageState extends State<HousesListPage> {
         onPressed: () {
           Navigator.pushNamed(context, '/houses/add');
         },
-<<<<<<< HEAD
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah Rumah'),
-=======
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text('Tambah Rumah', style: TextStyle(color: Colors.white)),
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
         backgroundColor: const Color(0xFF0891B2),
       ),
     );

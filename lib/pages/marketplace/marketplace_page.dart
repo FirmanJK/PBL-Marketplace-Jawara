@@ -207,14 +207,8 @@ class _MarketplacePageState extends State<MarketplacePage> {
             ),
           ),
 
-<<<<<<< HEAD
-          // Profile Icon Button
-          IconButton(
-            onPressed: () => _showProfileMenu(context),
-=======
           // Profile Dropdown Menu
           PopupMenuButton<String>(
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: const BoxDecoration(

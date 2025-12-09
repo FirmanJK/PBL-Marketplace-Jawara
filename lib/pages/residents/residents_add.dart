@@ -5,12 +5,9 @@ import 'package:jawara/shared/base_layout.dart';
 import 'package:jawara/shared/button.dart';
 import 'package:jawara/shared/theme.dart';
 import 'package:jawara/services/residents_service.dart';
-<<<<<<< HEAD
-=======
 import 'package:jawara/services/families_service.dart';
 import 'package:jawara/services/house_service.dart';
 import 'dart:async';
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 import 'package:jawara/utils/toast_helper.dart';
 
 class ResidentsAddPage extends StatefulWidget {
@@ -33,24 +30,18 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
 
   // State
   int? _selectedFamilyId;
-<<<<<<< HEAD
-=======
   int? _selectedHouseId;
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   DateTime? _selectedTanggalLahir;
   String? _selectedJenisKelamin;
   String? _selectedAgama;
   String? _selectedGolDarah;
 
-<<<<<<< HEAD
-=======
   // House inputs
   final _houseNumberController = TextEditingController();
   final _houseAddressController = TextEditingController();
   final _rtController = TextEditingController();
   final _rwController = TextEditingController();
 
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   // Data dari backend
   List<Map<String, dynamic>> _families = [];
   bool _isLoadingFamilies = false;
@@ -72,8 +63,6 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
   void initState() {
     super.initState();
     _loadFamilies();
-<<<<<<< HEAD
-=======
     // Preselect family if provided by caller (e.g., from FamilyDetail)
     if (widget.initialFamilyId != null) {
       _selectedFamilyId = widget.initialFamilyId;
@@ -207,7 +196,6 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
       },
     );
     debounce?.cancel();
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   }
 
   @override
@@ -218,39 +206,14 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
     _tempatLahirController.dispose();
     _pendidikanController.dispose();
     _pekerjaanController.dispose();
-<<<<<<< HEAD
-=======
     _houseNumberController.dispose();
     _houseAddressController.dispose();
     _rtController.dispose();
     _rwController.dispose();
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
     super.dispose();
   }
 
   Future<void> _loadFamilies() async {
-<<<<<<< HEAD
-    setState(() => _isLoadingFamilies = true);
-    try {
-      final families = await ResidentsService.getFamilies();
-      setState(() {
-        _families = families
-            .map(
-              (f) => {
-                'id': f['id'],
-                'name': f['family_number'] ?? 'Keluarga ${f['id']}',
-              },
-            )
-            .toList();
-      });
-    } catch (e) {
-      if (mounted) {
-        ToastHelper.showError(context, 'Gagal load keluarga: $e');
-      }
-    } finally {
-      setState(() => _isLoadingFamilies = false);
-    }
-=======
     // Langsung gunakan data dummy tanpa loading
     setState(() {
       _families = [
@@ -262,7 +225,6 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
       ];
       _isLoadingFamilies = false;
     });
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -447,22 +409,6 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
             : _pekerjaanController.text,
         'status': 'aktif',
         'family_id': _selectedFamilyId,
-<<<<<<< HEAD
-        'house_id': 1, // TODO: Load dari backend
-      };
-
-      // Create resident via API
-      await ResidentsService.createResident(data);
-
-      // Show success toast
-      if (mounted) {
-        ToastHelper.showSuccess(context, 'Warga berhasil ditambahkan');
-      }
-
-      // Navigate back with result
-      if (mounted) {
-        Navigator.pop(context, true);
-=======
           // If no house selected, send 0 so backend may auto-assign; if user provided house data, we'll create it below
           'house_id': 0,
       };
@@ -516,7 +462,6 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
       if (mounted) {
         ToastHelper.showSuccess(context, 'Warga berhasil ditambahkan');
         Navigator.pop(context, created);
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
       }
     } catch (e) {
       // Show error toast
@@ -569,9 +514,6 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
 
                     // Dropdown Keluarga (Dinamis dari backend)
                     _buildFamilyDropdown(),
-<<<<<<< HEAD
-                    const SizedBox(height: 24),
-=======
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -590,7 +532,6 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
                       ],
                     ),
                     const SizedBox(height: 16),
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 
                     // Input Nama
                     _buildTextField(
@@ -686,8 +627,6 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
                     ),
                     const SizedBox(height: 32),
 
-<<<<<<< HEAD
-=======
                     const Text(
                       'Informasi Rumah (opsional)',
                       style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
@@ -742,7 +681,6 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
                     ),
                     const SizedBox(height: 24),
 
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                     // Tombol Aksi
                     Row(
                       children: [

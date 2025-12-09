@@ -1,8 +1,5 @@
 import 'package:jawara/models/house.dart';
-<<<<<<< HEAD
-=======
 import 'package:jawara/models/resident.dart';
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 import 'package:jawara/services/api_service.dart';
 import 'package:jawara/services/auth_service.dart';
 
@@ -66,8 +63,6 @@ class HouseService {
       throw Exception('Failed to delete house: $e');
     }
   }
-<<<<<<< HEAD
-=======
 
   /// Assign an existing resident to an existing house using server-side assign endpoint
   static Future<Resident> assignHouse(int houseId, int residentId) async {
@@ -80,5 +75,4 @@ class HouseService {
       throw Exception('Failed to assign resident to house: $e');
     }
   }
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 }

@@ -50,60 +50,7 @@ class _LoginPageState extends State<LoginPage> {
 
     // If no validation errors, proceed to login
     if (_emailError == null && _passwordError == null) {
-<<<<<<< HEAD
-      _performLogin();
-    }
-  }
-
-  Future<void> _performLogin() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      await _authService.login(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
-
-      if (mounted) {
-        // Login berhasil - tampilkan toast
-        ToastHelper.showSuccess(context, 'Login berhasil! 🎉');
-        // Navigate immediately - toast stays visible during transition (2s duration)
-        Navigator.pushReplacementNamed(context, '/dashboard/finance');
-      }
-    } on ErrorResponse catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-
-      // Popup toast error di atas
-      if (mounted) {
-        ToastHelper.showError(context, e.detail);
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-
-      // Show different messages based on error type
-      String errorMessage = 'Terjadi kesalahan';
-      if (e.toString().contains('Connection refused')) {
-        errorMessage =
-            'Tidak bisa terhubung ke server. Pastikan backend running di localhost:8000';
-      } else if (e.toString().contains('Connection timed out')) {
-        errorMessage = 'Koneksi timeout. Cek apakah backend sedang berjalan';
-      } else {
-        errorMessage = 'Gagal login: ${e.toString()}';
-      }
-
-      // Popup toast error di atas
-      if (mounted) {
-        ToastHelper.showError(context, errorMessage);
-      }
-=======
       Navigator.pushReplacementNamed(context, '/admin-dashboard');
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
     }
   }
 

@@ -43,16 +43,6 @@ class _ActivityLogsPageState extends State<ActivityLogsPage> {
     return Scaffold(
       appBar: StandardAppBar(
         title: 'Log Aktivitas',
-<<<<<<< HEAD
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: () {},
-            tooltip: 'Filter',
-          ),
-        ],
-=======
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
       ),
       body: Column(
         children: [

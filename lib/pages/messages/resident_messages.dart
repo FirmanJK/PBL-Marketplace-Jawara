@@ -4,10 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:jawara/data/messages.dart';
 import 'package:jawara/models/message.dart';
 import 'package:jawara/shared/standard_app_bar.dart';
-<<<<<<< HEAD
-=======
 import 'package:jawara/utils/toast_helper.dart';
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 
 class CitizenMessagesPage extends StatefulWidget {
   const CitizenMessagesPage({super.key});
@@ -18,22 +15,16 @@ class CitizenMessagesPage extends StatefulWidget {
 
 class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
   bool _isLocaleInitialized = false;
-<<<<<<< HEAD
-=======
   List<CitizenMessage> _messages = [];
   bool _isLoading = true;
   String _searchQuery = '';
   String _filterStatus = 'Semua';
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 
   @override
   void initState() {
     super.initState();
     _initializeLocale();
-<<<<<<< HEAD
-=======
     _loadMessages();
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   }
 
   Future<void> _initializeLocale() async {
@@ -43,43 +34,6 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
     });
   }
 
-<<<<<<< HEAD
-  Widget _buildStatusChip(Status status) {
-    Color color;
-    String label;
-    Color textColor;
-
-    switch (status) {
-      case Status.accepted:
-        color = const Color(0xFFD1FAE5);
-        textColor = const Color(0xFF047857);
-        label = 'Diterima';
-        break;
-      case Status.pending:
-        color = const Color(0xFFFEF3C7);
-        textColor = const Color(0xFFD97706);
-        label = 'Pending';
-        break;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: textColor,
-          fontWeight: FontWeight.w600,
-          fontSize: 13,
-        ),
-      ),
-    );
-  }
-
-=======
   Future<void> _loadMessages() async {
     setState(() => _isLoading = true);
     
@@ -123,7 +77,6 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
 
 
 
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
   @override
   Widget build(BuildContext context) {
     if (!_isLocaleInitialized) {
@@ -136,80 +89,12 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
     }
 
     final dateFormatter = DateFormat('d MMMM yyyy', 'id_ID');
-<<<<<<< HEAD
-=======
     final filteredMessages = _getFilteredMessages();
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 
     return Scaffold(
       appBar: StandardAppBar(title: 'Pesan Warga'),
       body: Column(
         children: [
-<<<<<<< HEAD
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Cari pesan warga...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: Colors.grey[100],
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: dummyCitizenMessages.length,
-              itemBuilder: (context, index) {
-                final message = dummyCitizenMessages[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(16),
-                    leading: CircleAvatar(
-                      backgroundColor: const Color(0xFF0891B2).withOpacity(0.1),
-                      child: Icon(
-                        Icons.message,
-                        color: const Color(0xFF0891B2),
-                      ),
-                    ),
-                    title: Text(
-                      message.title,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 4),
-                        Text('Pengirim: ${message.senderName}'),
-                        const SizedBox(height: 4),
-                        Text(
-                          dateFormatter.format(message.createdAt),
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 12,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        _buildStatusChip(message.status),
-                      ],
-                    ),
-                    onTap: () {
-                      // TODO: Navigate to message detail page
-                    },
-                  ),
-                );
-              },
-            ),
-=======
           // Search Bar & Filter
           Padding(
             padding: const EdgeInsets.all(16),
@@ -433,14 +318,11 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
                       },
                     ),
                   ),
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
           ),
         ],
       ),
     );
   }
-<<<<<<< HEAD
-=======
 
   Widget _buildFilterChip(String label) {
     final isSelected = _filterStatus == label;
@@ -523,5 +405,4 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
       );
   }
 
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 }

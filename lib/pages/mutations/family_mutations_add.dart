@@ -120,18 +120,7 @@ class _FamilyMutationsAddPageState extends State<FamilyMutationsAddPage> {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-<<<<<<< HEAD
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white,
-                    const Color(0xFF0891B2).withOpacity(0.02),
-                  ],
-                ),
-=======
                 color: Colors.white,
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
               ),
               child: Padding(
                 padding: const EdgeInsets.all(32.0),
@@ -192,28 +181,12 @@ class _FamilyMutationsAddPageState extends State<FamilyMutationsAddPage> {
                       ),
                     ),
                     const SizedBox(height: 8),
-<<<<<<< HEAD
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE5E7EB)),
-                        color: Colors.white,
-                      ),
-                      child: CustomDropdown(
-                        hintText: "-- Pilih Jenis Mutasi --",
-                        items: jenisMutasiOptions,
-                        selectedValue: _selectedJenisMutasi,
-                        onChanged: (value) =>
-                            setState(() => _selectedJenisMutasi = value),
-                      ),
-=======
                     CustomDropdown(
                       hintText: "-- Pilih Jenis Mutasi --",
                       items: jenisMutasiOptions,
                       selectedValue: _selectedJenisMutasi,
                       onChanged: (value) =>
                           setState(() => _selectedJenisMutasi = value),
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                     ),
                     const SizedBox(height: 24),
 
@@ -227,28 +200,12 @@ class _FamilyMutationsAddPageState extends State<FamilyMutationsAddPage> {
                       ),
                     ),
                     const SizedBox(height: 8),
-<<<<<<< HEAD
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE5E7EB)),
-                        color: Colors.white,
-                      ),
-                      child: CustomDropdown(
-                        hintText: "-- Pilih Keluarga --",
-                        items: keluargaOptions,
-                        selectedValue: _selectedKeluarga,
-                        onChanged: (value) =>
-                            setState(() => _selectedKeluarga = value),
-                      ),
-=======
                     CustomDropdown(
                       hintText: "-- Pilih Keluarga --",
                       items: keluargaOptions,
                       selectedValue: _selectedKeluarga,
                       onChanged: (value) =>
                           setState(() => _selectedKeluarga = value),
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                     ),
                     const SizedBox(height: 24),
 

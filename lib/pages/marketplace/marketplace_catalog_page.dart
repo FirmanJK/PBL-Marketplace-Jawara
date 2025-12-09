@@ -22,14 +22,10 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
   @override
   void initState() {
     super.initState();
-<<<<<<< HEAD
-    _loadProducts();
-=======
     // Langsung load data dummy tanpa loading
     _products.addAll(ProductService.dummyProducts);
     _isLoading = false;
     _hasMore = false;
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
     _scrollController.addListener(_onScroll);
   }
 
@@ -49,38 +45,6 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
   }
 
   Future<void> _loadProducts() async {
-<<<<<<< HEAD
-    if (_isLoading) return;
-
-    setState(() => _isLoading = true);
-
-    try {
-      final newProducts = await ProductService.fetchProducts(
-        page: _currentPage,
-        limit: 10,
-      );
-
-      if (mounted) {
-        setState(() {
-          if (newProducts.isEmpty) {
-            _hasMore = false;
-          } else {
-            _products.addAll(newProducts);
-            _currentPage++;
-          }
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Gagal memuat produk: $e')));
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-=======
     // Langsung gunakan data dummy
     if (mounted) {
       setState(() {
@@ -89,7 +53,6 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
         _isLoading = false;
         _hasMore = false;
       });
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
     }
   }
 
@@ -117,8 +80,6 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
-=======
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -237,7 +198,6 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
   }
 
   Widget _buildBody() {
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
     if (_products.isEmpty && _isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -298,8 +258,6 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
       ),
     );
   }
-<<<<<<< HEAD
-=======
 
   void _showLogoutDialog(BuildContext context) {
     showDialog(
@@ -328,7 +286,6 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
       ),
     );
   }
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 }
 
 class _ProductCard extends StatelessWidget {
@@ -356,21 +313,6 @@ class _ProductCard extends StatelessWidget {
             Expanded(
               child: Container(
                 width: double.infinity,
-<<<<<<< HEAD
-                color: Colors.grey[200],
-                child: product.imageUrl.startsWith('http')
-                    ? Image.network(
-                        product.imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(
-                            Icons.image_not_supported,
-                            size: 48,
-                          );
-                        },
-                      )
-                    : const Icon(Icons.image, size: 48),
-=======
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -386,7 +328,6 @@ class _ProductCard extends StatelessWidget {
                   size: 64,
                   color: Colors.white.withOpacity(0.8),
                 ),
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
               ),
             ),
             // Info

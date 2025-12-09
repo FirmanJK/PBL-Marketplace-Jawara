@@ -111,51 +111,6 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
   Widget build(BuildContext context) {
     final filteredResidents = _getFilteredResidents();
 
-<<<<<<< HEAD
-    final rows = dummyResidents.map((resident) {
-      return <Widget>[
-        Text(resident.id.toString()),
-        Text(resident.name, overflow: TextOverflow.ellipsis),
-        Text(resident.nik, overflow: TextOverflow.ellipsis),
-        Text(resident.email ?? '-', overflow: TextOverflow.ellipsis),
-        Text(resident.gender, overflow: TextOverflow.ellipsis),
-        TextButton(onPressed: () {}, child: const Text('Lihat')),
-        _buildStatusChip(resident.registrationStatus),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.check, color: Colors.green),
-              onPressed: () {},
-              tooltip: 'Terima',
-            ),
-            IconButton(
-              icon: const Icon(Icons.close, color: Colors.red),
-              onPressed: () {},
-              tooltip: 'Tolak',
-            ),
-          ],
-        ),
-      ];
-    }).toList();
-
-    return BaseLayout(
-      title: 'Penerimaan Warga',
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: CustomDataTable(
-                    headers: headers,
-                    rows: rows,
-                    sortable: sortable,
-=======
     return Scaffold(
       appBar: StandardAppBar(title: 'Penerimaan Warga'),
       body: Column(
@@ -197,7 +152,6 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
                       const SizedBox(width: 8),
                       _buildFilterChip('Nonaktif'),
                     ],
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                   ),
                 ),
               ],

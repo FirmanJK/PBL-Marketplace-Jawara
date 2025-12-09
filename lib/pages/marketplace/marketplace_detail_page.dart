@@ -6,10 +6,7 @@ import 'package:jawara/pages/marketplace/marketplace_cart_page.dart';
 import 'package:jawara/data/products.dart';
 import 'package:jawara/services/cart_service.dart';
 import 'package:intl/intl.dart';
-<<<<<<< HEAD
-=======
 import 'package:intl/date_symbol_data_local.dart';
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 
 class MarketplaceDetailPage extends StatefulWidget {
   final Product product;
@@ -22,8 +19,6 @@ class MarketplaceDetailPage extends StatefulWidget {
 
 class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
   final CartService _cartService = CartService();
-<<<<<<< HEAD
-=======
   bool _isLocaleInitialized = false;
 
   @override
@@ -40,7 +35,6 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       });
     }
   }
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
 
   void _addToCart() {
     _cartService.addToCart(widget.product);
@@ -129,8 +123,6 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
-=======
     // Show loading while locale is being initialized
     if (!_isLocaleInitialized) {
       return Scaffold(
@@ -145,7 +137,6 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       );
     }
 
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
     final currencyFormat = NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp ',
@@ -350,26 +341,6 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
         ),
         child: Row(
           children: [
-<<<<<<< HEAD
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: _addToCart,
-                icon: const Icon(Icons.add_shopping_cart),
-                label: const Text('Keranjang'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF0891B2),
-                  side: const BorderSide(color: Color(0xFF0891B2)),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              flex: 2,
-=======
             // Button Keranjang - Hanya Icon
             IconButton(
               onPressed: _addToCart,
@@ -388,7 +359,6 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
             const SizedBox(width: 12),
             // Button Beli Sekarang
             Expanded(
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
               child: ElevatedButton.icon(
                 onPressed: () {
                   Navigator.push(
@@ -399,12 +369,6 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                     ),
                   );
                 },
-<<<<<<< HEAD
-                icon: const Icon(Icons.shopping_bag),
-                label: const Text('Beli Sekarang'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0891B2),
-=======
                 icon: const Icon(Icons.shopping_bag, color: Colors.white),
                 label: const Text(
                   'Beli Sekarang',
@@ -417,7 +381,6 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0891B2),
                   foregroundColor: Colors.white,
->>>>>>> 34f68be6733b1a2592575648b5711e4ea961457a
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
