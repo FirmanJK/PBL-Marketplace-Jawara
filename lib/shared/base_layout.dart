@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:jawara/shared/sidebar.dart';
 import 'package:jawara/services/auth_service.dart';
 import 'package:jawara/utils/toast_helper.dart';
 
@@ -49,6 +48,7 @@ class _BaseLayoutState extends State<BaseLayout> {
 
     if (confirm ?? false) {
       try {
+        print('🔐 Logout from BaseLayout');
         await _authService.logout();
         if (mounted) {
           ToastHelper.showSuccess(context, 'Logout berhasil');
@@ -60,6 +60,7 @@ class _BaseLayoutState extends State<BaseLayout> {
           );
         }
       } catch (e) {
+        print('❌ Logout error: $e');
         if (mounted) {
           ToastHelper.showError(context, 'Logout gagal: $e');
         }

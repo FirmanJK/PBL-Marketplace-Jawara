@@ -10,9 +10,6 @@ import 'package:jawara/pages/auth/login_page.dart';
 import 'package:jawara/pages/auth/register_page.dart';
 import 'package:jawara/pages/channels/channels_add.dart';
 import 'package:jawara/pages/channels/channels_list.dart';
-import 'package:jawara/pages/dashboard/activities_page.dart';
-import 'package:jawara/pages/dashboard/finance_page.dart';
-import 'package:jawara/pages/dashboard/population_page.dart';
 import 'package:jawara/pages/income/income.dart';
 import 'package:jawara/pages/income/income_bill.dart';
 import 'package:jawara/pages/income/income_bills.dart';
@@ -40,7 +37,6 @@ import 'package:jawara/pages/spending/spending_add.dart';
 import 'package:jawara/pages/spending/spending_list.dart';
 import 'package:jawara/pages/users/user_management.dart';
 import 'package:jawara/pages/users/users_add.dart';
-import 'package:jawara/pages/marketplace/marketplace_page.dart';
 import 'package:jawara/pages/marketplace/marketplace_upload_page.dart';
 import 'package:jawara/pages/marketplace/marketplace_catalog_page.dart';
 import 'package:jawara/pages/admin_dashboard_page.dart';
@@ -51,10 +47,11 @@ import 'package:jawara/services/notification_service.dart';
 import 'package:jawara/services/database_service.dart';
 import 'package:jawara/services/auth_service.dart';
 import 'package:jawara/models/resident.dart';
+import 'package:jawara/services/connectivity_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize database service with error handling
   try {
     await DatabaseService().database;
@@ -97,6 +94,17 @@ class _MyAppState extends State<MyApp> {
   final AuthService _authService = AuthService();
 
   @override
+  void initState() {
+    super.initState();
+    // Ensure backend connection on app start
+    _ensureBackendConnection();
+  }
+
+  Future<void> _ensureBackendConnection() async {
+    await ConnectivityService().checkConnection();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Jawara Pintar',
@@ -118,11 +126,6 @@ class _MyAppState extends State<MyApp> {
 
         // Admin Dashboard (New Gojek-style)
         '/admin-dashboard': (context) => const AdminDashboardPage(),
-
-        // Dashboard
-        '/dashboard/finance': (context) => const DashboardFinancePage(),
-        '/dashboard/activities': (context) => const DashboardActivitiesPage(),
-        '/dashboard/population': (context) => const DashboardPopulationPage(),
 
         // Data Warga & Rumah
         '/residents/list': (context) => const ResidentsListPage(),
@@ -186,9 +189,6 @@ class _MyAppState extends State<MyApp> {
         '/marketplace': (context) => const MarketplaceCatalogPage(),
         '/marketplace/upload': (context) => const MarketplaceUploadPage(),
         '/marketplace/catalog': (context) => const MarketplaceCatalogPage(),
-
-        // Notifikasi
-        '/notifications': (context) => const NotificationsPage(),
 
         // Notifikasi
         '/notifications': (context) => const NotificationsPage(),

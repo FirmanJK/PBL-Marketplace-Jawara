@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/services/auth_service.dart';
-import 'package:jawara/models/user_role.dart';
+import 'package:jawara/utils/toast_helper.dart';
 
 /// Standard AppBar untuk konsistensi UI di seluruh aplikasi
 class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -22,9 +22,8 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => Size.fromHeight(
-        kToolbarHeight + (bottom?.preferredSize.height ?? 0),
-      );
+  Size get preferredSize =>
+      Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0));
 
   @override
   Widget build(BuildContext context) {
@@ -55,10 +54,7 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -74,7 +70,8 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               IconButton(
                 icon: const Icon(Icons.notifications_outlined),
-                onPressed: onNotificationTap ??
+                onPressed:
+                    onNotificationTap ??
                     () => Navigator.pushNamed(context, '/notifications'),
                 tooltip: 'Notifikasi',
               ),
@@ -126,10 +123,7 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
                         size: 20,
                       ),
                       SizedBox(width: 12),
-                      Text(
-                        'Profil',
-                        style: TextStyle(fontSize: 14),
-                      ),
+                      Text('Profil', style: TextStyle(fontSize: 14)),
                     ],
                   ),
                 ),
@@ -143,10 +137,7 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
                         size: 20,
                       ),
                       SizedBox(width: 12),
-                      Text(
-                        'Pengaturan',
-                        style: TextStyle(fontSize: 14),
-                      ),
+                      Text('Pengaturan', style: TextStyle(fontSize: 14)),
                     ],
                   ),
                 ),
@@ -155,18 +146,11 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
                   value: 'logout',
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.logout_rounded,
-                        color: Colors.red,
-                        size: 20,
-                      ),
+                      Icon(Icons.logout_rounded, color: Colors.red, size: 20),
                       SizedBox(width: 12),
                       Text(
                         'Keluar',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.red,
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.red),
                       ),
                     ],
                   ),
@@ -178,11 +162,7 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
                   color: Color(0xFF0891B2),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.person,
-                  color: Colors.white,
-                  size: 20,
-                ),
+                child: const Icon(Icons.person, color: Colors.white, size: 20),
               ),
             ),
           ),
@@ -205,14 +185,25 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context); // Close dialog
-              await AuthService().logout();
-              if (context.mounted) {
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/login',
-                  (route) => false,
-                );
+              try {
+                print('🔐 Logout from StandardAppBar');
+                Navigator.pop(context); // Close dialog
+                await AuthService().logout();
+                if (context.mounted) {
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/login',
+                    (route) => false,
+                  );
+                }
+              } catch (e) {
+                print('❌ Logout error: $e');
+                if (context.mounted) {
+                  ToastHelper.showError(
+                    context,
+                    'Error logout: ${e.toString()}',
+                  );
+                }
               }
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),

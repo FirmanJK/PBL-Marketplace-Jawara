@@ -56,78 +56,96 @@ class ToastHelper {
     required Duration duration,
   }) {
     late OverlayEntry overlayEntry;
+    late AnimationController controller;
 
-    overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        top: 0,
-        left: 0,
-        right: 0,
-        child: Material(
-          color: Colors.transparent,
-          child: SafeArea(
-            child: SlideTransition(
-              position:
-                  Tween<Offset>(
-                    begin: const Offset(0, -1),
-                    end: Offset.zero,
-                  ).animate(
-                    CurvedAnimation(
-                      parent: AnimationController(
-                        duration: const Duration(milliseconds: 400),
-                        vsync: Overlay.of(context),
-                      )..forward(),
-                      curve: Curves.easeOutCubic,
+    try {
+      final overlay = Overlay.of(context);
+
+      overlayEntry = OverlayEntry(
+        builder: (context) {
+          controller = AnimationController(
+            duration: const Duration(milliseconds: 400),
+            vsync: overlay,
+          );
+
+          final animation =
+              Tween<Offset>(
+                begin: const Offset(0, -1),
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(parent: controller, curve: Curves.easeOutCubic),
+              );
+
+          controller.forward();
+
+          return Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Material(
+              color: Colors.transparent,
+              child: SafeArea(
+                child: SlideTransition(
+                  position: animation,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
                     ),
-                  ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: backgroundColor,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: backgroundColor.withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
                       ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(icon, color: Colors.white, size: 20),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          message,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                      decoration: BoxDecoration(
+                        color: backgroundColor,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: backgroundColor.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
+                      child: Row(
+                        children: [
+                          Icon(icon, color: Colors.white, size: 20),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              message,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ),
-      ),
-    );
+          );
+        },
+      );
 
-    Overlay.of(context).insert(overlayEntry);
+      overlay.insert(overlayEntry);
 
-    Future.delayed(duration, () {
-      overlayEntry.remove();
-    });
+      Future.delayed(duration, () {
+        try {
+          overlayEntry.remove();
+          controller.dispose();
+        } catch (_) {
+          // Ignore if already removed
+        }
+      });
+    } catch (e) {
+      // Ignore if context is invalid
+      print('Toast error: $e');
+    }
   }
 }

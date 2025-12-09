@@ -4,7 +4,6 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:jawara/data/messages.dart';
 import 'package:jawara/models/message.dart';
 import 'package:jawara/shared/standard_app_bar.dart';
-import 'package:jawara/utils/toast_helper.dart';
 
 class CitizenMessagesPage extends StatefulWidget {
   const CitizenMessagesPage({super.key});
@@ -36,10 +35,10 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
 
   Future<void> _loadMessages() async {
     setState(() => _isLoading = true);
-    
+
     // Simulate API call
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     setState(() {
       _messages = dummyCitizenMessages;
       _isLoading = false;
@@ -66,16 +65,20 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
     // Filter by search query
     if (_searchQuery.isNotEmpty) {
       filtered = filtered.where((message) {
-        return message.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            message.senderName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            message.description.toLowerCase().contains(_searchQuery.toLowerCase());
+        return message.title.toLowerCase().contains(
+              _searchQuery.toLowerCase(),
+            ) ||
+            message.senderName.toLowerCase().contains(
+              _searchQuery.toLowerCase(),
+            ) ||
+            message.description.toLowerCase().contains(
+              _searchQuery.toLowerCase(),
+            );
       }).toList();
     }
 
     return filtered;
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +180,11 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: InkWell(
-                            onTap: () => _showMessageDetail(context, message, dateFormatter),
+                            onTap: () => _showMessageDetail(
+                              context,
+                              message,
+                              dateFormatter,
+                            ),
                             borderRadius: BorderRadius.circular(12),
                             child: Padding(
                               padding: const EdgeInsets.all(16),
@@ -191,8 +198,12 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
                                       Container(
                                         padding: const EdgeInsets.all(12),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF0891B2).withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(10),
+                                          color: const Color(
+                                            0xFF0891B2,
+                                          ).withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
                                         ),
                                         child: const Icon(
                                           Icons.mail_outline,
@@ -205,7 +216,8 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
                                       // Title & Status
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               message.title,
@@ -218,19 +230,31 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
                                             ),
                                             const SizedBox(height: 4),
                                             Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 6,
+                                                  ),
                                               decoration: BoxDecoration(
-                                                color: message.status == Status.accepted 
-                                                  ? const Color(0xFFD1FAE5) 
-                                                  : const Color(0xFFFEF3C7),
-                                                borderRadius: BorderRadius.circular(12),
+                                                color:
+                                                    message.status ==
+                                                        Status.accepted
+                                                    ? const Color(0xFFD1FAE5)
+                                                    : const Color(0xFFFEF3C7),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
                                               ),
                                               child: Text(
-                                                message.status == Status.accepted ? 'Diterima' : 'Pending',
+                                                message.status ==
+                                                        Status.accepted
+                                                    ? 'Diterima'
+                                                    : 'Pending',
                                                 style: TextStyle(
-                                                  color: message.status == Status.accepted 
-                                                    ? const Color(0xFF047857) 
-                                                    : const Color(0xFFD97706),
+                                                  color:
+                                                      message.status ==
+                                                          Status.accepted
+                                                      ? const Color(0xFF047857)
+                                                      : const Color(0xFFD97706),
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 12,
                                                 ),
@@ -246,7 +270,11 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
                                   // Sender Info
                                   Row(
                                     children: [
-                                      Icon(Icons.person_outline, size: 16, color: Colors.grey[600]),
+                                      Icon(
+                                        Icons.person_outline,
+                                        size: 16,
+                                        color: Colors.grey[600],
+                                      ),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
@@ -265,7 +293,11 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
                                   // Date
                                   Row(
                                     children: [
-                                      Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
+                                      Icon(
+                                        Icons.calendar_today,
+                                        size: 16,
+                                        color: Colors.grey[600],
+                                      ),
                                       const SizedBox(width: 8),
                                       Text(
                                         dateFormatter.format(message.createdAt),
@@ -284,7 +316,9 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
                                     decoration: BoxDecoration(
                                       color: Colors.grey[50],
                                       borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(color: Colors.grey[200]!),
+                                      border: Border.all(
+                                        color: Colors.grey[200]!,
+                                      ),
                                     ),
                                     child: Text(
                                       message.description,
@@ -343,19 +377,24 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
     );
   }
 
-  void _showMessageDetail(BuildContext context, CitizenMessage message, DateFormat dateFormatter) {
+  void _showMessageDetail(
+    BuildContext context,
+    CitizenMessage message,
+    DateFormat dateFormatter,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
             Expanded(
               child: Text(
                 message.title,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             IconButton(
@@ -371,38 +410,37 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-                // Message Content
-                Text(
-                  message.description,
-                  style: TextStyle(
-                      color: Colors.grey[800],
-                      fontSize: 14,
-                      height: 1.5,
-                    ),
-                  ),
-                const SizedBox(height: 20),
-
-                // Close Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0891B2),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text('Tutup'),
-                  ),
+              // Message Content
+              Text(
+                message.description,
+                style: TextStyle(
+                  color: Colors.grey[800],
+                  fontSize: 14,
+                  height: 1.5,
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 20),
+
+              // Close Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0891B2),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('Tutup'),
+                ),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
   }
-
 }

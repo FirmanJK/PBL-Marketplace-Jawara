@@ -4,6 +4,7 @@ import 'package:jawara/shared/input.dart';
 import 'package:jawara/services/auth_service.dart';
 import 'package:jawara/models/auth_response.dart';
 import 'package:jawara/utils/toast_helper.dart';
+import 'package:jawara/services/connectivity_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -48,9 +49,64 @@ class _LoginPageState extends State<LoginPage> {
       }
     });
 
-    // If no validation errors, proceed to login
-    if (_emailError == null && _passwordError == null) {
-      Navigator.pushReplacementNamed(context, '/admin-dashboard');
+    // If validation errors, don't proceed
+    if (_emailError != null || _passwordError != null) {
+      return;
+    }
+
+    // Show loading state
+    setState(() => _isLoading = true);
+
+    try {
+      // Check backend connection first
+      print('🔍 Checking backend connection...');
+      final isConnected = await ConnectivityService().checkConnection();
+
+      if (!isConnected) {
+        if (mounted) {
+          ToastHelper.showError(
+            context,
+            'Server tidak terhubung. Pastikan:\n'
+            '1. Backend server sudah running di port 8000\n'
+            '2. Perangkat terhubung ke jaringan yang sama\n'
+            '3. Firewall tidak memblokir koneksi',
+          );
+        }
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+        return;
+      }
+
+      print('✓ Backend connected, attempting login...');
+
+      // Call API login
+      final response = await _authService.login(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+
+      print('✓ Login successful: ${response.user.name}');
+
+      if (mounted) {
+        ToastHelper.showSuccess(context, 'Login berhasil!');
+        // Navigate to admin dashboard
+        Navigator.pushReplacementNamed(context, '/admin-dashboard');
+      }
+    } on ErrorResponse catch (e) {
+      print('✗ Login error (API): ${e.detail}');
+      if (mounted) {
+        ToastHelper.showError(context, e.detail);
+      }
+    } catch (e) {
+      print('✗ Login error: $e');
+      if (mounted) {
+        ToastHelper.showError(context, 'Login gagal: ${e.toString()}');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
