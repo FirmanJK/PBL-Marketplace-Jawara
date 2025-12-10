@@ -49,11 +49,11 @@ class Resident {
       name: json['name'] as String? ?? '',
       nik: json['nik'] as String? ?? '',
       gender: json['gender'] as String? ?? 'Laki-laki',
-      status: json['status'] as String? ?? 'aktif',
+      status: json['status'] as String? ?? 'pending',
       familyId: json['family_id'] as int? ?? 0,
       houseId: json['house_id'] as int? ?? 0,
       registrationStatus: _statusFromString(
-        json['registration_status'] as String? ?? 'accepted',
+        _getApprovalStatus(json['approvals'] as List<dynamic>?),
       ),
       phone: json['phone'] as String?,
       email:
@@ -105,15 +105,28 @@ class Resident {
 
   static RegistrationStatus _statusFromString(String status) {
     switch (status.toLowerCase()) {
+      case 'pending_approval':
       case 'pending':
         return RegistrationStatus.pending;
+      case 'approval':
+      case 'approved':
       case 'accepted':
         return RegistrationStatus.accepted;
+      case 'rejected':
       case 'inactive':
         return RegistrationStatus.inactive;
       default:
-        return RegistrationStatus.accepted;
+        return RegistrationStatus.pending;
     }
+  }
+
+  static String _getApprovalStatus(List<dynamic>? approvals) {
+    if (approvals == null || approvals.isEmpty) {
+      return 'pending_approval'; // Default jika tidak ada approval
+    }
+    // Ambil approval paling terbaru (yang pertama di list)
+    final approval = approvals.first as Map<String, dynamic>?;
+    return approval?['status'] as String? ?? 'pending_approval';
   }
 
   Resident copyWith({
