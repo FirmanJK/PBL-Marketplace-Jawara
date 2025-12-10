@@ -87,7 +87,11 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
       loading = true;
       setState(() {});
       try {
-        final res = await ResidentsService.getResidents(skip: skip, limit: pageSize, query: query.isEmpty ? null : query);
+        final res = await ResidentsService.getResidents(
+          skip: skip,
+          limit: pageSize,
+          query: query.isEmpty ? null : query,
+        );
         residents = res;
       } catch (e) {
         ToastHelper.showError(context, 'Gagal load daftar warga: $e');
@@ -103,96 +107,121 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
     await showDialog(
       context: context,
       builder: (context) {
-        return StatefulBuilder(builder: (context, setStateDialog) {
-          final filtered = residents;
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            final filtered = residents;
 
-          return AlertDialog(
-            title: const Text('Pilih Warga Terdaftar'),
-            content: SizedBox(
-              width: double.maxFinite,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    decoration: const InputDecoration(hintText: 'Cari nama atau NIK'),
-                    onChanged: (v) {
-                      query = v;
-                      skip = 0;
-                      // debounce
-                      debounce?.cancel();
-                      debounce = Timer(const Duration(milliseconds: 300), () async {
-                        await fetch();
-                        setStateDialog(() {});
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  if (loading) const Center(child: CircularProgressIndicator()),
-                  if (!loading)
-                    Flexible(
-                      child: filtered.isEmpty
-                          ? const Text('Tidak ada hasil')
-                          : ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: filtered.length,
-                              itemBuilder: (context, idx) {
-                                final item = filtered[idx];
-                                final id = item is Map ? item['id'] : item.id;
-                                final name = item is Map ? item['name'] : item.name;
-                                final nik = item is Map ? item['nik'] : item.nik;
-                                return ListTile(
-                                  title: Text('$name'),
-                                  subtitle: Text(nik.toString()),
-                                  trailing: TextButton(
-                                    child: const Text('Tambah'),
-                                        onPressed: () async {
-                                      try {
-                                        final added = await FamiliesService.addResidentToFamily(_selectedFamilyId!, id as int);
-                                        if (!mounted) return;
-                                        ToastHelper.showSuccess(context, 'Warga berhasil ditambahkan ke keluarga');
-                                        Navigator.of(context).pop(added);
-                                      } catch (e) {
-                                        if (!mounted) return;
-                                        ToastHelper.showError(context, 'Gagal menambahkan warga: $e');
-                                      }
-                                    },
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-                ],
-              ),
-            ),
-            actions: [
-              Row(
-                children: [
-                  TextButton(
-                    onPressed: skip - pageSize >= 0
-                        ? () async {
-                            skip = (skip - pageSize).clamp(0, skip);
+            return AlertDialog(
+              title: const Text('Pilih Warga Terdaftar'),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'Cari nama atau NIK',
+                      ),
+                      onChanged: (v) {
+                        query = v;
+                        skip = 0;
+                        // debounce
+                        debounce?.cancel();
+                        debounce = Timer(
+                          const Duration(milliseconds: 300),
+                          () async {
                             await fetch();
                             setStateDialog(() {});
-                          }
-                        : null,
-                    child: const Text('Prev'),
-                  ),
-                  const SizedBox(width: 8),
-                  TextButton(
-                    onPressed: () async {
-                      skip += pageSize;
-                      await fetch();
-                      setStateDialog(() {});
-                    },
-                    child: const Text('Next'),
-                  ),
-                  const Spacer(),
-                  TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Batal')),
-                ],
+                          },
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    if (loading)
+                      const Center(child: CircularProgressIndicator()),
+                    if (!loading)
+                      Flexible(
+                        child: filtered.isEmpty
+                            ? const Text('Tidak ada hasil')
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: filtered.length,
+                                itemBuilder: (context, idx) {
+                                  final item = filtered[idx];
+                                  final id = item is Map ? item['id'] : item.id;
+                                  final name = item is Map
+                                      ? item['name']
+                                      : item.name;
+                                  final nik = item is Map
+                                      ? item['nik']
+                                      : item.nik;
+                                  return ListTile(
+                                    title: Text('$name'),
+                                    subtitle: Text(nik.toString()),
+                                    trailing: TextButton(
+                                      child: const Text('Tambah'),
+                                      onPressed: () async {
+                                        try {
+                                          final added =
+                                              await FamiliesService.addResidentToFamily(
+                                                _selectedFamilyId!,
+                                                id as int,
+                                              );
+                                          if (!mounted) return;
+                                          ToastHelper.showSuccess(
+                                            context,
+                                            'Warga berhasil ditambahkan ke keluarga',
+                                          );
+                                          Navigator.of(context).pop(added);
+                                        } catch (e) {
+                                          if (!mounted) return;
+                                          ToastHelper.showError(
+                                            context,
+                                            'Gagal menambahkan warga: $e',
+                                          );
+                                        }
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+                  ],
+                ),
               ),
-            ],
-          );
-        });
+              actions: [
+                Row(
+                  children: [
+                    TextButton(
+                      onPressed: skip - pageSize >= 0
+                          ? () async {
+                              skip = (skip - pageSize).clamp(0, skip);
+                              await fetch();
+                              setStateDialog(() {});
+                            }
+                          : null,
+                      child: const Text('Prev'),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: () async {
+                        skip += pageSize;
+                        await fetch();
+                        setStateDialog(() {});
+                      },
+                      child: const Text('Next'),
+                    ),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Batal'),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        );
       },
     );
     debounce?.cancel();
@@ -214,17 +243,31 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
   }
 
   Future<void> _loadFamilies() async {
-    // Langsung gunakan data dummy tanpa loading
     setState(() {
-      _families = [
-        {'id': 1, 'name': 'Keluarga Budi Santoso'},
-        {'id': 2, 'name': 'Keluarga Ahmad Yani'},
-        {'id': 3, 'name': 'Keluarga Siti Aminah'},
-        {'id': 4, 'name': 'Keluarga Dewi Lestari'},
-        {'id': 5, 'name': 'Keluarga Eko Prasetyo'},
-      ];
-      _isLoadingFamilies = false;
+      _isLoadingFamilies = true;
     });
+
+    try {
+      final families = await FamiliesService.getFamilies();
+      setState(() {
+        _families = families.map((f) {
+          // Jika ada head resident name, tampilkan "Keluarga [nama]"
+          // Jika hanya family number atau null, tampilkan tanpa prefix
+          final displayName = f.headResidentName != null
+              ? 'Keluarga ${f.headResidentName}'
+              : (f.familyNumber ?? 'Keluarga');
+          return {'id': f.id, 'name': displayName};
+        }).toList();
+        _isLoadingFamilies = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingFamilies = false;
+      });
+      if (mounted) {
+        ToastHelper.showError(context, 'Gagal load keluarga: $e');
+      }
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -279,66 +322,85 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
     await showDialog(
       context: context,
       builder: (context) {
-        return StatefulBuilder(builder: (context, setStateDialog) {
-          final filtered = houses.where((h) {
-            final houseStatus = (h is Map ? h['status'] as String? : h.status) ?? 'available';
-            final hid = (h is Map ? h['id'] as int? : h.id) ?? 0;
-            return houseStatus == 'available' || familyHouseIds.contains(hid);
-          }).toList();
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            final filtered = houses.where((h) {
+              final houseStatus =
+                  (h is Map ? h['status'] as String? : h.status) ?? 'available';
+              final hid = (h is Map ? h['id'] as int? : h.id) ?? 0;
+              return houseStatus == 'available' || familyHouseIds.contains(hid);
+            }).toList();
 
-          return AlertDialog(
-            title: const Text('Pilih Rumah'),
-            content: SizedBox(
-              width: double.maxFinite,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (loading) const Center(child: CircularProgressIndicator()),
-                  if (!loading)
-                    Flexible(
-                      child: filtered.isEmpty
-                          ? const Text('Tidak ada rumah yang sesuai')
-                          : ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: filtered.length,
-                              itemBuilder: (context, idx) {
-                                final item = filtered[idx];
-                                final id = item is Map ? item['id'] as int : item.id;
-                                final addr = item is Map ? item['address'] as String? : item.address;
-                                final num = item is Map ? item['house_number'] as String? : item.houseNumber;
-                                final status = item is Map ? item['status'] as String? : item.status;
-                                return ListTile(
-                                  title: Text(num ?? 'Rumah #$id'),
-                                  subtitle: Text(addr ?? '-'),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(status ?? 'available'),
-                                      const SizedBox(width: 8),
-                                      TextButton(
-                                        child: const Text('Pilih'),
-                                        onPressed: () {
-                                          setState(() {
-                                            _selectedHouseId = id as int;
-                                          });
-                                          if (mounted) ToastHelper.showSuccess(context, 'Rumah terpilih');
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-                ],
+            return AlertDialog(
+              title: const Text('Pilih Rumah'),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (loading)
+                      const Center(child: CircularProgressIndicator()),
+                    if (!loading)
+                      Flexible(
+                        child: filtered.isEmpty
+                            ? const Text('Tidak ada rumah yang sesuai')
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: filtered.length,
+                                itemBuilder: (context, idx) {
+                                  final item = filtered[idx];
+                                  final id = item is Map
+                                      ? item['id'] as int
+                                      : item.id;
+                                  final addr = item is Map
+                                      ? item['address'] as String?
+                                      : item.address;
+                                  final num = item is Map
+                                      ? item['house_number'] as String?
+                                      : item.houseNumber;
+                                  final status = item is Map
+                                      ? item['status'] as String?
+                                      : item.status;
+                                  return ListTile(
+                                    title: Text(num ?? 'Rumah #$id'),
+                                    subtitle: Text(addr ?? '-'),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(status ?? 'available'),
+                                        const SizedBox(width: 8),
+                                        TextButton(
+                                          child: const Text('Pilih'),
+                                          onPressed: () {
+                                            setState(() {
+                                              _selectedHouseId = id as int;
+                                            });
+                                            if (mounted)
+                                              ToastHelper.showSuccess(
+                                                context,
+                                                'Rumah terpilih',
+                                              );
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+                  ],
+                ),
               ),
-            ),
-            actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Batal')),
-            ],
-          );
-        });
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Batal'),
+                ),
+              ],
+            );
+          },
+        );
       },
     );
   }
@@ -407,35 +469,44 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
         'occupation': _pekerjaanController.text.isEmpty
             ? null
             : _pekerjaanController.text,
-        'status': 'aktif',
+        'status': 'pending',
         'family_id': _selectedFamilyId,
-          // If no house selected, send 0 so backend may auto-assign; if user provided house data, we'll create it below
-          'house_id': 0,
+        // If no house selected, send 0 so backend may auto-assign; if user provided house data, we'll create it below
+        'house_id': 0,
       };
 
-        // If user provided house details (and didn't select existing), create a new house first
-        try {
-          final hasHouseData = _houseAddressController.text.isNotEmpty || _houseNumberController.text.isNotEmpty || _rtController.text.isNotEmpty || _rwController.text.isNotEmpty;
-          if (_selectedHouseId == null && hasHouseData) {
-            final houseBody = {
-              'house_number': _houseNumberController.text.isEmpty ? null : _houseNumberController.text,
-              'address': _houseAddressController.text.isEmpty ? null : _houseAddressController.text,
-              'rt': _rtController.text.isEmpty ? null : _rtController.text,
-              'rw': _rwController.text.isEmpty ? null : _rwController.text,
-            };
-            final createdHouse = await HouseService.createHouse(houseBody);
-            data['house_id'] = createdHouse.id;
-            // remember selected house so we will call assign endpoint after resident created
-            _selectedHouseId = createdHouse.id;
-          } else if (_selectedHouseId != null) {
-            data['house_id'] = _selectedHouseId;
-          }
-        } catch (e) {
-          // If house creation failed, show a warning but continue with house_id=0 so backend can assign
-          if (mounted) ToastHelper.showWarning(context, 'Gagal membuat rumah: $e');
+      // If user provided house details (and didn't select existing), create a new house first
+      try {
+        final hasHouseData =
+            _houseAddressController.text.isNotEmpty ||
+            _houseNumberController.text.isNotEmpty ||
+            _rtController.text.isNotEmpty ||
+            _rwController.text.isNotEmpty;
+        if (_selectedHouseId == null && hasHouseData) {
+          final houseBody = {
+            'house_number': _houseNumberController.text.isEmpty
+                ? null
+                : _houseNumberController.text,
+            'address': _houseAddressController.text.isEmpty
+                ? null
+                : _houseAddressController.text,
+            'rt': _rtController.text.isEmpty ? null : _rtController.text,
+            'rw': _rwController.text.isEmpty ? null : _rwController.text,
+          };
+          final createdHouse = await HouseService.createHouse(houseBody);
+          data['house_id'] = createdHouse.id;
+          // remember selected house so we will call assign endpoint after resident created
+          _selectedHouseId = createdHouse.id;
+        } else if (_selectedHouseId != null) {
+          data['house_id'] = _selectedHouseId;
         }
+      } catch (e) {
+        // If house creation failed, show a warning but continue with house_id=0 so backend can assign
+        if (mounted)
+          ToastHelper.showWarning(context, 'Gagal membuat rumah: $e');
+      }
 
-        // If user selected an existing house via picker, _selectedHouseId will be set
+      // If user selected an existing house via picker, _selectedHouseId will be set
 
       // Create resident via API
       final created = await ResidentsService.createResident(data);
@@ -443,16 +514,26 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
       // If user selected an existing house (not newly created), call assign endpoint
       if (_selectedHouseId != null) {
         try {
-          final assigned = await HouseService.assignHouse(_selectedHouseId!, created.id);
+          final assigned = await HouseService.assignHouse(
+            _selectedHouseId!,
+            created.id,
+          );
           // prefer the assigned resident returned from server
           if (mounted) {
-            ToastHelper.showSuccess(context, 'Warga berhasil ditambahkan dan dipindahkan ke rumah');
+            ToastHelper.showSuccess(
+              context,
+              'Warga berhasil ditambahkan dan dipindahkan ke rumah',
+            );
             Navigator.pop(context, assigned);
             return;
           }
         } catch (e) {
           // If assign failed, still return created resident but show warning
-          if (mounted) ToastHelper.showWarning(context, 'Warga dibuat, namun gagal melakukan assign rumah: $e');
+          if (mounted)
+            ToastHelper.showWarning(
+              context,
+              'Warga dibuat, namun gagal melakukan assign rumah: $e',
+            );
           if (mounted) Navigator.pop(context, created);
           return;
         }
@@ -523,7 +604,10 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
                             label: const Text('Pilih Warga Terdaftar'),
                             onPressed: _openExistingResidentPicker,
                             style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -629,7 +713,10 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
 
                     const Text(
                       'Informasi Rumah (opsional)',
-                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
                     ),
                     const SizedBox(height: 12),
 
@@ -647,7 +734,12 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
                           onPressed: _openHousePicker,
                           icon: const Icon(Icons.home),
                           label: const Text('Pilih Rumah'),
-                          style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14)),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 14,
+                            ),
+                          ),
                         ),
                       ],
                     ),

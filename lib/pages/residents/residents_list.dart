@@ -4,7 +4,6 @@ import 'package:jawara/pages/residents/residents_detail.dart';
 import 'package:jawara/models/resident.dart';
 import 'package:jawara/services/residents_service.dart';
 import 'package:jawara/utils/toast_helper.dart';
-import 'package:jawara/data/residents.dart';
 
 class ResidentsListPage extends StatefulWidget {
   const ResidentsListPage({super.key});
@@ -17,27 +16,12 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
   List<Resident> _residents = [];
   bool _isLoading = true;
   String _searchQuery = '';
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    // Langsung load data dummy tanpa loading
-    _residents = dummyResidents;
-    _isLoading = false;
-    _useDummyData = true;
-  }
-
-  String? _errorMessage;
-  bool _useDummyData = false;
-
-  Future<void> _loadResidents() async {
-    // Langsung gunakan data dummy
-    setState(() {
-      _residents = dummyResidents;
-      _isLoading = false;
-      _useDummyData = true;
-      _errorMessage = null;
-    });
+    _loadResidents();
   }
 
   List<Resident> _getFilteredResidents() {
@@ -48,6 +32,31 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
       return resident.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           resident.nik.contains(_searchQuery);
     }).toList();
+  }
+
+  Future<void> _loadResidents() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final residents = await ResidentsService.getResidents();
+      if (mounted) {
+        setState(() {
+          _residents = residents;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -322,7 +331,10 @@ class _ResidentsListPageState extends State<ResidentsListPage> {
           }
         },
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Tambah Warga', style: TextStyle(color: Colors.white)),
+        label: const Text(
+          'Tambah Warga',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: const Color(0xFF0891B2),
       ),
     );

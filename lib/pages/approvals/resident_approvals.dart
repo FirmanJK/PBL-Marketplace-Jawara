@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/shared/standard_app_bar.dart';
-import 'package:jawara/data/residents.dart';
 import 'package:jawara/models/resident.dart';
+import 'package:jawara/models/resident_approval.dart';
+import 'package:jawara/services/resident_approval_service.dart';
 import 'package:jawara/utils/toast_helper.dart';
 import 'package:jawara/pages/approvals/resident_approval_detail.dart';
 
@@ -14,6 +15,7 @@ class ResidentApprovalsPage extends StatefulWidget {
 
 class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
   List<Resident> _residents = [];
+  List<ResidentApproval> _approvals = [];
   bool _isLoading = true;
   String _searchQuery = '';
   String _filterStatus = 'Semua';
@@ -26,14 +28,42 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
 
   Future<void> _loadResidents() async {
     setState(() => _isLoading = true);
-    
-    // Simulate API call
-    await Future.delayed(const Duration(milliseconds: 500));
-    
-    setState(() {
-      _residents = dummyResidents;
-      _isLoading = false;
-    });
+
+    try {
+      // Load pending approvals dari backend
+      final approvals = await ResidentApprovalService.getPendingApprovals();
+
+      // Convert ResidentApproval to Resident untuk UI compatibility
+      final residents = approvals.map((approval) {
+        return Resident(
+          id: approval.residentId ?? 0,
+          name: approval.name ?? '',
+          nik: approval.nik ?? '',
+          gender: approval.gender ?? '',
+          status: 'pending',
+          familyId: 0,
+          houseId: 0,
+          registrationStatus: RegistrationStatus.pending,
+          birthPlace: approval.birthPlace,
+          birthDate: approval.birthDate != null
+              ? DateTime.tryParse(approval.birthDate!)
+              : null,
+          phone: approval.phone,
+          email: approval.email,
+        );
+      }).toList();
+
+      setState(() {
+        _residents = residents;
+        _approvals = approvals;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (mounted) {
+        ToastHelper.showError(context, 'Gagal load pengajuan: $e');
+      }
+      setState(() => _isLoading = false);
+    }
   }
 
   List<Resident> _getFilteredResidents() {
@@ -58,9 +88,13 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
     // Filter by search query
     if (_searchQuery.isNotEmpty) {
       filtered = filtered.where((resident) {
-        return resident.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+        return resident.name.toLowerCase().contains(
+              _searchQuery.toLowerCase(),
+            ) ||
             resident.nik.contains(_searchQuery) ||
-            (resident.email ?? '').toLowerCase().contains(_searchQuery.toLowerCase());
+            (resident.email ?? '').toLowerCase().contains(
+              _searchQuery.toLowerCase(),
+            );
       }).toList();
     }
 
@@ -71,7 +105,7 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
     Color bgColor;
     Color textColor;
     String label;
-    
+
     switch (status) {
       case RegistrationStatus.accepted:
         bgColor = const Color(0xFFD1FAE5);
@@ -138,7 +172,7 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
                   },
                 ),
                 const SizedBox(height: 12),
-                
+
                 // Filter Chips
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -200,13 +234,18 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
                           ),
                           child: InkWell(
                             onTap: () async {
-                              // Langsung ke halaman detail
+                              // Get approval ID from approvals list
+                              final approval = _approvals[index];
+
                               final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => ResidentApprovalDetailPage(
-                                    resident: resident,
-                                  ),
+                                  builder: (context) =>
+                                      ResidentApprovalDetailPage(
+                                        resident: resident,
+                                        approvalId: approval.id,
+                                        onApprovalChanged: _loadResidents,
+                                      ),
                                 ),
                               );
                               if (result == true) {
@@ -221,7 +260,9 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
                                   // Avatar
                                   CircleAvatar(
                                     radius: 28,
-                                    backgroundColor: const Color(0xFF0891B2).withOpacity(0.1),
+                                    backgroundColor: const Color(
+                                      0xFF0891B2,
+                                    ).withOpacity(0.1),
                                     child: Text(
                                       resident.name[0].toUpperCase(),
                                       style: const TextStyle(
@@ -236,7 +277,8 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
                                   // Name & Status
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           resident.name,
@@ -246,20 +288,29 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
                                           ),
                                         ),
                                         const SizedBox(height: 8),
-                                        _buildStatusChip(resident.registrationStatus),
+                                        _buildStatusChip(
+                                          resident.registrationStatus,
+                                        ),
                                       ],
                                     ),
                                   ),
 
                                   // Action Icons (only for pending)
-                                  if (resident.registrationStatus == RegistrationStatus.pending) ...[
+                                  if (resident.registrationStatus ==
+                                      RegistrationStatus.pending) ...[
                                     IconButton(
                                       onPressed: () {
-                                        _showApprovalDialog(context, resident, false);
+                                        _showApprovalDialog(
+                                          context,
+                                          resident,
+                                          false,
+                                        );
                                       },
                                       icon: const Icon(Icons.close),
                                       style: IconButton.styleFrom(
-                                        backgroundColor: Colors.red.withOpacity(0.1),
+                                        backgroundColor: Colors.red.withOpacity(
+                                          0.1,
+                                        ),
                                         foregroundColor: Colors.red,
                                       ),
                                       tooltip: 'Tolak',
@@ -267,11 +318,16 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
                                     const SizedBox(width: 4),
                                     IconButton(
                                       onPressed: () {
-                                        _showApprovalDialog(context, resident, true);
+                                        _showApprovalDialog(
+                                          context,
+                                          resident,
+                                          true,
+                                        );
                                       },
                                       icon: const Icon(Icons.check),
                                       style: IconButton.styleFrom(
-                                        backgroundColor: Colors.green.withOpacity(0.1),
+                                        backgroundColor: Colors.green
+                                            .withOpacity(0.1),
                                         foregroundColor: Colors.green,
                                       ),
                                       tooltip: 'Terima',
@@ -310,13 +366,15 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
     );
   }
 
-  void _showApprovalDialog(BuildContext context, Resident resident, bool isApprove) {
+  void _showApprovalDialog(
+    BuildContext context,
+    Resident resident,
+    bool isApprove,
+  ) {
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -325,11 +383,15 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: (isApprove ? Colors.green : Colors.red).withOpacity(0.1),
+                  color: (isApprove ? Colors.green : Colors.red).withOpacity(
+                    0.1,
+                  ),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  isApprove ? Icons.check_circle_outline : Icons.cancel_outlined,
+                  isApprove
+                      ? Icons.check_circle_outline
+                      : Icons.cancel_outlined,
                   color: isApprove ? Colors.green : Colors.red,
                   size: 48,
                 ),
@@ -348,10 +410,7 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
                     ? 'Warga akan diterima dan dapat mengakses sistem'
                     : 'Warga akan ditolak dan tidak dapat mengakses sistem',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
               ),
               const SizedBox(height: 16),
               Container(
@@ -372,10 +431,7 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
                     const SizedBox(height: 4),
                     Text(
                       'NIK: ${resident.nik}',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 13,
-                      ),
+                      style: TextStyle(color: Colors.grey[600], fontSize: 13),
                     ),
                   ],
                 ),
@@ -424,17 +480,11 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
   void _handleApproval(Resident resident, bool isApprove) {
     // Simulate API call
     if (isApprove) {
-      ToastHelper.showSuccess(
-        context,
-        '${resident.name} berhasil diterima',
-      );
+      ToastHelper.showSuccess(context, '${resident.name} berhasil diterima');
     } else {
-      ToastHelper.showSuccess(
-        context,
-        '${resident.name} berhasil ditolak',
-      );
+      ToastHelper.showSuccess(context, '${resident.name} berhasil ditolak');
     }
-    
+
     // Reload data
     _loadResidents();
   }
