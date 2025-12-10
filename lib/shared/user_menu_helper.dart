@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jawara/services/auth_service.dart';
+import 'package:jawara/utils/toast_helper.dart';
 
 class UserMenuHelper {
   static void showProfileMenu(BuildContext context) {
@@ -15,13 +17,16 @@ class UserMenuHelper {
             children: [
               // User Info Header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF0891B2).withOpacity(0.1),
+                        color: const Color(0xFF0891B2).withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -44,10 +49,7 @@ class UserMenuHelper {
                           ),
                           Text(
                             'admin@jawara.com',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 13,
-                            ),
+                            style: TextStyle(color: Colors.grey, fontSize: 13),
                           ),
                         ],
                       ),
@@ -62,7 +64,7 @@ class UserMenuHelper {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0891B2).withOpacity(0.1),
+                    color: const Color(0xFF0891B2).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
@@ -73,10 +75,7 @@ class UserMenuHelper {
                 ),
                 title: const Text(
                   'Profil',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                 ),
                 onTap: () {
                   Navigator.pop(context);
@@ -89,7 +88,7 @@ class UserMenuHelper {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0891B2).withOpacity(0.1),
+                    color: const Color(0xFF0891B2).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
@@ -100,10 +99,7 @@ class UserMenuHelper {
                 ),
                 title: const Text(
                   'Pengaturan',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                 ),
                 onTap: () {
                   Navigator.pop(context);
@@ -118,7 +114,7 @@ class UserMenuHelper {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
@@ -160,13 +156,27 @@ class UserMenuHelper {
             child: const Text('Batal'),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Close dialog
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/login',
-                (route) => false,
-              );
+            onPressed: () async {
+              try {
+                print('🔐 Logout from UserMenuHelper');
+                Navigator.pop(context); // Close dialog
+                await AuthService().logout();
+                if (context.mounted) {
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/login',
+                    (route) => false,
+                  );
+                }
+              } catch (e) {
+                print('❌ Logout error: $e');
+                if (context.mounted) {
+                  ToastHelper.showError(
+                    context,
+                    'Error logout: ${e.toString()}',
+                  );
+                }
+              }
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Keluar'),
@@ -185,11 +195,7 @@ class UserMenuHelper {
           color: Color(0xFF0891B2),
           shape: BoxShape.circle,
         ),
-        child: const Icon(
-          Icons.person,
-          color: Colors.white,
-          size: 20,
-        ),
+        child: const Icon(Icons.person, color: Colors.white, size: 20),
       ),
       tooltip: 'Profil',
     );

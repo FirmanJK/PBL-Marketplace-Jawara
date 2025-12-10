@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:jawara/shared/sidebar.dart';
+import 'package:jawara/services/auth_service.dart';
+import 'package:jawara/utils/toast_helper.dart';
 
 class BaseLayout extends StatefulWidget {
   final Widget child;
@@ -21,6 +22,51 @@ class BaseLayout extends StatefulWidget {
 
 class _BaseLayoutState extends State<BaseLayout> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final AuthService _authService = AuthService();
+
+  Future<void> _handleLogout() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Konfirmasi Logout'),
+        content: const Text('Apakah Anda yakin ingin keluar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Keluar',
+              style: TextStyle(color: Color(0xFFEF4444)),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm ?? false) {
+      try {
+        print('🔐 Logout from BaseLayout');
+        await _authService.logout();
+        if (mounted) {
+          ToastHelper.showSuccess(context, 'Logout berhasil');
+          // Navigate immediately - toast stays visible during transition (2s duration)
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/login',
+            (route) => false,
+          );
+        }
+      } catch (e) {
+        print('❌ Logout error: $e');
+        if (mounted) {
+          ToastHelper.showError(context, 'Logout gagal: $e');
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,11 +146,7 @@ class _BaseLayoutState extends State<BaseLayout> {
                   ),
                   onSelected: (value) {
                     if (value == 'logout') {
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        '/login',
-                        (route) => false,
-                      );
+                      _handleLogout();
                     } else if (value == 'profile') {
                       Navigator.pushNamed(context, '/profile');
                     } else if (value == 'settings') {

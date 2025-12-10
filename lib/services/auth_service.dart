@@ -165,13 +165,98 @@ class AuthService {
 
   /// Logout
   Future<void> logout() async {
-    _currentUser = null;
-    _accessToken = null;
+    print('🔄 Starting logout...');
+    try {
+      // Call logout endpoint ke backend with shorter timeout
+      if (_accessToken != null) {
+        print('📤 Calling logout API...');
+        await ApiService.post('/auth/logout', token: _accessToken).timeout(
+          const Duration(seconds: 10),
+          onTimeout: () {
+            print('⏱️ Logout API timeout, continuing with local logout');
+            return null;
+          },
+        );
+        print('✓ Logout API called successfully');
+      }
+    } catch (e) {
+      print('✗ Logout API call error: $e');
+      // Continue dengan local logout walaupun API call gagal
+    } finally {
+      // Clear local session
+      print('🗑️ Clearing local session...');
+      _currentUser = null;
+      _accessToken = null;
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('access_token');
-    await prefs.remove('current_user');
-    await prefs.remove('token_expires_at');
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('access_token');
+      await prefs.remove('current_user');
+      await prefs.remove('token_expires_at');
+
+      print('✓ Logout completed');
+    }
+  }
+
+  /// Update user profile
+  Future<void> updateProfile({
+    required String name,
+    required String email,
+    required String phone,
+  }) async {
+    if (_accessToken == null) {
+      throw Exception('No access token');
+    }
+
+    try {
+      await ApiService.put(
+        '/auth/profile',
+        body: {'name': name, 'email': email, 'phone': phone},
+        token: _accessToken,
+      );
+
+      // Update current user
+      if (_currentUser != null) {
+        _currentUser = _currentUser!.copyWith(
+          name: name,
+          email: email,
+          phone: phone,
+        );
+
+        // Save updated user data
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+          'current_user',
+          jsonEncode(_currentUser!.toJson()),
+        );
+      }
+    } catch (e) {
+      print('Update profile error: $e');
+      rethrow;
+    }
+  }
+
+  /// Change user password
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    if (_accessToken == null) {
+      throw Exception('No access token');
+    }
+
+    try {
+      await ApiService.post(
+        '/auth/change-password',
+        body: {
+          'current_password': currentPassword,
+          'new_password': newPassword,
+        },
+        token: _accessToken,
+      );
+    } catch (e) {
+      print('Change password error: $e');
+      rethrow;
+    }
   }
 
   /// Save session ke SharedPreferences
