@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:jawara/models/resident.dart';
 import 'package:jawara/models/resident_approval.dart';
 import 'package:jawara/services/resident_approval_service.dart';
-import 'package:jawara/services/families_service.dart';
 import 'package:jawara/utils/toast_helper.dart';
 
 class ResidentApprovalDetailPage extends StatefulWidget {
@@ -25,30 +24,11 @@ class ResidentApprovalDetailPage extends StatefulWidget {
 class _ResidentApprovalDetailPageState
     extends State<ResidentApprovalDetailPage> {
   bool _isProcessing = false;
-  List<Map<String, dynamic>> _families = [];
-  bool _familiesLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    _loadFamilies();
-  }
-
-  Future<void> _loadFamilies() async {
-    if (_familiesLoaded) return;
-    try {
-      final families = await FamiliesService.getFamilies();
-      setState(() {
-        _families = families.map((f) {
-          return {'id': f.id, 'headName': f.headResidentName ?? 'Keluarga'};
-        }).toList();
-        _familiesLoaded = true;
-      });
-    } catch (e) {
-      if (mounted) {
-        ToastHelper.showError(context, 'Gagal load keluarga: $e');
-      }
-    }
+    // Tidak perlu load families lagi, approval flow otomatis
   }
 
   Future<void> _handleApprove() async {
@@ -57,32 +37,33 @@ class _ResidentApprovalDetailPageState
       return;
     }
 
-    // Show family picker
-    if (!mounted) return;
-    _showFamilyPickerDialog((familyId) async {
-      setState(() => _isProcessing = true);
+    print('[DEBUG] _handleApprove called, approvalId=${widget.approvalId}');
+    setState(() => _isProcessing = true);
 
-      try {
-        await ResidentApprovalService.approveResident(
-          widget.approvalId!,
-          familyId: familyId,
-          note: 'Disetujui',
-        );
+    try {
+      print('[DEBUG] Calling ResidentApprovalService.approveResident');
+      // Tidak perlu kirim family_id, backend akan cari/buat family dari family_number
+      await ResidentApprovalService.approveResident(
+        widget.approvalId!,
+        familyId: 0, // 0 = backend auto-handle via family_number
+        note: 'Disetujui',
+      );
+      print('[DEBUG] approveResident succeeded');
 
-        if (!mounted) return;
-        ToastHelper.showSuccess(
-          context,
-          '${widget.resident.name} berhasil diterima',
-        );
+      if (!mounted) return;
+      ToastHelper.showSuccess(
+        context,
+        '${widget.resident.name} berhasil diterima',
+      );
 
-        widget.onApprovalChanged?.call();
-        Navigator.pop(context, true);
-      } catch (e) {
-        if (!mounted) return;
-        ToastHelper.showError(context, 'Gagal menerima: $e');
-        setState(() => _isProcessing = false);
-      }
-    });
+      widget.onApprovalChanged?.call();
+      Navigator.pop(context, true);
+    } catch (e) {
+      print('[DEBUG] approveResident failed: $e');
+      if (!mounted) return;
+      ToastHelper.showError(context, 'Gagal menerima: $e');
+      setState(() => _isProcessing = false);
+    }
   }
 
   Future<void> _handleReject() async {
@@ -91,15 +72,20 @@ class _ResidentApprovalDetailPageState
       return;
     }
 
+    print('[DEBUG] _handleReject called, approvalId=${widget.approvalId}');
+
     if (!mounted) return;
     _showRejectDialog((note) async {
+      print('[DEBUG] Reject reason entered: $note');
       setState(() => _isProcessing = true);
 
       try {
+        print('[DEBUG] Calling ResidentApprovalService.rejectResident');
         await ResidentApprovalService.rejectResident(
           widget.approvalId!,
           note: note,
         );
+        print('[DEBUG] rejectResident succeeded');
 
         if (!mounted) return;
         ToastHelper.showSuccess(
@@ -110,45 +96,12 @@ class _ResidentApprovalDetailPageState
         widget.onApprovalChanged?.call();
         Navigator.pop(context, true);
       } catch (e) {
+        print('[DEBUG] rejectResident failed: $e');
         if (!mounted) return;
         ToastHelper.showError(context, 'Gagal menolak: $e');
         setState(() => _isProcessing = false);
       }
     });
-  }
-
-  void _showFamilyPickerDialog(Function(int) onSelected) async {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Pilih Keluarga'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: _families.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _families.length,
-                  itemBuilder: (context, idx) {
-                    final family = _families[idx];
-                    return ListTile(
-                      title: Text('Keluarga ${family['headName']}'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        onSelected(family['id'] as int);
-                      },
-                    );
-                  },
-                ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-        ],
-      ),
-    );
   }
 
   void _showRejectDialog(Function(String) onSubmit) {
@@ -178,6 +131,7 @@ class _ResidentApprovalDetailPageState
                 ToastHelper.showError(context, 'Alasan penolakan harus diisi');
                 return;
               }
+              print('[DEBUG] Dialog reject submitted with reason: $reason');
               Navigator.pop(context);
               onSubmit(reason);
             },
@@ -187,6 +141,19 @@ class _ResidentApprovalDetailPageState
         ],
       ),
     );
+  }
+
+  String _getStatusDescription(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending_approval':
+        return 'Menunggu Persetujuan RT/RW';
+      case 'approved':
+        return 'Sudah Diterima';
+      case 'rejected':
+        return 'Ditolak';
+      default:
+        return status;
+    }
   }
 
   @override
@@ -277,42 +244,9 @@ class _ResidentApprovalDetailPageState
                   _buildDetailCard(
                     icon: Icons.info_outline,
                     label: 'Status',
-                    value: widget.resident.status,
+                    value: _getStatusDescription(widget.resident.status),
                   ),
                   const SizedBox(height: 24),
-
-                  // Photo Section
-                  const Text(
-                    'Foto Identitas',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    width: double.infinity,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[300]!),
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.image_outlined,
-                            size: 64,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Foto tidak tersedia',
-                            style: TextStyle(color: Colors.grey[600]),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -337,7 +271,12 @@ class _ResidentApprovalDetailPageState
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: _isProcessing ? null : _handleReject,
+                      onPressed: _isProcessing
+                          ? null
+                          : () {
+                              print('[DEBUG] Button "Tolak" pressed');
+                              _handleReject();
+                            },
                       icon: _isProcessing
                           ? const SizedBox(
                               width: 20,
@@ -359,7 +298,12 @@ class _ResidentApprovalDetailPageState
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: _isProcessing ? null : _handleApprove,
+                      onPressed: _isProcessing
+                          ? null
+                          : () {
+                              print('[DEBUG] Button "Terima" pressed');
+                              _handleApprove();
+                            },
                       icon: _isProcessing
                           ? const SizedBox(
                               width: 20,
