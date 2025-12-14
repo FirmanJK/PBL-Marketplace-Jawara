@@ -3,6 +3,7 @@ import 'package:jawara/models/user.dart';
 import 'package:jawara/models/user_role.dart';
 import 'package:jawara/models/auth_response.dart';
 import 'package:jawara/services/api_service.dart';
+import 'package:jawara/data/demo_users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
@@ -22,28 +23,50 @@ class AuthService {
 
   /// Initialize auth service - load saved session
   Future<void> initialize() async {
-    final prefs = await SharedPreferences.getInstance();
+    try {
+      final prefs = await SharedPreferences.getInstance();
 
-    // Load access token
-    _accessToken = prefs.getString('access_token');
+      // Try to restore session first
+      final savedToken = prefs.getString('access_token');
+      final savedUserJson = prefs.getString('current_user');
+      final expiresAtStr = prefs.getString('token_expires_at');
 
-    // Load user data
-    final userJson = prefs.getString('current_user');
-    if (userJson != null) {
-      try {
-        final Map<String, dynamic> decoded = Map.from(
-          jsonDecode(userJson) as Map,
-        );
-        _currentUser = User.fromJson(decoded);
-      } catch (e) {
-        print('Error loading user from prefs: $e');
+      if (savedToken != null && savedUserJson != null && expiresAtStr != null) {
+        final expiresAt = DateTime.parse(expiresAtStr);
+        
+        // Check if token is still valid
+        if (DateTime.now().isBefore(expiresAt)) {
+          _accessToken = savedToken;
+          _currentUser = User.fromJson(jsonDecode(savedUserJson));
+          print('✓ Session restored - User: ${_currentUser?.name} (${_currentUser?.role.label})');
+          return;
+        }
       }
+
+      // Clear expired or invalid session
+      await prefs.clear();
+      _accessToken = null;
+      _currentUser = null;
+      
+      print('🔄 Auth service initialized - ready for login');
+    } catch (e) {
+      print('⚠️ Error initializing auth service: $e');
+      // Ensure clean state on error
+      _accessToken = null;
+      _currentUser = null;
     }
   }
 
   /// Login dengan email dan password
   Future<LoginResponse> login(String email, String password) async {
     try {
+      // Try demo login first (for development)
+      final demoUser = await _tryDemoLogin(email, password);
+      if (demoUser != null) {
+        return demoUser;
+      }
+
+      // If demo login fails, try backend API
       final response = await ApiService.post(
         '/auth/login',
         body: {'email': email, 'password': password},
@@ -72,6 +95,36 @@ class AuthService {
       print('Login error: $e');
       rethrow;
     }
+  }
+
+  /// Try demo login for development
+  Future<LoginResponse?> _tryDemoLogin(String email, String password) async {
+    try {
+      final user = DemoUsers.findUserByCredentials(email, password);
+      
+      if (user != null) {
+        // Create mock login response
+        final loginResponse = LoginResponse(
+          accessToken: 'demo_token_${user.id}',
+          tokenType: 'Bearer',
+          expiresIn: 3600,
+          user: user,
+        );
+
+        // Save token and user
+        _accessToken = loginResponse.accessToken;
+        _currentUser = loginResponse.user;
+
+        await _saveSession(loginResponse);
+        
+        print('✅ Demo login successful: ${user.name} (${user.role.label})');
+        return loginResponse;
+      }
+    } catch (e) {
+      print('Demo login failed: $e');
+    }
+    
+    return null;
   }
 
   /// Register user baru

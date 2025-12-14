@@ -39,6 +39,7 @@ class _FamilyEditPageState extends State<FamilyEditPage> {
       return;
     }
 
+    if (!mounted) return;
     setState(() => _isSaving = true);
     try {
       final payload = <String, dynamic>{'family_number': newName};

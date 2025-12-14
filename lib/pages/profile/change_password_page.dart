@@ -38,6 +38,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       return;
     }
 
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {

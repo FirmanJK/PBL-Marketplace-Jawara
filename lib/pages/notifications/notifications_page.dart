@@ -22,12 +22,20 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Future<void> _loadNotifications() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
-    final notifications = await _notificationService.getAllNotifications();
-    setState(() {
-      _notifications = notifications;
-      _isLoading = false;
-    });
+    
+    try {
+      final notifications = await _notificationService.getAllNotifications();
+      if (!mounted) return;
+      setState(() {
+        _notifications = notifications;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _markAsRead(int id) async {

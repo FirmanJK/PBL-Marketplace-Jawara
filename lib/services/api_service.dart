@@ -7,9 +7,8 @@ class ApiService {
   // Untuk Android Emulator gunakan: http://10.0.2.2:8000
   // Untuk iOS Simulator gunakan: http://localhost:8000
   // Untuk Physical Device gunakan: http://YOUR_IP:8000
-  static const String baseUrl = 'http://10.0.2.2:8000';
-  // static const String baseUrl = 'http://localhost:8000';
-  
+  // static const String baseUrl = 'http://10.0.2.2:8000';
+  static const String baseUrl = 'http://localhost:8000';
 
   // Timeout duration
   static const Duration timeout = Duration(seconds: 30);
@@ -185,8 +184,8 @@ class ApiService {
       return error;
     } else if (error is http.ClientException) {
       return ApiException('Kesalahan jaringan: ${error.message}', 0);
-    } else if (error.toString().contains('SocketException') || 
-               error.toString().contains('Connection refused')) {
+    } else if (error.toString().contains('SocketException') ||
+        error.toString().contains('Connection refused')) {
       return ApiException(
         'Tidak dapat terhubung ke server. Pastikan:\n'
         '1. Backend server sudah berjalan\n'

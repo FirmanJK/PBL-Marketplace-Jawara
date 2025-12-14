@@ -91,6 +91,7 @@ class _MarketplaceUploadPageState extends State<MarketplaceUploadPage> {
       return;
     }
 
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {

@@ -163,6 +163,7 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
+    if (!mounted) return;
     setState(() => isLoading = true);
 
     try {
@@ -676,6 +677,9 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget _buildGenderDropdown() {
+    // Define gender options as static list to prevent recreation
+    const List<String> genderOptions = ['Laki-laki', 'Perempuan'];
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -688,39 +692,59 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
         ),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          value: selectedGender,
-          decoration: InputDecoration(
-            hintText: '-- Pilih Jenis Kelamin --',
-            hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-            prefixIcon: Icon(Icons.wc_outlined, color: Colors.grey[600]),
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 16,
-              horizontal: 20,
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey[200]!, width: 1.5),
+          ),
+          child: DropdownButtonFormField<String>(
+            value: genderOptions.contains(selectedGender) ? selectedGender : null,
+            decoration: InputDecoration(
+              hintText: '-- Pilih Jenis Kelamin --',
+              hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+              prefixIcon: Icon(Icons.wc_outlined, color: Colors.grey[600]),
+              contentPadding: const EdgeInsets.symmetric(
+                vertical: 16,
+                horizontal: 20,
+              ),
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
             ),
-            filled: true,
-            fillColor: Colors.grey[50],
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.grey[200]!, width: 1.5),
-            ),
-            focusedBorder: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(16)),
-              borderSide: BorderSide(color: Color(0xFF06B6D4), width: 2),
+            items: genderOptions.map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF1F2937),
+                  ),
+                ),
+              );
+            }).toList(),
+            onChanged: (String? newValue) {
+              if (newValue != null && newValue != selectedGender) {
+                setState(() {
+                  selectedGender = newValue;
+                });
+              }
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Pilih jenis kelamin';
+              }
+              return null;
+            },
+            isExpanded: true,
+            icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF6B7280)),
+            iconSize: 24,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Color(0xFF1F2937),
             ),
           ),
-          items: ['Laki-laki', 'Perempuan'].map((String value) {
-            return DropdownMenuItem<String>(value: value, child: Text(value));
-          }).toList(),
-          onChanged: (String? newValue) {
-            setState(() {
-              selectedGender = newValue;
-            });
-          },
         ),
       ],
     );

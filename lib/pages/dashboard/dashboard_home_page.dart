@@ -96,12 +96,9 @@ class DashboardHomePage extends StatelessWidget {
               },
             ),
             IconButton(
-              icon: const Icon(
-                Icons.shopping_cart_outlined,
-                color: Colors.white,
-              ),
+              icon: const Icon(Icons.notifications_outlined, color: Colors.white),
               onPressed: () {
-                Navigator.pushNamed(context, '/marketplace');
+                Navigator.pushNamed(context, '/notifications');
               },
             ),
           ],

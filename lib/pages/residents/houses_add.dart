@@ -50,6 +50,7 @@ class _HousesAddPageState extends State<HousesAddPage> {
       return;
     }
 
+    if (!mounted) return;
     setState(() => _isSubmitting = true);
     try {
       final body = {

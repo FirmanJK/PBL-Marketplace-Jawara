@@ -980,6 +980,9 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
     required List<String> items,
     required ValueChanged<String?> onChanged,
   }) {
+    // Ensure value is valid or null to prevent assertion errors
+    final String? safeValue = (value != null && items.contains(value)) ? value : null;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -988,43 +991,51 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
           style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
         ),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          value: items.contains(value) ? value : null,
-          hint: Text(hint, style: TextStyle(color: Colors.grey[400])),
-          isExpanded: true,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: AppTheme.borderRadiusLarge,
-              borderSide: const BorderSide(color: AppTheme.border),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: AppTheme.borderRadiusLarge,
-              borderSide: const BorderSide(color: AppTheme.border),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: AppTheme.borderRadiusLarge,
-              borderSide: const BorderSide(color: AppTheme.primary, width: 2),
-            ),
-            filled: true,
-            fillColor: Colors.grey[50],
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 16,
-              horizontal: 20,
-            ),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            borderRadius: AppTheme.borderRadiusLarge,
+            border: Border.all(color: AppTheme.border),
           ),
-          items: items.map((String item) {
-            return DropdownMenuItem<String>(
-              value: item,
-              child: Text(
-                item,
-                style: const TextStyle(fontSize: 14, color: AppTheme.textDark),
-                overflow: TextOverflow.ellipsis,
+          child: DropdownButtonFormField<String>(
+            key: ValueKey('${label}_dropdown'), // Add unique key to prevent rebuild issues
+            value: safeValue,
+            hint: Text(hint, style: TextStyle(color: Colors.grey[400])),
+            isExpanded: true,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(
+                vertical: 16,
+                horizontal: 20,
               ),
-            );
-          }).toList(),
-          onChanged: onChanged,
-          menuMaxHeight: 200,
-          icon: const Icon(Icons.arrow_drop_down, size: 24),
+            ),
+            items: items.map<DropdownMenuItem<String>>((String item) {
+              return DropdownMenuItem<String>(
+                value: item,
+                child: Text(
+                  item,
+                  style: const TextStyle(fontSize: 14, color: AppTheme.textDark),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              );
+            }).toList(),
+            onChanged: (String? newValue) {
+              if (newValue != null && newValue != value) {
+                onChanged(newValue);
+              }
+            },
+            validator: (selectedValue) {
+              if (label == 'Jenis Kelamin' && (selectedValue == null || selectedValue.isEmpty)) {
+                return 'Jenis kelamin harus dipilih';
+              }
+              return null;
+            },
+            menuMaxHeight: 200,
+            icon: const Icon(Icons.arrow_drop_down, size: 24, color: AppTheme.textMedium),
+            style: const TextStyle(fontSize: 14, color: AppTheme.textDark),
+          ),
         ),
       ],
     );

@@ -34,15 +34,22 @@ class _CitizenMessagesPageState extends State<CitizenMessagesPage> {
   }
 
   Future<void> _loadMessages() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
-    // Simulate API call
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    setState(() {
-      _messages = dummyCitizenMessages;
-      _isLoading = false;
-    });
+    try {
+      // Simulate API call
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      if (!mounted) return;
+      setState(() {
+        _messages = dummyCitizenMessages;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+    }
   }
 
   List<CitizenMessage> _getFilteredMessages() {

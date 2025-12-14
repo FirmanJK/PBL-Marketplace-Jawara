@@ -41,6 +41,7 @@ class _HousesEditPageState extends State<HousesEditPage> {
 
   Future<void> _saveChanges() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!mounted) return;
     setState(() => _isSaving = true);
     try {
       final body = {

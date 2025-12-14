@@ -33,7 +33,10 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
     _nameController.text = widget.resident.name;
     _nikController.text = widget.resident.nik;
     _phoneController.text = widget.resident.phone ?? '';
-    _selectedGender = widget.resident.gender;
+    // Ensure gender has valid value to prevent dropdown issues
+    _selectedGender = ['Laki-laki', 'Perempuan'].contains(widget.resident.gender) 
+        ? widget.resident.gender 
+        : 'Laki-laki';
     _selectedStatus = widget.resident.status;
     _birthDate = widget.resident.birthDate;
   }
@@ -258,24 +261,45 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
               const SizedBox(height: 16),
 
               // Gender
-              DropdownButtonFormField<String>(
-                value: _selectedGender,
-                decoration: const InputDecoration(
-                  labelText: 'Jenis Kelamin',
-                  prefixIcon: Icon(Icons.wc),
-                  border: OutlineInputBorder(),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(4),
                 ),
-                items: ['Laki-laki', 'Perempuan'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedGender = newValue!;
-                  });
-                },
+                child: DropdownButtonFormField<String>(
+                  key: const ValueKey('gender_dropdown'), // Add unique key
+                  value: ['Laki-laki', 'Perempuan'].contains(_selectedGender) ? _selectedGender : 'Laki-laki',
+                  decoration: const InputDecoration(
+                    labelText: 'Jenis Kelamin',
+                    prefixIcon: Icon(Icons.wc),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  items: ['Laki-laki', 'Perempuan'].map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(
+                        value,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null && newValue != _selectedGender) {
+                      setState(() {
+                        _selectedGender = newValue;
+                      });
+                    }
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Pilih jenis kelamin';
+                    }
+                    return null;
+                  },
+                  isExpanded: true,
+                  icon: const Icon(Icons.arrow_drop_down),
+                ),
               ),
               const SizedBox(height: 16),
 
