@@ -430,7 +430,7 @@ class _ResidentsDetailPageState extends State<ResidentsDetailPage> {
           currentResident = updatedResident;
           _isLoading = false;
         });
-        ToastHelper.showSuccess(context, 'Data berhasil di-refresh');
+        ToastHelper.showSuccess(context, 'Data berhasil diperbarui');
       }
     } catch (e) {
       if (mounted) {
