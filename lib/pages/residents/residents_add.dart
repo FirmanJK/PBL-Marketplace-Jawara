@@ -358,33 +358,20 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
                                   final num = item is Map
                                       ? item['house_number'] as String?
                                       : item.houseNumber;
-                                  final status = item is Map
-                                      ? item['status'] as String?
-                                      : item.status;
                                   return ListTile(
-                                    title: Text(num ?? 'Rumah #$id'),
+                                    title: Text('Rumah No $num'),
                                     subtitle: Text(addr ?? '-'),
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(status ?? 'available'),
-                                        const SizedBox(width: 8),
-                                        TextButton(
-                                          child: const Text('Pilih'),
-                                          onPressed: () {
-                                            setState(() {
-                                              _selectedHouseId = id as int;
-                                            });
-                                            if (mounted)
-                                              ToastHelper.showSuccess(
-                                                context,
-                                                'Rumah terpilih',
-                                              );
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                      ],
-                                    ),
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedHouseId = id as int;
+                                      });
+                                      if (mounted)
+                                        ToastHelper.showSuccess(
+                                          context,
+                                          'Rumah terpilih',
+                                        );
+                                      Navigator.of(context).pop();
+                                    },
                                   );
                                 },
                               ),
@@ -721,12 +708,52 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
                     const SizedBox(height: 12),
 
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Expanded(
-                          child: _buildTextField(
-                            label: 'Nomor Rumah',
-                            hint: 'Contoh: A-101',
-                            controller: _houseNumberController,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Nomor Rumah',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              TextField(
+                                controller: _houseNumberController,
+                                decoration: InputDecoration(
+                                  hintText: 'Contoh: A-101',
+                                  border: OutlineInputBorder(
+                                    borderRadius: AppTheme.borderRadiusLarge,
+                                    borderSide: const BorderSide(
+                                      color: AppTheme.border,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: AppTheme.borderRadiusLarge,
+                                    borderSide: const BorderSide(
+                                      color: AppTheme.border,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: AppTheme.borderRadiusLarge,
+                                    borderSide: const BorderSide(
+                                      color: AppTheme.primary,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.grey[50],
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 20,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -737,7 +764,7 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
-                              vertical: 14,
+                              vertical: 16,
                             ),
                           ),
                         ),
@@ -745,28 +772,145 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
                     ),
                     const SizedBox(height: 16),
 
-                    _buildTextField(
-                      label: 'Alamat Rumah',
-                      hint: 'Jl. Contoh No.1',
-                      controller: _houseAddressController,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Alamat Rumah',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: _houseAddressController,
+                          decoration: InputDecoration(
+                            hintText: 'Jl. Contoh No.1',
+                            border: OutlineInputBorder(
+                              borderRadius: AppTheme.borderRadiusLarge,
+                              borderSide: const BorderSide(
+                                color: AppTheme.border,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: AppTheme.borderRadiusLarge,
+                              borderSide: const BorderSide(
+                                color: AppTheme.border,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: AppTheme.borderRadiusLarge,
+                              borderSide: const BorderSide(
+                                color: AppTheme.primary,
+                                width: 2,
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey[50],
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                              horizontal: 20,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 12),
 
                     Row(
                       children: [
                         Expanded(
-                          child: _buildTextField(
-                            label: 'RT',
-                            hint: '001',
-                            controller: _rtController,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'RT',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              TextField(
+                                controller: _rtController,
+                                decoration: InputDecoration(
+                                  hintText: '001',
+                                  border: OutlineInputBorder(
+                                    borderRadius: AppTheme.borderRadiusLarge,
+                                    borderSide: const BorderSide(
+                                      color: AppTheme.border,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: AppTheme.borderRadiusLarge,
+                                    borderSide: const BorderSide(
+                                      color: AppTheme.border,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: AppTheme.borderRadiusLarge,
+                                    borderSide: const BorderSide(
+                                      color: AppTheme.primary,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.grey[50],
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 20,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: _buildTextField(
-                            label: 'RW',
-                            hint: '002',
-                            controller: _rwController,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'RW',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              TextField(
+                                controller: _rwController,
+                                decoration: InputDecoration(
+                                  hintText: '002',
+                                  border: OutlineInputBorder(
+                                    borderRadius: AppTheme.borderRadiusLarge,
+                                    borderSide: const BorderSide(
+                                      color: AppTheme.border,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: AppTheme.borderRadiusLarge,
+                                    borderSide: const BorderSide(
+                                      color: AppTheme.border,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: AppTheme.borderRadiusLarge,
+                                    borderSide: const BorderSide(
+                                      color: AppTheme.primary,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.grey[50],
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 20,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -775,26 +919,30 @@ class _ResidentsAddPageState extends State<ResidentsAddPage> {
 
                     // Tombol Aksi
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(
-                          width: 120,
-                          child: CustomButton(
-                            text: 'Submit',
-                            onPressed: _submitForm,
+                        ElevatedButton.icon(
+                          onPressed: _submitForm,
+                          icon: const Icon(Icons.save),
+                          label: const Text('Simpan'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 24,
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 16),
                         TextButton(
                           onPressed: _resetForm,
-                          child: const Text(
-                            'Reset',
-                            style: TextStyle(color: AppTheme.textMedium),
-                          ),
                           style: TextButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 24,
-                              vertical: 16,
+                              vertical: 12,
                             ),
+                          ),
+                          child: const Text(
+                            'Reset',
+                            style: TextStyle(color: AppTheme.textMedium),
                           ),
                         ),
                       ],

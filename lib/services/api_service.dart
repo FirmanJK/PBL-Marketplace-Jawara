@@ -9,7 +9,6 @@ class ApiService {
   // Untuk Physical Device gunakan: http://YOUR_IP:8000
   static const String baseUrl = 'http://10.0.2.2:8000';
   // static const String baseUrl = 'http://localhost:8000';
-  
 
   // Timeout duration
   static const Duration timeout = Duration(seconds: 30);
@@ -81,6 +80,9 @@ class ApiService {
   }) async {
     try {
       final uri = Uri.parse('$baseUrl$endpoint');
+      print(
+        '[DEBUG] ApiService.put: endpoint=$endpoint, uri=$uri, body=$body, hasToken=${token != null}',
+      );
       final response = await http
           .put(
             uri,
@@ -89,8 +91,10 @@ class ApiService {
           )
           .timeout(timeout);
 
+      print('[DEBUG] ApiService.put response: status=${response.statusCode}');
       return _handleResponse(response);
     } catch (e) {
+      print('[DEBUG] ApiService.put error: $e');
       throw _handleError(e);
     }
   }
@@ -185,8 +189,8 @@ class ApiService {
       return error;
     } else if (error is http.ClientException) {
       return ApiException('Kesalahan jaringan: ${error.message}', 0);
-    } else if (error.toString().contains('SocketException') || 
-               error.toString().contains('Connection refused')) {
+    } else if (error.toString().contains('SocketException') ||
+        error.toString().contains('Connection refused')) {
       return ApiException(
         'Tidak dapat terhubung ke server. Pastikan:\n'
         '1. Backend server sudah berjalan\n'

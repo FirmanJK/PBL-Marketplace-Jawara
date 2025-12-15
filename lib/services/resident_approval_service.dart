@@ -69,7 +69,7 @@ class ResidentApprovalService {
   }
 
   /// Approve resident registration
-  /// - familyId: Keluarga yang akan di-assign ke resident
+  /// - familyId: Keluarga yang akan di-assign ke resident (0 = gunakan family dari registrasi)
   /// - note: Catatan approval (opsional)
   static Future<ResidentApproval> approveResident(
     int approvalId, {
@@ -78,17 +78,24 @@ class ResidentApprovalService {
   }) async {
     try {
       final token = _authService.accessToken;
+      print(
+        '[DEBUG] approveResident called: approvalId=$approvalId, familyId=$familyId, note=$note',
+      );
+      print('[DEBUG] token=$token');
       final body = {
         'status': 'approved',
-        'family_id': familyId,
+        if (familyId != 0) 'family_id': familyId, // Hanya kirim jika override
         if (note != null && note.isNotEmpty) 'note': note,
       };
+      print('[DEBUG] request body: $body');
 
+      print('[DEBUG] Sending PUT request to $endpoint/$approvalId');
       final response = await ApiService.put(
         '$endpoint/$approvalId',
         body: body,
         token: token,
       );
+      print('[DEBUG] PUT response received: $response');
 
       final data = response is Map ? response : response['data'] ?? response;
       return ResidentApproval.fromJson(data as Map<String, dynamic>);
