@@ -1,3 +1,5 @@
+import 'resident.dart';
+
 class House {
   final int id;
   final String? houseNumber;
@@ -8,6 +10,7 @@ class House {
   final String? status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final List<Resident>? residents;
 
   const House({
     required this.id,
@@ -19,6 +22,7 @@ class House {
     this.status = 'available',
     this.createdAt,
     this.updatedAt,
+    this.residents,
   });
 
   factory House.fromJson(Map<String, dynamic> json) {
@@ -32,6 +36,9 @@ class House {
       status: json['status'] as String? ?? 'available',
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) : null,
       updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at'] as String) : null,
+      residents: (json['residents'] as List<dynamic>?)
+          ?.map((e) => Resident.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -44,6 +51,7 @@ class House {
       'rw': rw,
       'status': status,
       'resident_count': residentCount,
+      'residents': residents?.map((r) => r.toJson()).toList(),
       'created_at': createdAt?.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
     };

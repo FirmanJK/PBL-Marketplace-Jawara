@@ -4,7 +4,7 @@ import 'package:jawara/pages/residents/family_detail.dart';
 import 'package:jawara/utils/toast_helper.dart';
 import 'package:jawara/models/family.dart';
 import 'package:jawara/services/families_service.dart';
-import 'package:jawara/data/families.dart';
+// Use API-backed families list instead of dummy data
 
 class FamiliesPage extends StatefulWidget {
   const FamiliesPage({super.key});
@@ -119,8 +119,16 @@ class _FamiliesPageState extends State<FamiliesPage> {
                               final family = _getFilteredFamilies()[index];
                               return Dismissible(
                                 key: ValueKey(family.id),
-                                direction: DismissDirection.endToStart,
+                                // Disable swipe-to-delete when family still has members
+                                direction: family.residentCount > 0 ? DismissDirection.none : DismissDirection.endToStart,
                                 onDismissed: (direction) async {
+                                  // Guard: if family has members, prevent deletion and inform user
+                                  if (family.residentCount > 0) {
+                                    if (mounted) {
+                                      ToastHelper.showWarning(context, 'Tidak dapat menghapus keluarga yang masih memiliki anggota.');
+                                    }
+                                    return;
+                                  }
                                   try {
                                     await FamiliesService.deleteFamily(
                                       family.id,
@@ -189,8 +197,8 @@ class _FamiliesPageState extends State<FamiliesPage> {
                                               178,
                                               0.1,
                                             ),
-                                            child: const Icon(
-                                              Icons.family_restroom,
+                                            child: Icon(
+                                              family.residentCount == 0 ? Icons.family_restroom : Icons.family_restroom,
                                               color: Color(0xFF0891B2),
                                               size: 28,
                                             ),
@@ -355,19 +363,33 @@ class _FamiliesPageState extends State<FamiliesPage> {
   @override
   void initState() {
     super.initState();
-    // Langsung load data dummy tanpa loading
-    _families = dummyFamilies;
-    _isLoading = false;
+    // Load families from backend
+    _loadFamilies();
   }
 
   Future<void> _loadFamilies() async {
-    // Langsung gunakan data dummy
     if (!mounted) return;
     setState(() {
-      _families = dummyFamilies;
-      _isLoading = false;
+      _isLoading = true;
       _errorMessage = null;
     });
+
+    try {
+      final families = await FamiliesService.getFamilies(skip: 0, limit: 200);
+      if (!mounted) return;
+      setState(() {
+        _families = families;
+        _isLoading = false;
+        _errorMessage = null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _families = [];
+        _isLoading = false;
+        _errorMessage = e.toString();
+      });
+    }
   }
 
   List<Family> _getFilteredFamilies() {

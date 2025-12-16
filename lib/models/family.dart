@@ -38,6 +38,7 @@ class Family {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       headResidentName: headResidentName ?? this.headResidentName,
+      
     );
   }
 
@@ -60,6 +61,7 @@ class Family {
         }
         return json['head_resident_name'] as String? ?? null;
       })(),
+      
     );
   }
 

@@ -57,6 +57,31 @@ class FamiliesService {
     }
   }
 
+  /// Get single family along with member list
+  static Future<Map<String, dynamic>> getFamilyWithMembers(int id) async {
+    try {
+      final token = _authService.accessToken;
+      final response = await ApiService.get('$endpoint/$id', token: token);
+      final data = response is Map ? response : response['data'] ?? response;
+
+      final family = Family.fromJson(data as Map<String, dynamic>);
+
+      final List<Resident> members = [];
+      if (data is Map && data['residents'] is List) {
+        final list = data['residents'] as List<dynamic>;
+        for (final item in list) {
+          try {
+            members.add(Resident.fromJson(item as Map<String, dynamic>));
+          } catch (_) {}
+        }
+      }
+
+      return {'family': family, 'residents': members};
+    } catch (e) {
+      throw Exception('Failed to load family with members: $e');
+    }
+  }
+
   static Future<Family> createFamily(Map<String, dynamic> data) async {
     try {
       final token = _authService.accessToken;
@@ -92,12 +117,12 @@ class FamiliesService {
   }
 
   /// Remove an existing resident from the family (unassign resident.family_id)
-  static Future<Resident> removeResidentFromFamily(int familyId, int residentId) async {
+  static Future<void> removeResidentFromFamily(int familyId, int residentId) async {
     try {
       final token = _authService.accessToken;
-      final response = await ApiService.delete('$endpoint/$familyId/members/$residentId', token: token);
-      final resData = response is Map ? response : response['data'] ?? response;
-      return Resident.fromJson(resData as Map<String, dynamic>);
+      // Server returns 204 No Content on success; we only need to ensure the request completes.
+      await ApiService.delete('$endpoint/$familyId/members/$residentId', token: token);
+      return;
     } catch (e) {
       throw Exception('Failed to remove resident from family: $e');
     }

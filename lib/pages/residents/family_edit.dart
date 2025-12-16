@@ -41,8 +41,7 @@ class _FamilyEditPageState extends State<FamilyEditPage> {
 
     setState(() => _isSaving = true);
     try {
-      final payload = <String, dynamic>{'family_number': newName};
-      if (_selectedHeadId != null) payload['head_resident_id'] = _selectedHeadId;
+      final payload = <String, dynamic>{'family_number': newName, 'head_resident_id': _selectedHeadId};
       await FamiliesService.updateFamily(widget.family.id, payload);
       if (!mounted) return;
       ToastHelper.showSuccess(context, 'Keluarga berhasil diperbarui');
@@ -84,12 +83,13 @@ class _FamilyEditPageState extends State<FamilyEditPage> {
     })();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Keluarga'),
+        appBar: AppBar(
+          title: const Text('Edit Keluarga'),
+          backgroundColor: Colors.white,
+          foregroundColor: const Color(0xFF1F2937),
+          elevation: 0,
+        ),
         backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1F2937),
-        elevation: 0,
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -97,7 +97,7 @@ class _FamilyEditPageState extends State<FamilyEditPage> {
           children: [
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Nama Keluarga', border: OutlineInputBorder()),
+              decoration: const InputDecoration(labelText: 'NIK', border: OutlineInputBorder()),
             ),
             const SizedBox(height: 16),
             
