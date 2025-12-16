@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jawara/data/mutations.dart';
+import 'package:jawara/services/mutations_service.dart';
 
 import 'package:jawara/shared/standard_app_bar.dart';
 import 'family_mutations_detail.dart';
@@ -13,29 +13,67 @@ class FamilyMutationsListPage extends StatefulWidget {
 }
 
 class _FamilyMutationsListPageState extends State<FamilyMutationsListPage> {
+  List mutationList = [];
+  bool _isLoading = true;
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMutations();
+  }
+
+  Future<void> _loadMutations() async {
+    setState(() => _isLoading = true);
+    try {
+      final muts = await MutationsService.getMutations();
+      setState(() {
+        mutationList = muts;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+    }
+  }
+
   Widget _buildStatusChip(String jenisMutasi) {
-    Color color;
+    final raw = jenisMutasi ?? '';
+    final key = raw.toLowerCase();
+
+    // Normalize label: convert snake_case or lowercase codes to Title Case
+    String _formatLabel(String s) {
+      if (s.trim().isEmpty) return 'Unknown';
+      final replaced = s.replaceAll('_', ' ').trim();
+      return replaced
+          .split(RegExp(r"\s+"))
+          .map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}')
+          .join(' ');
+    }
+
+    final label = _formatLabel(raw);
+
+    Color background;
     Color textColor;
 
-    if (jenisMutasi.contains('Keluar')) {
-      color = const Color(0xFFFEE2E2);
+    if (key.contains('keluar')) {
+      background = const Color(0xFFFEE2E2);
       textColor = const Color(0xFFEF4444);
-    } else if (jenisMutasi.contains('Pindah')) {
-      color = const Color(0xFFD1FAE5);
+    } else if (key.contains('pindah') || key.contains('masuk')) {
+      background = const Color(0xFFD1FAE5);
       textColor = const Color(0xFF047857);
     } else {
-      color = const Color(0xFFE5E7EB);
+      background = const Color(0xFFE5E7EB);
       textColor = const Color(0xFF4B5563);
     }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color,
+        color: background,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        jenisMutasi,
+        label,
         style: TextStyle(
           color: textColor,
           fontWeight: FontWeight.w600,
@@ -63,12 +101,24 @@ class _FamilyMutationsListPageState extends State<FamilyMutationsListPage> {
                 filled: true,
                 fillColor: Colors.grey[100],
               ),
+              onChanged: (v) {
+                setState(() {
+                  _searchQuery = v.trim().toLowerCase();
+                });
+              },
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: mutationList.length,
+            child: mutationList.isEmpty 
+              ? const Center(
+                  child: Text(
+                    'Belum ada data mutasi',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: mutationList.length,
               itemBuilder: (context, index) {
                 final mutation = mutationList[index];
                 return Card(
@@ -133,10 +183,13 @@ class _FamilyMutationsListPageState extends State<FamilyMutationsListPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.pushNamed(context, '/family-mutations/add');
+          Navigator.pushNamed(context, '/mutations/add');
         },
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Tambah Mutasi', style: TextStyle(color: Colors.white)),
+        label: const Text(
+          'Tambah Mutasi',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: const Color(0xFF0891B2),
       ),
     );

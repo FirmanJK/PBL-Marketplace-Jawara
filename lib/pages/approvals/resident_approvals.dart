@@ -27,6 +27,7 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
   }
 
   Future<void> _loadResidents() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
@@ -67,7 +68,7 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
       if (mounted) {
         ToastHelper.showError(context, 'Gagal load pengajuan: $e');
       }
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 

@@ -28,6 +28,7 @@ class _ResidentsGridPageState extends State<ResidentsGridPage> {
   }
 
   Future<void> _loadResidents() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     // Simulasi loading dari API

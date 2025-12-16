@@ -419,6 +419,7 @@ class _ResidentsDetailPageState extends State<ResidentsDetailPage> {
 
   Future<void> _refreshResidentData() async {
     try {
+      if (!mounted) return;
       setState(() => _isLoading = true);
 
       final updatedResident = await ResidentsService.getResidentById(
@@ -636,6 +637,7 @@ class _ResidentsDetailPageState extends State<ResidentsDetailPage> {
 
   Future<void> _deleteResident(BuildContext context) async {
     try {
+      if (!mounted) return;
       setState(() => _isLoading = true);
 
       await ResidentsService.deleteResident(currentResident.id);

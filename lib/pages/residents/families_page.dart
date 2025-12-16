@@ -4,7 +4,8 @@ import 'package:jawara/pages/residents/family_detail.dart';
 import 'package:jawara/utils/toast_helper.dart';
 import 'package:jawara/models/family.dart';
 import 'package:jawara/services/families_service.dart';
-import 'package:jawara/data/families.dart';
+import 'package:flutter/services.dart';
+// Use API-backed families list instead of dummy data
 
 class FamiliesPage extends StatefulWidget {
   const FamiliesPage({super.key});
@@ -119,8 +120,16 @@ class _FamiliesPageState extends State<FamiliesPage> {
                               final family = _getFilteredFamilies()[index];
                               return Dismissible(
                                 key: ValueKey(family.id),
-                                direction: DismissDirection.endToStart,
+                                // Disable swipe-to-delete when family still has members
+                                direction: family.residentCount > 0 ? DismissDirection.none : DismissDirection.endToStart,
                                 onDismissed: (direction) async {
+                                  // Guard: if family has members, prevent deletion and inform user
+                                  if (family.residentCount > 0) {
+                                    if (mounted) {
+                                      ToastHelper.showWarning(context, 'Tidak dapat menghapus keluarga yang masih memiliki anggota.');
+                                    }
+                                    return;
+                                  }
                                   try {
                                     await FamiliesService.deleteFamily(
                                       family.id,
@@ -189,8 +198,8 @@ class _FamiliesPageState extends State<FamiliesPage> {
                                               178,
                                               0.1,
                                             ),
-                                            child: const Icon(
-                                              Icons.family_restroom,
+                                            child: Icon(
+                                              family.residentCount == 0 ? Icons.family_restroom : Icons.family_restroom,
                                               color: Color(0xFF0891B2),
                                               size: 28,
                                             ),
@@ -355,19 +364,33 @@ class _FamiliesPageState extends State<FamiliesPage> {
   @override
   void initState() {
     super.initState();
-    // Langsung load data dummy tanpa loading
-    _families = dummyFamilies;
-    _isLoading = false;
+    // Load families from backend
+    _loadFamilies();
   }
 
   Future<void> _loadFamilies() async {
-    // Langsung gunakan data dummy
     if (!mounted) return;
     setState(() {
-      _families = dummyFamilies;
-      _isLoading = false;
+      _isLoading = true;
       _errorMessage = null;
     });
+
+    try {
+      final families = await FamiliesService.getFamilies(skip: 0, limit: 200);
+      if (!mounted) return;
+      setState(() {
+        _families = families;
+        _isLoading = false;
+        _errorMessage = null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _families = [];
+        _isLoading = false;
+        _errorMessage = e.toString();
+      });
+    }
   }
 
   List<Family> _getFilteredFamilies() {
@@ -447,104 +470,35 @@ class _FamiliesPageState extends State<FamiliesPage> {
                     children: [
                       TextField(
                         controller: namaKeluargaController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         decoration: InputDecoration(
-                          labelText: 'Nama Keluarga',
-                          hintText: 'Masukkan nama keluarga',
+                          labelText: 'NIK',
+                          hintText: 'Masukkan NIK (angka saja)',
                           prefixIcon: const Icon(
                             Icons.people,
                             color: Color(0xFF0891B2),
                           ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF0891B2),
-                              width: 2,
-                            ),
-                          ),
+                          border: const OutlineInputBorder(),
                           filled: true,
                           fillColor: Colors.grey[50],
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: kepalaKeluargaController,
-                        decoration: InputDecoration(
-                          labelText: 'Kepala Keluarga',
-                          hintText: 'Masukkan nama kepala keluarga',
-                          prefixIcon: const Icon(
-                            Icons.person,
-                            color: Color(0xFF0891B2),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF0891B2),
-                              width: 2,
-                            ),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[50],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: alamatController,
-                        decoration: InputDecoration(
-                          labelText: 'Alamat Rumah',
-                          hintText: 'Masukkan alamat lengkap',
-                          prefixIcon: const Icon(
-                            Icons.location_on,
-                            color: Color(0xFF0891B2),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF0891B2),
-                              width: 2,
-                            ),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[50],
-                        ),
-                        maxLines: 2,
                       ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<String>(
-                        initialValue: selectedStatus,
-                        decoration: InputDecoration(
+                        value: selectedStatus,
+                        decoration: const InputDecoration(
                           labelText: 'Status Kepemilikan',
-                          prefixIcon: const Icon(
-                            Icons.home,
-                            color: Color(0xFF0891B2),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF0891B2),
-                              width: 2,
-                            ),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[50],
+                          border: OutlineInputBorder(),
                         ),
-                        items: ['Pemilik', 'Penyewa'].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
+                        items: ['Pemilik', 'Penyewa']
+                            .map((String value) => DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                ))
+                            .toList(),
                         onChanged: (String? newValue) {
                           selectedStatus = newValue;
                         },
@@ -591,6 +545,21 @@ class _FamiliesPageState extends State<FamiliesPage> {
                           );
                           return;
                         }
+
+                          if (familyNumber.length != 16) {
+                            ToastHelper.showWarning(
+                              parentContext,
+                              'NIK harus 16 digit',
+                            );
+                            return;
+                          }
+                          if (int.tryParse(familyNumber) == null) {
+                            ToastHelper.showWarning(
+                              parentContext,
+                              'NIK hanya boleh berisi angka',
+                            );
+                            return;
+                          }
 
                         // Call API to create family. Use public endpoint when no token.
                         try {
@@ -721,45 +690,15 @@ class _FamiliesPageState extends State<FamiliesPage> {
             children: [
               TextField(
                 controller: namaKeluargaController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: const InputDecoration(
-                  labelText: 'Nama Keluarga',
+                  labelText: 'NIK',
+                  hintText: 'Masukkan NIK (16 Digit)',
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
-              TextField(
-                controller: kepalaKeluargaController,
-                decoration: const InputDecoration(
-                  labelText: 'Kepala Keluarga',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: alamatController,
-                decoration: const InputDecoration(
-                  labelText: 'Alamat Rumah',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 2,
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                initialValue: selectedStatus,
-                decoration: const InputDecoration(
-                  labelText: 'Status Kepemilikan',
-                  border: OutlineInputBorder(),
-                ),
-                items: ['Pemilik', 'Penyewa'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  selectedStatus = newValue;
-                },
-              ),
             ],
           ),
         ),

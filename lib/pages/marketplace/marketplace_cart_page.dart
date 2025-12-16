@@ -22,9 +22,40 @@ class _MarketplaceCartPageState extends State<MarketplaceCartPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Keranjang Belanja'),
-        backgroundColor: const Color(0xFF0891B2),
-        foregroundColor: Colors.white,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0891B2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Icon(
+                  Icons.shopping_cart,
+                  color: Color(0xFF0891B2),
+                  size: 14,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Text('Keranjang Saya', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18)),
+          ],
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: ListenableBuilder(
         listenable: _cartService,
@@ -235,12 +266,7 @@ class _MarketplaceCartPageState extends State<MarketplaceCartPage> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          // TODO: Implement checkout for multiple items
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Fitur checkout multiple items akan segera hadir'),
-                            ),
-                          );
+                          Navigator.pushNamed(context, '/marketplace/checkout');
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF0891B2),
@@ -254,6 +280,7 @@ class _MarketplaceCartPageState extends State<MarketplaceCartPage> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                       ),

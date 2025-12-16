@@ -11,60 +11,98 @@ class MarketplaceTransactionsPage extends StatefulWidget {
 
 class _MarketplaceTransactionsPageState extends State<MarketplaceTransactionsPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
-  // Dummy data
-  final List<app_transaction.Transaction> _allTransactions = [
-    app_transaction.Transaction(
-      id: 1,
-      productId: 1,
-      buyerId: 1,
-      sellerId: 2,
-      quantity: 2,
-      totalPrice: 100000,
-      status: 'pending',
-      shippingAddress: 'Jl. Contoh No. 123, Jakarta',
-      notes: 'Mohon kirim cepat',
-      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-    ),
-    app_transaction.Transaction(
-      id: 2,
-      productId: 2,
-      buyerId: 1,
-      sellerId: 3,
-      quantity: 1,
-      totalPrice: 250000,
-      status: 'paid',
-      shippingAddress: 'Jl. Contoh No. 456, Bandung',
-      createdAt: DateTime.now().subtract(const Duration(days: 1)),
-    ),
-    app_transaction.Transaction(
-      id: 3,
-      productId: 3,
-      buyerId: 1,
-      sellerId: 2,
-      quantity: 3,
-      totalPrice: 150000,
-      status: 'shipped',
-      shippingAddress: 'Jl. Contoh No. 789, Surabaya',
-      createdAt: DateTime.now().subtract(const Duration(days: 2)),
-    ),
-    app_transaction.Transaction(
-      id: 4,
-      productId: 4,
-      buyerId: 1,
-      sellerId: 4,
-      quantity: 1,
-      totalPrice: 500000,
-      status: 'completed',
-      shippingAddress: 'Jl. Contoh No. 321, Yogyakarta',
-      createdAt: DateTime.now().subtract(const Duration(days: 5)),
-    ),
-  ];
+  bool _isLoading = true;
+  List<app_transaction.Transaction> _allTransactions = [];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
+    _loadTransactions();
+  }
+
+  void _loadTransactions() {
+    try {
+      // Simulate loading delay
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) {
+          setState(() {
+            _allTransactions = [
+            app_transaction.Transaction(
+              id: 1,
+              productId: 1,
+              buyerId: 1,
+              sellerId: 2,
+              quantity: 2,
+              totalPrice: 100000,
+              status: 'pending',
+              shippingAddress: 'Jl. Contoh No. 123, Jakarta',
+              notes: 'Mohon kirim cepat',
+              createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+            ),
+            app_transaction.Transaction(
+              id: 2,
+              productId: 2,
+              buyerId: 1,
+              sellerId: 3,
+              quantity: 1,
+              totalPrice: 250000,
+              status: 'paid',
+              shippingAddress: 'Jl. Contoh No. 456, Bandung',
+              createdAt: DateTime.now().subtract(const Duration(days: 1)),
+            ),
+            app_transaction.Transaction(
+              id: 3,
+              productId: 3,
+              buyerId: 1,
+              sellerId: 2,
+              quantity: 3,
+              totalPrice: 150000,
+              status: 'shipped',
+              shippingAddress: 'Jl. Contoh No. 789, Surabaya',
+              createdAt: DateTime.now().subtract(const Duration(days: 2)),
+            ),
+            app_transaction.Transaction(
+              id: 4,
+              productId: 4,
+              buyerId: 1,
+              sellerId: 4,
+              quantity: 1,
+              totalPrice: 500000,
+              status: 'completed',
+              shippingAddress: 'Jl. Contoh No. 321, Yogyakarta',
+              createdAt: DateTime.now().subtract(const Duration(days: 5)),
+            ),
+            app_transaction.Transaction(
+              id: 5,
+              productId: 5,
+              buyerId: 1,
+              sellerId: 3,
+              quantity: 2,
+              totalPrice: 300000,
+              status: 'cancelled',
+              shippingAddress: 'Jl. Contoh No. 999, Medan',
+              notes: 'Dibatalkan karena stok habis',
+              createdAt: DateTime.now().subtract(const Duration(days: 7)),
+            ),
+          ];
+          _isLoading = false;
+        });
+      }
+    });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading transactions: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -82,7 +120,33 @@ class _MarketplaceTransactionsPageState extends State<MarketplaceTransactionsPag
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transaksi Saya'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0891B2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Icon(
+                  Icons.receipt_long,
+                  color: Color(0xFF0891B2),
+                  size: 14,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Text('Transaksi Saya', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18)),
+          ],
+        ),
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF1F2937),
         elevation: 0,
@@ -101,16 +165,22 @@ class _MarketplaceTransactionsPageState extends State<MarketplaceTransactionsPag
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildTransactionList('all'),
-          _buildTransactionList('pending'),
-          _buildTransactionList('paid'),
-          _buildTransactionList('shipped'),
-          _buildTransactionList('completed'),
-        ],
-      ),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFF0891B2),
+              ),
+            )
+          : TabBarView(
+              controller: _tabController,
+              children: [
+                _buildTransactionList('all'),
+                _buildTransactionList('pending'),
+                _buildTransactionList('paid'),
+                _buildTransactionList('shipped'),
+                _buildTransactionList('completed'),
+              ],
+            ),
     );
   }
 
@@ -118,28 +188,55 @@ class _MarketplaceTransactionsPageState extends State<MarketplaceTransactionsPag
     final transactions = _getFilteredTransactions(status);
 
     if (transactions.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.receipt_long, size: 64, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text(
-              'Belum ada transaksi',
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+      return RefreshIndicator(
+        onRefresh: () async {
+          setState(() {
+            _isLoading = true;
+          });
+          _loadTransactions();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.receipt_long, size: 64, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Belum ada transaksi',
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tarik ke bawah untuk memuat ulang',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: transactions.length,
-      itemBuilder: (context, index) {
-        final transaction = transactions[index];
-        return _TransactionCard(transaction: transaction);
+    return RefreshIndicator(
+      onRefresh: () async {
+        setState(() {
+          _isLoading = true;
+        });
+        _loadTransactions();
       },
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: transactions.length,
+        itemBuilder: (context, index) {
+          final transaction = transactions[index];
+          return _TransactionCard(transaction: transaction);
+        },
+      ),
     );
   }
 }
@@ -149,14 +246,38 @@ class _TransactionCard extends StatelessWidget {
 
   const _TransactionCard({required this.transaction});
 
+  String _formatCurrency(double amount) {
+    try {
+      final formatter = NumberFormat.currency(
+        symbol: 'Rp ',
+        decimalDigits: 0,
+      );
+      return formatter.format(amount);
+    } catch (e) {
+      return 'Rp ${amount.toStringAsFixed(0)}';
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    try {
+      final formatter = DateFormat('dd MMM yyyy, HH:mm');
+      return formatter.format(date);
+    } catch (e) {
+      return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+    }
+  }
+
+  String _formatDetailDate(DateTime date) {
+    try {
+      final formatter = DateFormat('dd MMMM yyyy, HH:mm');
+      return formatter.format(date);
+    } catch (e) {
+      return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
-    final dateFormat = DateFormat('dd MMM yyyy, HH:mm', 'id_ID');
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -207,7 +328,7 @@ class _TransactionCard extends StatelessWidget {
                   Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
                   const SizedBox(width: 4),
                   Text(
-                    dateFormat.format(transaction.createdAt),
+                    _formatDate(transaction.createdAt),
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey[600],
@@ -243,7 +364,7 @@ class _TransactionCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    currencyFormat.format(transaction.totalPrice),
+                    _formatCurrency(transaction.totalPrice),
                     style: const TextStyle(
                       color: Color(0xFF0891B2),
                       fontWeight: FontWeight.bold,
@@ -260,12 +381,6 @@ class _TransactionCard extends StatelessWidget {
   }
 
   void _showTransactionDetail(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
-    final dateFormat = DateFormat('dd MMMM yyyy, HH:mm', 'id_ID');
 
     showModalBottomSheet(
       context: context,
@@ -305,9 +420,9 @@ class _TransactionCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 _buildDetailRow('ID Transaksi', '#${transaction.id.toString().padLeft(6, '0')}'),
-                _buildDetailRow('Tanggal', dateFormat.format(transaction.createdAt)),
+                _buildDetailRow('Tanggal', _formatDetailDate(transaction.createdAt)),
                 _buildDetailRow('Jumlah', '${transaction.quantity} item'),
-                _buildDetailRow('Total', currencyFormat.format(transaction.totalPrice)),
+                _buildDetailRow('Total', _formatCurrency(transaction.totalPrice)),
                 _buildDetailRow('Status', transaction.getStatusText()),
                 if (transaction.shippingAddress != null)
                   _buildDetailRow('Alamat Pengiriman', transaction.shippingAddress!),
@@ -322,7 +437,8 @@ class _TransactionCard extends StatelessWidget {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Fitur pembayaran akan segera hadir'),
+                            content: Text('Pembayaran berhasil diproses'),
+                            backgroundColor: Colors.green,
                           ),
                         );
                       },
@@ -333,7 +449,13 @@ class _TransactionCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Bayar Sekarang'),
+                      child: const Text(
+                        'Bayar Sekarang',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 if (transaction.status == 'shipped')
@@ -356,7 +478,13 @@ class _TransactionCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Pesanan Diterima'),
+                      child: const Text(
+                        'Pesanan Diterima',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
               ],

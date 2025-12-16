@@ -112,7 +112,7 @@ class FamilyMutationsDetailPage extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildDetailCard(
                     icon: Icons.family_restroom,
-                    label: 'Nama Keluarga',
+                    label: 'NIK',
                     value: mutation.keluarga,
                   ),
                   _buildDetailCard(

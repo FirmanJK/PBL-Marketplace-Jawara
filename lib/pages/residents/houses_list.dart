@@ -24,10 +24,9 @@ class _HousesListPageState extends State<HousesListPage> {
   @override
   void initState() {
     super.initState();
-    // Langsung load data dummy tanpa loading
-    _houses = dummyHouses;
-    _displayed = List.from(dummyHouses);
-    _isLoading = false;
+    // Load from backend
+    _isLoading = true;
+    _loadHouses();
   }
 
   @override
@@ -37,14 +36,31 @@ class _HousesListPageState extends State<HousesListPage> {
   }
 
   Future<void> _loadHouses() async {
-    // Langsung gunakan data dummy
     if (!mounted) return;
     setState(() {
-      _houses = dummyHouses;
-      _displayed = List.from(dummyHouses);
-      _isLoading = false;
+      _isLoading = true;
       _errorMessage = null;
     });
+
+    try {
+      final houses = await HouseService.getHouses(skip: 0, limit: 200);
+      if (!mounted) return;
+      setState(() {
+        _houses = houses;
+        _displayed = List.from(houses);
+        _isLoading = false;
+        _errorMessage = null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        // Fallback to dummy data to keep UI usable
+        _houses = dummyHouses;
+        _displayed = List.from(dummyHouses);
+        _isLoading = false;
+        _errorMessage = e.toString();
+      });
+    }
   }
 
   void _onSearchChanged(String q) {
