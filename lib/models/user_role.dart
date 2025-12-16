@@ -1,9 +1,9 @@
 enum UserRole {
-  adminSistem,    // Admin Sistem - Full access
-  ketuaRT,        // Ketua RT/RW - Dashboard, Data Warga, Notifikasi
-  sekretaris,     // Sekretaris - Dashboard, Data Warga, Notifikasi
-  bendahara,      // Bendahara - Keuangan, Dashboard
-  warga,          // Warga - Marketplace, Notifikasi, Riwayat Transaksi
+  adminSistem, // Admin Sistem - Full access
+  ketuaRT, // Ketua RT/RW - Dashboard, Data Warga, Notifikasi
+  sekretaris, // Sekretaris - Dashboard, Data Warga, Notifikasi
+  bendahara, // Bendahara - Keuangan, Dashboard
+  warga, // Warga - Marketplace, Notifikasi, Riwayat Transaksi
 }
 
 // Extension untuk mendapatkan label role
@@ -26,7 +26,7 @@ extension UserRoleExtension on UserRole {
   String get value {
     switch (this) {
       case UserRole.adminSistem:
-        return 'admin_sistem';
+        return 'admin';
       case UserRole.ketuaRT:
         return 'ketua_rt';
       case UserRole.sekretaris:
@@ -41,9 +41,11 @@ extension UserRoleExtension on UserRole {
   // Parse dari string
   static UserRole fromString(String value) {
     switch (value.toLowerCase()) {
+      case 'admin':
       case 'admin_sistem':
         return UserRole.adminSistem;
       case 'ketua_rt':
+      case 'ketua_rw':
         return UserRole.ketuaRT;
       case 'sekretaris':
         return UserRole.sekretaris;
@@ -59,12 +61,12 @@ extension UserRoleExtension on UserRole {
 
 // Modul akses dalam sistem
 enum AppModule {
-  authentication,       // A. Autentikasi & Otorisasi
-  dataWarga,           // B. Manajemen Data Warga
-  keuangan,            // C. Keuangan
-  marketplace,         // D. Marketplace
-  notifikasi,          // E. Notifikasi
-  dashboard,           // F. Dashboard & Reporting
+  authentication, // A. Autentikasi & Otorisasi
+  dataWarga, // B. Manajemen Data Warga
+  keuangan, // C. Keuangan
+  marketplace, // D. Marketplace
+  notifikasi, // E. Notifikasi
+  dashboard, // F. Dashboard & Reporting
 }
 
 // Permission untuk setiap modul
@@ -87,27 +89,27 @@ class ModulePermission {
 
   // Full access
   const ModulePermission.fullAccess(this.module)
-      : canView = true,
-        canCreate = true,
-        canEdit = true,
-        canDelete = true,
-        canExport = true;
+    : canView = true,
+      canCreate = true,
+      canEdit = true,
+      canDelete = true,
+      canExport = true;
 
   // Read only
   const ModulePermission.readOnly(this.module)
-      : canView = true,
-        canCreate = false,
-        canEdit = false,
-        canDelete = false,
-        canExport = false;
+    : canView = true,
+      canCreate = false,
+      canEdit = false,
+      canDelete = false,
+      canExport = false;
 
   // View and export
   const ModulePermission.viewAndExport(this.module)
-      : canView = true,
-        canCreate = false,
-        canEdit = false,
-        canDelete = false,
-        canExport = true;
+    : canView = true,
+      canCreate = false,
+      canEdit = false,
+      canDelete = false,
+      canExport = true;
 }
 
 // Role permissions mapping
@@ -205,9 +207,8 @@ class RolePermissions {
 
   // Get accessible modules for role
   static List<AppModule> getAccessibleModules(UserRole role) {
-    return getPermissions(role)
-        .where((p) => p.canView)
-        .map((p) => p.module)
-        .toList();
+    return getPermissions(
+      role,
+    ).where((p) => p.canView).map((p) => p.module).toList();
   }
 }
