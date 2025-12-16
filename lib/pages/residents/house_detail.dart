@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/models/house.dart';
+import 'package:jawara/models/resident.dart';
+import 'package:jawara/pages/residents/residents_detail.dart';
 import 'package:jawara/utils/toast_helper.dart';
 import 'package:jawara/pages/residents/houses_edit.dart';
 import 'package:jawara/services/house_service.dart';
@@ -200,6 +202,20 @@ class HouseDetailPage extends StatelessWidget {
                   const SizedBox(height: 12),
 
                   _buildInfoCard(
+                    icon: Icons.pin_drop,
+                    label: 'RT',
+                    value: house.rt ?? '-',
+                  ),
+                  const SizedBox(height: 12),
+
+                  _buildInfoCard(
+                    icon: Icons.layers,
+                    label: 'RW',
+                    value: house.rw ?? '-',
+                  ),
+                  const SizedBox(height: 12),
+
+                  _buildInfoCard(
                     icon: Icons.numbers,
                     label: 'Nomor Rumah',
                     value: (house.houseNumber ?? house.id.toString()),
@@ -212,6 +228,43 @@ class HouseDetailPage extends StatelessWidget {
                     value: (house.residentCount > 0) ? 'Ditempati' : 'Tersedia',
                     valueColor: _getStatusColor((house.residentCount > 0) ? 'ditempati' : 'tersedia'),
                   ),
+                  const SizedBox(height: 18),
+
+                  if (house.residents != null && house.residents!.isNotEmpty) ...[
+                    const Text(
+                      'Penghuni',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1F2937),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: Column(
+                        children: house.residents!.map((resident) {
+                          return ListTile(
+                            title: Text(resident.name),
+                            subtitle: Text(resident.nik),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ResidentsDetailPage(resident: resident),
+                                ),
+                              );
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
