@@ -59,12 +59,28 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
     super.initState();
     _namaController.text = widget.resident.name;
     _nikController.text = widget.resident.nik;
-    _phoneController.text = widget.resident.phone ?? '';
+    _teleponController.text = widget.resident.phone ?? '';
+    _tempatLahirController.text = widget.resident.birthPlace ?? '';
+    _pendidikanController.text = widget.resident.education ?? '';
+    _pekerjaanController.text = widget.resident.occupation ?? '';
+    
+    // Initialize date
+    _selectedTanggalLahir = widget.resident.birthDate;
+    
     // Ensure gender has valid value to prevent dropdown issues
-    _selectedGender = ['Laki-laki', 'Perempuan'].contains(widget.resident.gender) 
+    _selectedJenisKelamin = ['Laki-laki', 'Perempuan'].contains(widget.resident.gender) 
         ? widget.resident.gender 
         : 'Laki-laki';
+    
+    // Initialize other dropdowns
+    _selectedAgama = _agamaOptions.contains(widget.resident.religion) 
+        ? widget.resident.religion 
+        : null;
+    _selectedGolDarah = _golDarahOptions.contains(widget.resident.bloodType) 
+        ? widget.resident.bloodType 
+        : null;
     _selectedStatus = widget.resident.status;
+    _selectedHouseId = widget.resident.houseId > 0 ? widget.resident.houseId : null;
     _loadHouseData();
   }
 
@@ -133,7 +149,9 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
       try {
         houses = await HouseService.getHouses(skip: 0, limit: 500);
       } catch (e) {
-        ToastHelper.showError(context, 'Gagal load rumah: $e');
+        if (mounted) {
+          ToastHelper.showError(context, 'Gagal load rumah: $e');
+        }
       } finally {
         loading = false;
         if (mounted) setState(() {});
@@ -142,6 +160,8 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
 
     await fetch();
 
+    if (!mounted) return;
+    
     await showDialog(
       context: context,
       builder: (context) {
@@ -283,8 +303,9 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
           _selectedHouseId = createdHouse.id;
         }
       } catch (e) {
-        if (mounted)
+        if (mounted) {
           ToastHelper.showWarning(context, 'Gagal membuat rumah: $e');
+        }
       }
 
       // Update resident via API
@@ -295,11 +316,12 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
         try {
           await HouseService.assignHouse(_selectedHouseId!, widget.resident.id);
         } catch (e) {
-          if (mounted)
+          if (mounted) {
             ToastHelper.showWarning(
               context,
               'Data diperbarui, namun gagal melakukan assign rumah: $e',
             );
+          }
         }
       }
 
@@ -679,95 +701,24 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 16),
-
-              // Gender
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: DropdownButtonFormField<String>(
-                  key: const ValueKey('gender_dropdown'), // Add unique key
-                  value: ['Laki-laki', 'Perempuan'].contains(_selectedGender) ? _selectedGender : 'Laki-laki',
-                  decoration: const InputDecoration(
-                    labelText: 'Jenis Kelamin',
-                    prefixIcon: Icon(Icons.wc),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                  items: ['Laki-laki', 'Perempuan'].map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(
-                        value,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    if (newValue != null && newValue != _selectedGender) {
-                      setState(() {
-                        _selectedGender = newValue;
-                      });
-                    }
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Pilih jenis kelamin';
-                    }
-                    return null;
-                  },
-                  isExpanded: true,
-                  icon: const Icon(Icons.arrow_drop_down),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Birth Date
-              InkWell(
-                onTap: _selectDate,
-                child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Tanggal Lahir',
-                    prefixIcon: Icon(Icons.cake),
-                    border: OutlineInputBorder(),
-                  ),
-                  child: Text(
-                    _birthDate != null
-                        ? '${_birthDate!.day}/${_birthDate!.month}/${_birthDate!.year}'
-                        : 'Pilih tanggal',
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Address (read-only from house data)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 16,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: _saveChanges,
-                      icon: const Icon(Icons.save),
-                      label: const Text('Simpan'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 24,
-                        ),
+                
+                // Save Button
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _saveChanges,
+                    icon: const Icon(Icons.save),
+                    label: const Text('Simpan Perubahan'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: AppTheme.borderRadiusLarge,
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -889,7 +840,7 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: items.contains(value) ? value : null,
+          initialValue: items.contains(value) ? value : null,
           hint: Text(hint, style: TextStyle(color: Colors.grey[400])),
           isExpanded: true,
           decoration: InputDecoration(
