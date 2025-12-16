@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Untuk InputFormatter
-// import 'package:intl/intl.dart'; // Tidak perlu format tanggal
+import 'package:flutter/services.dart';
 import 'package:jawara/shared/base_layout.dart';
-import 'package:jawara/shared/button.dart'; // Import CustomButton
-import 'package:jawara/shared/theme.dart'; // Import tema
+import 'package:jawara/shared/button.dart';
+import 'package:jawara/shared/theme.dart';
+import 'package:jawara/services/users_service.dart';
 
 class UsersAddPage extends StatefulWidget {
   const UsersAddPage({super.key});
@@ -16,6 +16,7 @@ class _UsersAddPageState extends State<UsersAddPage> {
   // Controllers
   final _namaController = TextEditingController();
   final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _hpController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -24,60 +25,98 @@ class _UsersAddPageState extends State<UsersAddPage> {
   String? _selectedRole;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _isSubmitting = false;
+  String? _errorMessage;
 
-  // Options for dropdown
+  // Options for dropdown (sesuai BUSINESS_FLOW.md)
   final List<String> _roleOptions = [
-    '-- Pilih Role --',
-    'Admin',
-    'Operator',
-    'Viewer',
-    // Tambahkan role lain jika ada
+    'admin',
+    'ketua_rw',
+    'ketua_rt',
+    'sekretaris',
+    'bendahara',
+    'warga',
   ];
 
   @override
   void dispose() {
     _namaController.dispose();
     _emailController.dispose();
+    _usernameController.dispose();
     _hpController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  void _resetForm() {
-    setState(() {
-      _namaController.clear();
-      _emailController.clear();
-      _hpController.clear();
-      _passwordController.clear();
-      _confirmPasswordController.clear();
-      _selectedRole = null;
-      _obscurePassword = true;
-      _obscureConfirmPassword = true;
-    });
-  }
+  void _submitForm() async {
+    // Validation
+    setState(() => _errorMessage = null);
 
-  void _submitForm() {
-    // Implement submit logic here
-    // Validasi password cocok, dll.
+    if (_namaController.text.isEmpty) {
+      setState(() => _errorMessage = 'Nama tidak boleh kosong');
+      return;
+    }
+
+    if (_emailController.text.isEmpty) {
+      setState(() => _errorMessage = 'Email tidak boleh kosong');
+      return;
+    }
+
+    if (_usernameController.text.isEmpty) {
+      setState(() => _errorMessage = 'Username tidak boleh kosong');
+      return;
+    }
+
+    if (_passwordController.text.isEmpty) {
+      setState(() => _errorMessage = 'Password tidak boleh kosong');
+      return;
+    }
+
     if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password dan Konfirmasi Password tidak cocok!'),
-          backgroundColor: Colors.red,
-        ),
+      setState(
+        () => _errorMessage = 'Password dan Konfirmasi Password tidak cocok!',
       );
       return;
     }
 
-    debugPrint('Nama: ${_namaController.text}');
-    debugPrint('Email: ${_emailController.text}');
-    debugPrint('Nomor HP: ${_hpController.text}');
-    debugPrint(
-      'Password: ${_passwordController.text}',
-    ); // Hati-hati logging password
-    debugPrint('Role: $_selectedRole');
-    // Panggil API atau fungsi simpan data pengguna
+    if (_selectedRole == null || _selectedRole!.isEmpty) {
+      setState(() => _errorMessage = 'Pilih role terlebih dahulu');
+      return;
+    }
+
+    if (_passwordController.text.length < 6) {
+      setState(() => _errorMessage = 'Password minimal 6 karakter');
+      return;
+    }
+
+    // Submit
+    setState(() => _isSubmitting = true);
+
+    try {
+      final user = await UsersService.createUser(
+        name: _namaController.text,
+        email: _emailController.text,
+        username: _usernameController.text,
+        password: _passwordController.text,
+        phone: _hpController.text.isEmpty ? null : _hpController.text,
+        role: _selectedRole!,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Pengguna ${user.name} berhasil ditambahkan'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      setState(() => _errorMessage = 'Gagal menambah pengguna: $e');
+    } finally {
+      setState(() => _isSubmitting = false);
+    }
   }
 
   @override
@@ -96,17 +135,43 @@ class _UsersAddPageState extends State<UsersAddPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Tambah Akun Pengguna', // Judul Form
-                style: AppTheme.headingMedium,
-              ),
+              Text('Tambah Akun Pengguna', style: AppTheme.headingMedium),
               const SizedBox(height: 32),
+              if (_errorMessage != null)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 20),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red[100],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.red),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error, color: Colors.red),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _errorMessage!,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.red),
+                        onPressed: () {
+                          setState(() => _errorMessage = null);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
 
               // Nama Lengkap
               _buildTextField(
                 label: 'Nama Lengkap',
                 hint: 'Masukkan nama lengkap',
                 controller: _namaController,
+                enabled: !_isSubmitting,
               ),
               const SizedBox(height: 24),
 
@@ -116,6 +181,16 @@ class _UsersAddPageState extends State<UsersAddPage> {
                 hint: 'Masukkan email aktif',
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
+                enabled: !_isSubmitting,
+              ),
+              const SizedBox(height: 24),
+
+              // Username
+              _buildTextField(
+                label: 'Username',
+                hint: 'Masukkan username',
+                controller: _usernameController,
+                enabled: !_isSubmitting,
               ),
               const SizedBox(height: 24),
 
@@ -126,6 +201,7 @@ class _UsersAddPageState extends State<UsersAddPage> {
                 controller: _hpController,
                 keyboardType: TextInputType.phone,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                enabled: !_isSubmitting,
               ),
               const SizedBox(height: 24),
 
@@ -140,6 +216,7 @@ class _UsersAddPageState extends State<UsersAddPage> {
                     _obscurePassword = !_obscurePassword;
                   });
                 },
+                enabled: !_isSubmitting,
               ),
               const SizedBox(height: 24),
 
@@ -154,6 +231,7 @@ class _UsersAddPageState extends State<UsersAddPage> {
                     _obscureConfirmPassword = !_obscureConfirmPassword;
                   });
                 },
+                enabled: !_isSubmitting,
               ),
               const SizedBox(height: 24),
 
@@ -163,11 +241,13 @@ class _UsersAddPageState extends State<UsersAddPage> {
                 hint: '-- Pilih Role --',
                 value: _selectedRole,
                 items: _roleOptions,
-                onChanged: (value) {
-                  setState(() {
-                    _selectedRole = value;
-                  });
-                },
+                onChanged: _isSubmitting
+                    ? null
+                    : (value) {
+                        setState(() {
+                          _selectedRole = value;
+                        });
+                      },
               ),
               const SizedBox(height: 32),
 
@@ -175,24 +255,24 @@ class _UsersAddPageState extends State<UsersAddPage> {
               Row(
                 children: [
                   SizedBox(
-                    width: 120, // Sesuaikan lebar jika perlu
+                    width: 120,
                     child: CustomButton(
-                      text: 'Simpan', // Tombol Simpan
-                      onPressed: _submitForm,
+                      text: _isSubmitting ? 'Menyimpan...' : 'Simpan',
+                      onPressed: _isSubmitting ? () {} : _submitForm,
                     ),
                   ),
                   const SizedBox(width: 16),
                   TextButton(
-                    onPressed: _resetForm,
-                    child: const Text(
-                      'Reset',
-                      style: TextStyle(color: AppTheme.textMedium),
-                    ), // Tombol Reset
+                    onPressed: _isSubmitting ? null : _resetForm,
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
                         vertical: 16,
                       ),
+                    ),
+                    child: const Text(
+                      'Reset',
+                      style: TextStyle(color: AppTheme.textMedium),
                     ),
                   ),
                 ],
@@ -212,6 +292,7 @@ class _UsersAddPageState extends State<UsersAddPage> {
     required TextEditingController controller,
     TextInputType keyboardType = TextInputType.text,
     List<TextInputFormatter>? inputFormatters,
+    bool enabled = true,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,6 +306,7 @@ class _UsersAddPageState extends State<UsersAddPage> {
           controller: controller,
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
+          enabled: enabled,
           decoration: InputDecoration(
             hintText: hint,
             border: OutlineInputBorder(
@@ -235,12 +317,16 @@ class _UsersAddPageState extends State<UsersAddPage> {
               borderRadius: AppTheme.borderRadiusLarge,
               borderSide: const BorderSide(color: AppTheme.border),
             ),
+            disabledBorder: OutlineInputBorder(
+              borderRadius: AppTheme.borderRadiusLarge,
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
             focusedBorder: OutlineInputBorder(
               borderRadius: AppTheme.borderRadiusLarge,
               borderSide: const BorderSide(color: AppTheme.primary, width: 2),
             ),
             filled: true,
-            fillColor: Colors.grey[50],
+            fillColor: enabled ? Colors.grey[50] : Colors.grey[200],
             contentPadding: const EdgeInsets.symmetric(
               vertical: 16,
               horizontal: 20,
@@ -257,6 +343,7 @@ class _UsersAddPageState extends State<UsersAddPage> {
     required TextEditingController controller,
     required bool obscureText,
     required VoidCallback onToggleVisibility,
+    bool enabled = true,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,6 +356,7 @@ class _UsersAddPageState extends State<UsersAddPage> {
         TextField(
           controller: controller,
           obscureText: obscureText,
+          enabled: enabled,
           decoration: InputDecoration(
             hintText: hint,
             suffixIcon: IconButton(
@@ -278,7 +366,7 @@ class _UsersAddPageState extends State<UsersAddPage> {
                     : Icons.visibility_rounded,
                 color: AppTheme.textMedium,
               ),
-              onPressed: onToggleVisibility,
+              onPressed: enabled ? onToggleVisibility : null,
             ),
             border: OutlineInputBorder(
               borderRadius: AppTheme.borderRadiusLarge,
@@ -288,12 +376,16 @@ class _UsersAddPageState extends State<UsersAddPage> {
               borderRadius: AppTheme.borderRadiusLarge,
               borderSide: const BorderSide(color: AppTheme.border),
             ),
+            disabledBorder: OutlineInputBorder(
+              borderRadius: AppTheme.borderRadiusLarge,
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
             focusedBorder: OutlineInputBorder(
               borderRadius: AppTheme.borderRadiusLarge,
               borderSide: const BorderSide(color: AppTheme.primary, width: 2),
             ),
             filled: true,
-            fillColor: Colors.grey[50],
+            fillColor: enabled ? Colors.grey[50] : Colors.grey[200],
             contentPadding: const EdgeInsets.symmetric(
               vertical: 16,
               horizontal: 20,
@@ -309,7 +401,7 @@ class _UsersAddPageState extends State<UsersAddPage> {
     required String hint,
     required String? value,
     required List<String> items,
-    required ValueChanged<String?> onChanged,
+    required ValueChanged<String?>? onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -344,12 +436,10 @@ class _UsersAddPageState extends State<UsersAddPage> {
           ),
           items: items.map((String item) {
             return DropdownMenuItem<String>(
-              value: item == hint ? null : item,
+              value: item,
               child: Text(
-                item,
-                style: TextStyle(
-                  color: item == hint ? Colors.grey[400] : AppTheme.textDark,
-                ),
+                _getRoleLabel(item),
+                style: const TextStyle(color: AppTheme.textDark),
               ),
             );
           }).toList(),
@@ -358,5 +448,33 @@ class _UsersAddPageState extends State<UsersAddPage> {
         ),
       ],
     );
+  }
+
+  // Helper method untuk role label display (sesuai BUSINESS_FLOW.md)
+  String _getRoleLabel(String role) {
+    const Map<String, String> roleLabels = {
+      'admin': 'Admin Sistem',
+      'ketua_rw': 'Ketua RW',
+      'ketua_rt': 'Ketua RT',
+      'sekretaris': 'Sekretaris',
+      'bendahara': 'Bendahara',
+      'warga': 'Warga',
+    };
+    return roleLabels[role] ?? role;
+  }
+
+  void _resetForm() {
+    setState(() {
+      _namaController.clear();
+      _emailController.clear();
+      _usernameController.clear();
+      _hpController.clear();
+      _passwordController.clear();
+      _confirmPasswordController.clear();
+      _selectedRole = null;
+      _obscurePassword = true;
+      _obscureConfirmPassword = true;
+      _errorMessage = null;
+    });
   }
 }

@@ -31,20 +31,25 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
     setState(() => _isLoading = true);
 
     try {
-      // Load pending approvals dari backend
-      final approvals = await ResidentApprovalService.getPendingApprovals();
+      // Load semua approvals (pending, approved, rejected) dari backend
+      final approvals = await ResidentApprovalService.getApprovals();
+
+      // Filter hanya yang bukan rejected
+      final filteredApprovals = approvals.where((approval) {
+        return approval.status.toLowerCase() != 'rejected';
+      }).toList();
 
       // Convert ResidentApproval to Resident untuk UI compatibility
-      final residents = approvals.map((approval) {
+      final residents = filteredApprovals.map((approval) {
         return Resident(
           id: approval.residentId ?? 0,
           name: approval.name ?? '',
           nik: approval.nik ?? '',
           gender: approval.gender ?? '',
-          status: 'pending',
+          status: approval.status, // Ambil dari approval.status
           familyId: 0,
           houseId: 0,
-          registrationStatus: RegistrationStatus.pending,
+          registrationStatus: _mapApprovalStatusToRegistration(approval.status),
           birthPlace: approval.birthPlace,
           birthDate: approval.birthDate != null
               ? DateTime.tryParse(approval.birthDate!)
@@ -56,7 +61,7 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
 
       setState(() {
         _residents = residents;
-        _approvals = approvals;
+        _approvals = filteredApprovals;
         _isLoading = false;
       });
     } catch (e) {
@@ -64,6 +69,19 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
         ToastHelper.showError(context, 'Gagal load pengajuan: $e');
       }
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  RegistrationStatus _mapApprovalStatusToRegistration(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending_approval':
+        return RegistrationStatus.pending;
+      case 'approved':
+        return RegistrationStatus.accepted;
+      case 'rejected':
+        return RegistrationStatus.inactive;
+      default:
+        return RegistrationStatus.pending;
     }
   }
 
@@ -78,8 +96,6 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
             return resident.registrationStatus == RegistrationStatus.pending;
           case 'Diterima':
             return resident.registrationStatus == RegistrationStatus.accepted;
-          case 'Nonaktif':
-            return resident.registrationStatus == RegistrationStatus.inactive;
           default:
             return true;
         }
@@ -158,7 +174,7 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
                 // Search Field
                 TextField(
                   decoration: InputDecoration(
-                    hintText: 'Cari nama, NIK, email...',
+                    hintText: 'Cari nama, NIK...',
                     prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -184,8 +200,6 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
                       _buildFilterChip('Pending'),
                       const SizedBox(width: 8),
                       _buildFilterChip('Diterima'),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('Nonaktif'),
                     ],
                   ),
                 ),
@@ -227,6 +241,12 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
                       itemCount: filteredResidents.length,
                       itemBuilder: (context, index) {
                         final resident = filteredResidents[index];
+                        // Find the matching approval from all approvals
+                        final approval = _approvals.firstWhere(
+                          (a) => a.residentId == resident.id,
+                          orElse: () => _approvals[0],
+                        );
+
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
                           elevation: 2,
@@ -235,9 +255,6 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
                           ),
                           child: InkWell(
                             onTap: () async {
-                              // Get approval ID from approvals list
-                              final approval = _approvals[index];
-
                               final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -288,6 +305,14 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
                                             fontSize: 16,
                                           ),
                                         ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'NIK: ${resident.nik}',
+                                          style: TextStyle(
+                                            color: Colors.grey[600],
+                                            fontSize: 12,
+                                          ),
+                                        ),
                                         const SizedBox(height: 8),
                                         _buildStatusChip(
                                           resident.registrationStatus,
@@ -295,45 +320,6 @@ class _ResidentApprovalsPageState extends State<ResidentApprovalsPage> {
                                       ],
                                     ),
                                   ),
-
-                                  // Action Icons (only for pending)
-                                  if (resident.registrationStatus ==
-                                      RegistrationStatus.pending) ...[
-                                    IconButton(
-                                      onPressed: () {
-                                        _showApprovalDialog(
-                                          context,
-                                          resident,
-                                          false,
-                                        );
-                                      },
-                                      icon: const Icon(Icons.close),
-                                      style: IconButton.styleFrom(
-                                        backgroundColor: Colors.red.withOpacity(
-                                          0.1,
-                                        ),
-                                        foregroundColor: Colors.red,
-                                      ),
-                                      tooltip: 'Tolak',
-                                    ),
-                                    const SizedBox(width: 4),
-                                    IconButton(
-                                      onPressed: () {
-                                        _showApprovalDialog(
-                                          context,
-                                          resident,
-                                          true,
-                                        );
-                                      },
-                                      icon: const Icon(Icons.check),
-                                      style: IconButton.styleFrom(
-                                        backgroundColor: Colors.green
-                                            .withOpacity(0.1),
-                                        foregroundColor: Colors.green,
-                                      ),
-                                      tooltip: 'Terima',
-                                    ),
-                                  ],
                                 ],
                               ),
                             ),

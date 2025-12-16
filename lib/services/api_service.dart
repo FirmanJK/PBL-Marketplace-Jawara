@@ -80,6 +80,9 @@ class ApiService {
   }) async {
     try {
       final uri = Uri.parse('$baseUrl$endpoint');
+      print(
+        '[DEBUG] ApiService.put: endpoint=$endpoint, uri=$uri, body=$body, hasToken=${token != null}',
+      );
       final response = await http
           .put(
             uri,
@@ -88,8 +91,10 @@ class ApiService {
           )
           .timeout(timeout);
 
+      print('[DEBUG] ApiService.put response: status=${response.statusCode}');
       return _handleResponse(response);
     } catch (e) {
+      print('[DEBUG] ApiService.put error: $e');
       throw _handleError(e);
     }
   }
