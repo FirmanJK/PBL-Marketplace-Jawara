@@ -113,19 +113,19 @@ class _LoginPageState extends State<LoginPage> {
 
       final userRole = response.user.role;
       final roleLabel = _getRoleLabel(userRole);
-      
+
       print('✓ Login successful: ${response.user.name} ($roleLabel)');
 
       if (mounted) {
         ToastHelper.showSuccess(context, 'Login berhasil sebagai $roleLabel!');
-        
+
         // Navigate to appropriate dashboard based on user role
         final dashboardRoute = RoleHelper.getDashboardRoute(userRole);
         print('🔄 Redirecting to: $dashboardRoute');
-        
+
         // Add delay to ensure state is properly set
         await Future.delayed(const Duration(milliseconds: 500));
-        
+
         if (mounted) {
           Navigator.pushReplacementNamed(context, dashboardRoute);
         }
@@ -275,7 +275,10 @@ class _LoginPageState extends State<LoginPage> {
                               alignment: Alignment.centerRight,
                               child: TextButton(
                                 onPressed: () {
-                                  Navigator.pushNamed(context, '/forgot-password');
+                                  Navigator.pushNamed(
+                                    context,
+                                    '/forgot-password',
+                                  );
                                 },
                                 child: const Text(
                                   'Lupa Password?',
@@ -347,13 +350,12 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      
+
                       // Development Login Helper (hanya tampil di debug mode)
-                      if (kDebugMode) ...[
-                        const DevLoginHelper(),
-                        const SizedBox(height: 16),
-                      ],
-                      
+                      // if (kDebugMode) ...[
+                      //  const DevLoginHelper(),
+                      //  const SizedBox(height: 16),
+                      //  ],
                       Text(
                         '© 2025 Jawara Pintar. All rights reserved.',
                         style: TextStyle(
