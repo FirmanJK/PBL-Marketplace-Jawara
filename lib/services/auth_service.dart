@@ -357,4 +357,46 @@ class AuthService {
 
   /// Check if user is warga
   bool get isWarga => _currentUser?.role == UserRole.warga;
+
+  /// Send password reset email
+  Future<void> sendPasswordReset(String email) async {
+    try {
+      // Try demo mode first
+      final demoUser = DemoUsers.findUserByEmail(email);
+      if (demoUser != null) {
+        // Simulate sending email for demo user
+        print('📧 Demo: Password reset email sent to $email');
+        return;
+      }
+
+      // Call backend API
+      await ApiService.post(
+        '/auth/forgot-password',
+        body: {'email': email},
+      );
+      
+      print('📧 Password reset email sent to $email');
+    } catch (e) {
+      print('Send password reset error: $e');
+      rethrow;
+    }
+  }
+
+  /// Reset password with token
+  Future<void> resetPassword(String token, String newPassword) async {
+    try {
+      await ApiService.post(
+        '/auth/reset-password',
+        body: {
+          'token': token,
+          'password': newPassword,
+        },
+      );
+      
+      print('✓ Password reset successful');
+    } catch (e) {
+      print('Reset password error: $e');
+      rethrow;
+    }
+  }
 }

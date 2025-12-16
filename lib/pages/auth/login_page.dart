@@ -275,7 +275,7 @@ class _LoginPageState extends State<LoginPage> {
                               alignment: Alignment.centerRight,
                               child: TextButton(
                                 onPressed: () {
-                                  debugPrint('Lupa password!');
+                                  Navigator.pushNamed(context, '/forgot-password');
                                 },
                                 child: const Text(
                                   'Lupa Password?',

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/pages/auth/login_page.dart';
 import 'package:jawara/pages/auth/register_page.dart';
+import 'package:jawara/pages/auth/forgot_password_page.dart';
+import 'package:jawara/pages/auth/reset_password_page.dart';
 import 'package:jawara/pages/dashboard/sekretaris_dashboard.dart';
 import 'package:jawara/pages/dashboard/ketua_rt_dashboard.dart';
 import 'package:jawara/pages/dashboard/bendahara_dashboard.dart';
@@ -99,6 +101,8 @@ class MyApp extends StatelessWidget {
         // Auth
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
+        '/forgot-password': (context) => const ForgotPasswordPage(),
+        '/reset-password': (context) => const ResetPasswordPage(),
 
         // Dashboards
         '/admin-dashboard': (context) => const AdminDashboardPage(),

@@ -104,4 +104,25 @@ class DemoUsers {
       'password': userData['password'],
     };
   }
+
+  static User? findUserByEmail(String email) {
+    final usersData = getUsersData();
+    
+    try {
+      final userData = usersData.firstWhere(
+        (user) => user['email'] == email,
+      );
+      
+      return User(
+        id: userData['id'],
+        name: userData['name'],
+        email: userData['email'],
+        role: UserRoleExtension.fromString(userData['role']),
+        phone: userData['phone'],
+        createdAt: DateTime.parse(userData['created_at']),
+      );
+    } catch (e) {
+      return null;
+    }
+  }
 }

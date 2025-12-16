@@ -143,7 +143,7 @@ class _MarketplacePaymentPageState extends State<MarketplacePaymentPage> {
                 foregroundColor: Colors.white,
               ),
               child: const Text(
-                'Kembali ke Beranda',
+                'Kembali Beranda',
                 style: TextStyle(color: Colors.white),
               ),
             ),
