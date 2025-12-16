@@ -44,6 +44,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       return;
     }
 
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {

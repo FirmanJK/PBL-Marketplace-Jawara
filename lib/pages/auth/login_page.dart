@@ -5,6 +5,10 @@ import 'package:jawara/services/auth_service.dart';
 import 'package:jawara/models/auth_response.dart';
 import 'package:jawara/utils/toast_helper.dart';
 import 'package:jawara/services/connectivity_service.dart';
+import 'package:jawara/widgets/dev_login_helper.dart';
+import 'package:jawara/utils/role_helper.dart';
+import 'package:jawara/models/user_role.dart';
+import 'package:flutter/foundation.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -26,6 +30,21 @@ class _LoginPageState extends State<LoginPage> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  String _getRoleLabel(UserRole role) {
+    switch (role) {
+      case UserRole.adminSistem:
+        return 'Admin Sistem';
+      case UserRole.ketuaRT:
+        return 'Ketua RT/RW';
+      case UserRole.sekretaris:
+        return 'Sekretaris';
+      case UserRole.bendahara:
+        return 'Bendahara';
+      case UserRole.warga:
+        return 'Warga';
+    }
   }
 
   Future<void> _validateAndLogin() async {
@@ -55,6 +74,7 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     // Show loading state
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
@@ -86,12 +106,29 @@ class _LoginPageState extends State<LoginPage> {
         _passwordController.text,
       );
 
-      print('✓ Login successful: ${response.user.name}');
+      // Null safety checks
+      if (response.user == null) {
+        throw Exception('User data is null after login');
+      }
+
+      final userRole = response.user.role;
+      final roleLabel = _getRoleLabel(userRole);
+
+      print('✓ Login successful: ${response.user.name} ($roleLabel)');
 
       if (mounted) {
-        ToastHelper.showSuccess(context, 'Login berhasil!');
-        // Navigate to admin dashboard
-        Navigator.pushReplacementNamed(context, '/admin-dashboard');
+        ToastHelper.showSuccess(context, 'Login berhasil sebagai $roleLabel!');
+
+        // Navigate to appropriate dashboard based on user role
+        final dashboardRoute = RoleHelper.getDashboardRoute(userRole);
+        print('🔄 Redirecting to: $dashboardRoute');
+
+        // Add delay to ensure state is properly set
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, dashboardRoute);
+        }
       }
     } on ErrorResponse catch (e) {
       print('✗ Login error (API): ${e.detail}');
@@ -138,10 +175,10 @@ class _LoginPageState extends State<LoginPage> {
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: Colors.white.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.3),
+                            color: Colors.white.withOpacity(0.3),
                             width: 2,
                           ),
                         ),
@@ -167,7 +204,7 @@ class _LoginPageState extends State<LoginPage> {
                         'Sistem Manajemen RT Modern',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.white.withValues(alpha: 0.9),
+                          color: Colors.white.withOpacity(0.9),
                           letterSpacing: 0.5,
                         ),
                         textAlign: TextAlign.center,
@@ -188,7 +225,7 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(32),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
+                              color: Colors.black.withOpacity(0.1),
                               spreadRadius: 0,
                               blurRadius: 40,
                               offset: const Offset(0, 20),
@@ -238,7 +275,10 @@ class _LoginPageState extends State<LoginPage> {
                               alignment: Alignment.centerRight,
                               child: TextButton(
                                 onPressed: () {
-                                  debugPrint('Lupa password!');
+                                  Navigator.pushNamed(
+                                    context,
+                                    '/forgot-password',
+                                  );
                                 },
                                 child: const Text(
                                   'Lupa Password?',
@@ -310,10 +350,16 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       const SizedBox(height: 24),
+
+                      // Development Login Helper (hanya tampil di debug mode)
+                      // if (kDebugMode) ...[
+                      //  const DevLoginHelper(),
+                      //  const SizedBox(height: 16),
+                      //  ],
                       Text(
                         '© 2025 Jawara Pintar. All rights reserved.',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.8),
+                          color: Colors.white.withOpacity(0.8),
                           fontSize: 12,
                         ),
                         textAlign: TextAlign.center,

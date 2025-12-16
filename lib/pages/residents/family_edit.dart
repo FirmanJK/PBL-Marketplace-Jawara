@@ -40,15 +40,7 @@ class _FamilyEditPageState extends State<FamilyEditPage> {
       return;
     }
 
-      if (newName.length != 16) {
-        ToastHelper.showWarning(context, 'NIK harus 16 digit');
-        return;
-      }
-      if (int.tryParse(newName) == null) {
-        ToastHelper.showWarning(context, 'NIK hanya boleh berisi angka');
-        return;
-      }
-
+    if (!mounted) return;
     setState(() => _isSaving = true);
     try {
       final payload = <String, dynamic>{'family_number': newName, 'head_resident_id': _selectedHeadId};

@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:jawara/shared/standard_app_bar.dart';
 import 'package:intl/intl.dart';
 
-class SpendingPage extends StatelessWidget {
-  const SpendingPage({super.key});
+class FinancePage extends StatelessWidget {
+  const FinancePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Data dummy untuk total pengeluaran
+    // Data dummy untuk statistik keuangan
+    final double totalPemasukan = 39000000;
     final double totalPengeluaran = 15000000;
-    final int jumlahTransaksi = 12;
+    final double saldo = totalPemasukan - totalPengeluaran;
     
     final currencyFormatter = NumberFormat.currency(
       locale: 'id_ID',
@@ -18,7 +19,7 @@ class SpendingPage extends StatelessWidget {
     );
 
     return Scaffold(
-      appBar: StandardAppBar(title: 'Pengeluaran'),
+      appBar: StandardAppBar(title: 'Keuangan'),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -27,14 +28,14 @@ class SpendingPage extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
+                colors: [Color(0xFF10B981), Color(0xFF059669)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFFEF4444).withOpacity(0.3),
+                  color: const Color(0xFF10B981).withOpacity(0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -52,14 +53,14 @@ class SpendingPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(
-                        Icons.trending_down,
+                        Icons.account_balance_wallet,
                         color: Colors.white,
                         size: 24,
                       ),
                     ),
                     const SizedBox(width: 12),
                     const Text(
-                      'Total Pengeluaran',
+                      'Saldo Kas RT',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -70,20 +71,28 @@ class SpendingPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  currencyFormatter.format(totalPengeluaran),
+                  currencyFormatter.format(saldo),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  '$jumlahTransaksi transaksi',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 14,
-                  ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildFinanceItem(
+                      'Pemasukan',
+                      currencyFormatter.format(totalPemasukan),
+                      Icons.trending_up,
+                    ),
+                    _buildFinanceItem(
+                      'Pengeluaran',
+                      currencyFormatter.format(totalPengeluaran),
+                      Icons.trending_down,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -91,23 +100,61 @@ class SpendingPage extends StatelessWidget {
           const SizedBox(height: 20),
           _buildMenuCard(
             context,
-            icon: Icons.add_circle_outline,
-            title: 'Tambah Pengeluaran',
-            subtitle: 'Catat pengeluaran baru',
-            color: const Color(0xFFEF4444),
-            route: '/spending/add',
+            icon: Icons.trending_up_outlined,
+            title: 'Pemasukan',
+            subtitle: 'Kelola pemasukan RT',
+            color: const Color(0xFF10B981),
+            route: '/income',
           ),
           const SizedBox(height: 12),
           _buildMenuCard(
             context,
-            icon: Icons.list_alt_outlined,
-            title: 'Daftar Pengeluaran',
-            subtitle: 'Lihat semua pengeluaran',
-            color: const Color(0xFF8B5CF6),
-            route: '/spending/list',
+            icon: Icons.trending_down_outlined,
+            title: 'Pengeluaran',
+            subtitle: 'Kelola pengeluaran RT',
+            color: const Color(0xFFEF4444),
+            route: '/spending',
+          ),
+          const SizedBox(height: 12),
+          _buildMenuCard(
+            context,
+            icon: Icons.assessment_outlined,
+            title: 'Laporan Keuangan',
+            subtitle: 'Lihat laporan dan analisis',
+            color: const Color(0xFF3B82F6),
+            route: '/reports/income',
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildFinanceItem(String label, String value, IconData icon) {
+    return Column(
+      children: [
+        Icon(
+          icon,
+          color: Colors.white.withOpacity(0.9),
+          size: 20,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.9),
+            fontSize: 12,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 

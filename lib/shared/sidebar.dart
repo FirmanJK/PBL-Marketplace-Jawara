@@ -383,12 +383,12 @@ class _SidebarState extends State<Sidebar> {
                     _buildSubMenuItem(
                       icon: Icons.list_rounded,
                       title: 'Daftar Mutasi',
-                      route: '/family-mutations/list',
+                      route: '/mutations/list',
                     ),
                     _buildSubMenuItem(
                       icon: Icons.add_rounded,
                       title: 'Tambah Mutasi',
-                      route: '/family-mutations/add',
+                      route: '/mutations/add',
                     ),
                   ],
 

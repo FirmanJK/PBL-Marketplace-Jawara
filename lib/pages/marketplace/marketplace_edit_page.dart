@@ -98,6 +98,7 @@ class _MarketplaceEditPageState extends State<MarketplaceEditPage> {
   Future<void> _submitUpdate() async {
     if (!_formKey.currentState!.validate()) return;
 
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {

@@ -91,6 +91,7 @@ class _MarketplaceUploadPageState extends State<MarketplaceUploadPage> {
       return;
     }
 
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
@@ -127,6 +128,34 @@ class _MarketplaceUploadPageState extends State<MarketplaceUploadPage> {
     }
   }
 
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Keluar'),
+        content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Batal', style: TextStyle(color: Colors.black)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Keluar', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,9 +163,125 @@ class _MarketplaceUploadPageState extends State<MarketplaceUploadPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
-        elevation: 1,
-        title: const Text('Unggah Produk', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-        iconTheme: const IconThemeData(color: Colors.black),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0891B2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Icon(
+                  Icons.inventory_2,
+                  color: Color(0xFF0891B2),
+                  size: 14,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Text('Marketplace', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18)),
+          ],
+        ),
+        actions: [
+          // Tab Katalog/Unggah
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.apps, color: Color(0xFF0891B2)),
+            onSelected: (value) {
+              if (value == 'catalog') {
+                Navigator.pushNamed(context, '/marketplace/catalog');
+              } else if (value == 'upload') {
+                // Already on upload
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'catalog',
+                child: Row(
+                  children: [
+                    Icon(Icons.grid_view, color: Color(0xFF0891B2)),
+                    SizedBox(width: 12),
+                    Text('Katalog Produk'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'upload',
+                child: Row(
+                  children: [
+                    Icon(Icons.upload, color: Color(0xFF0891B2)),
+                    SizedBox(width: 12),
+                    Text('Unggah Produk'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          // Profile Menu
+          PopupMenuButton<String>(
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: Color(0xFF0891B2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.person, color: Colors.white, size: 20),
+            ),
+            onSelected: (value) {
+              if (value == 'profile') {
+                Navigator.pushNamed(context, '/profile');
+              } else if (value == 'settings') {
+                Navigator.pushNamed(context, '/settings');
+              } else if (value == 'logout') {
+                _showLogoutDialog(context);
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'profile',
+                child: Row(
+                  children: [
+                    Icon(Icons.person, color: Color(0xFF0891B2)),
+                    SizedBox(width: 12),
+                    Text('Profil'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'settings',
+                child: Row(
+                  children: [
+                    Icon(Icons.settings, color: Color(0xFF0891B2)),
+                    SizedBox(width: 12),
+                    Text('Pengaturan'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout, color: Colors.red),
+                    SizedBox(width: 12),
+                    Text('Keluar', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

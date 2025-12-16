@@ -63,12 +63,24 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
     _tempatLahirController.text = widget.resident.birthPlace ?? '';
     _pendidikanController.text = widget.resident.education ?? '';
     _pekerjaanController.text = widget.resident.occupation ?? '';
-    _selectedJenisKelamin = widget.resident.gender;
-    _selectedAgama = widget.resident.religion;
-    _selectedGolDarah = widget.resident.bloodType;
+    
+    // Initialize date
     _selectedTanggalLahir = widget.resident.birthDate;
-    _selectedHouseId = widget.resident.houseId;
+    
+    // Ensure gender has valid value to prevent dropdown issues
+    _selectedJenisKelamin = ['Laki-laki', 'Perempuan'].contains(widget.resident.gender) 
+        ? widget.resident.gender 
+        : 'Laki-laki';
+    
+    // Initialize other dropdowns
+    _selectedAgama = _agamaOptions.contains(widget.resident.religion) 
+        ? widget.resident.religion 
+        : null;
+    _selectedGolDarah = _golDarahOptions.contains(widget.resident.bloodType) 
+        ? widget.resident.bloodType 
+        : null;
     _selectedStatus = widget.resident.status;
+    _selectedHouseId = widget.resident.houseId > 0 ? widget.resident.houseId : null;
     _loadHouseData();
   }
 
@@ -137,7 +149,9 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
       try {
         houses = await HouseService.getHouses(skip: 0, limit: 500);
       } catch (e) {
-        ToastHelper.showError(context, 'Gagal load rumah: $e');
+        if (mounted) {
+          ToastHelper.showError(context, 'Gagal load rumah: $e');
+        }
       } finally {
         loading = false;
         if (mounted) setState(() {});
@@ -146,6 +160,8 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
 
     await fetch();
 
+    if (!mounted) return;
+    
     await showDialog(
       context: context,
       builder: (context) {
@@ -287,8 +303,9 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
           _selectedHouseId = createdHouse.id;
         }
       } catch (e) {
-        if (mounted)
+        if (mounted) {
           ToastHelper.showWarning(context, 'Gagal membuat rumah: $e');
+        }
       }
 
       // Update resident via API
@@ -299,11 +316,12 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
         try {
           await HouseService.assignHouse(_selectedHouseId!, widget.resident.id);
         } catch (e) {
-          if (mounted)
+          if (mounted) {
             ToastHelper.showWarning(
               context,
               'Data diperbarui, namun gagal melakukan assign rumah: $e',
             );
+          }
         }
       }
 
@@ -683,24 +701,24 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
-
-                // Tombol Aksi
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: _saveChanges,
-                      icon: const Icon(Icons.save),
-                      label: const Text('Simpan'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 24,
-                        ),
+                
+                // Save Button
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _saveChanges,
+                    icon: const Icon(Icons.save),
+                    label: const Text('Simpan Perubahan'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: AppTheme.borderRadiusLarge,
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -822,7 +840,7 @@ class _ResidentsEditPageState extends State<ResidentsEditPage> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: items.contains(value) ? value : null,
+          initialValue: items.contains(value) ? value : null,
           hint: Text(hint, style: TextStyle(color: Colors.grey[400])),
           isExpanded: true,
           decoration: InputDecoration(

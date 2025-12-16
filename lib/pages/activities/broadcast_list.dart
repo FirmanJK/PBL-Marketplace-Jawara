@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:jawara/shared/standard_app_bar.dart';
+import 'package:jawara/pages/activities/broadcast_add.dart';
 
 class BroadcastMessage {
   final int no;
@@ -140,7 +141,16 @@ class _BroadcastListPageState extends State<BroadcastListPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.pushNamed(context, '/broadcast/add');
+          showBroadcastDialog(context, onBroadcastAdded: (broadcastData) {
+            setState(() {
+              _broadcasts.insert(0, BroadcastMessage(
+                no: _broadcasts.length + 1,
+                pengirim: 'Admin RT',
+                judul: broadcastData['title'],
+                tanggal: DateTime.now(),
+              ));
+            });
+          });
         },
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text('Tambah Broadcast', style: TextStyle(color: Colors.white)),

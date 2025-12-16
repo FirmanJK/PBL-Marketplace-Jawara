@@ -62,6 +62,7 @@ class _ProfilePageState extends State<ProfilePage>
       return;
     }
 
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
@@ -105,6 +106,7 @@ class _ProfilePageState extends State<ProfilePage>
       return;
     }
 
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {

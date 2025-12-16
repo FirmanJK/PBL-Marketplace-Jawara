@@ -2,23 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:jawara/shared/standard_app_bar.dart';
 import 'package:intl/intl.dart';
 
-class SpendingPage extends StatelessWidget {
-  const SpendingPage({super.key});
+class PopulationPage extends StatelessWidget {
+  const PopulationPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Data dummy untuk total pengeluaran
-    final double totalPengeluaran = 15000000;
-    final int jumlahTransaksi = 12;
+    // Data dummy untuk statistik kependudukan
+    final int totalWarga = 1234;
+    final int totalKeluarga = 456;
+    final int totalRumah = 320;
     
-    final currencyFormatter = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
-
     return Scaffold(
-      appBar: StandardAppBar(title: 'Pengeluaran'),
+      appBar: StandardAppBar(title: 'Kependudukan'),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -27,14 +22,14 @@ class SpendingPage extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
+                colors: [Color(0xFF8B5CF6), Color(0xFF7C3AED)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFFEF4444).withOpacity(0.3),
+                  color: const Color(0xFF8B5CF6).withOpacity(0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -52,14 +47,14 @@ class SpendingPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(
-                        Icons.trending_down,
+                        Icons.family_restroom,
                         color: Colors.white,
                         size: 24,
                       ),
                     ),
                     const SizedBox(width: 12),
                     const Text(
-                      'Total Pengeluaran',
+                      'Data Kependudukan',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -69,21 +64,13 @@ class SpendingPage extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  currencyFormatter.format(totalPengeluaran),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '$jumlahTransaksi transaksi',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 14,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildStatItem('Warga', '$totalWarga'),
+                    _buildStatItem('Keluarga', '$totalKeluarga'),
+                    _buildStatItem('Rumah', '$totalRumah'),
+                  ],
                 ),
               ],
             ),
@@ -91,23 +78,82 @@ class SpendingPage extends StatelessWidget {
           const SizedBox(height: 20),
           _buildMenuCard(
             context,
-            icon: Icons.add_circle_outline,
-            title: 'Tambah Pengeluaran',
-            subtitle: 'Catat pengeluaran baru',
-            color: const Color(0xFFEF4444),
-            route: '/spending/add',
+            icon: Icons.people_outline,
+            title: 'Data Warga',
+            subtitle: 'Kelola data warga',
+            color: const Color(0xFF3B82F6),
+            route: '/residents/list',
           ),
           const SizedBox(height: 12),
           _buildMenuCard(
             context,
-            icon: Icons.list_alt_outlined,
-            title: 'Daftar Pengeluaran',
-            subtitle: 'Lihat semua pengeluaran',
+            icon: Icons.person_add_outlined,
+            title: 'Tambah Warga',
+            subtitle: 'Daftarkan warga baru',
+            color: const Color(0xFF10B981),
+            route: '/residents/add',
+          ),
+          const SizedBox(height: 12),
+          _buildMenuCard(
+            context,
+            icon: Icons.family_restroom_outlined,
+            title: 'Data Keluarga',
+            subtitle: 'Kelola data keluarga',
             color: const Color(0xFF8B5CF6),
-            route: '/spending/list',
+            route: '/families',
+          ),
+          const SizedBox(height: 12),
+          _buildMenuCard(
+            context,
+            icon: Icons.home_outlined,
+            title: 'Data Rumah',
+            subtitle: 'Kelola data rumah',
+            color: const Color(0xFFF59E0B),
+            route: '/houses/list',
+          ),
+          const SizedBox(height: 12),
+          _buildMenuCard(
+            context,
+            icon: Icons.add_home_outlined,
+            title: 'Tambah Rumah',
+            subtitle: 'Daftarkan rumah baru',
+            color: const Color(0xFF06B6D4),
+            route: '/houses/add',
+          ),
+          const SizedBox(height: 12),
+          _buildMenuCard(
+            context,
+            icon: Icons.swap_horiz_outlined,
+            title: 'Mutasi Data',
+            subtitle: 'Kelola perubahan data',
+            color: const Color(0xFFEC4899),
+            route: '/mutations',
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildStatItem(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.9),
+            fontSize: 12,
+          ),
+        ),
+      ],
     );
   }
 

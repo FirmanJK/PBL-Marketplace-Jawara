@@ -109,139 +109,81 @@ class _FamilyMutationsListPageState extends State<FamilyMutationsListPage> {
             ),
           ),
           Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : Builder(
-                    builder: (context) {
-                      // Build filtered list once so itemCount matches
-                      final filtered = mutationList.where((m) {
-                        final jm = (m.jenisMutasi ?? '')
-                            .toString()
-                            .toLowerCase();
-                        final keluarga = (m.keluarga ?? '')
-                            .toString()
-                            .toLowerCase();
-                        final alamatLama = (m.alamatLama ?? '')
-                            .toString()
-                            .toLowerCase();
-                        final alamatBaru = (m.alamatBaru ?? '')
-                            .toString()
-                            .toLowerCase();
-                        final tanggal = (m.tanggal ?? '')
-                            .toString()
-                            .toLowerCase();
-                        final q = _searchQuery;
-                        if (q.isEmpty) return true;
-                   // If the query is purely numeric, treat it as a family id search only
-                   final numeric = RegExp(r'^\d+$').hasMatch(q);
-                   if (numeric) {
-                   // extract digits from keluarga label (e.g. 'Keluarga #12' -> '12')
-                   final famDigitsMatch = RegExp(r"\d+").firstMatch(keluarga);
-                   final famDigits = famDigitsMatch?.group(0) ?? '';
-                   return famDigits.contains(q);
-                   }
-                   return jm.contains(q) || keluarga.contains(q) || alamatLama.contains(q) || alamatBaru.contains(q) || tanggal.contains(q);
-                      }).toList();
-
-                      if (filtered.isEmpty) {
-                        return const Center(
-                          child: Text('Tidak ada mutasi yang cocok'),
+            child: mutationList.isEmpty 
+              ? const Center(
+                  child: Text(
+                    'Belum ada data mutasi',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: mutationList.length,
+              itemBuilder: (context, index) {
+                final mutation = mutationList[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.all(16),
+                    leading: CircleAvatar(
+                      backgroundColor: mutation.jenisMutasi == 'Keluar Wilayah'
+                          ? Colors.red.withOpacity(0.1)
+                          : Colors.green.withOpacity(0.1),
+                      child: Icon(
+                        mutation.jenisMutasi == 'Keluar Wilayah'
+                            ? Icons.exit_to_app
+                            : Icons.swap_horiz,
+                        color: mutation.jenisMutasi == 'Keluar Wilayah'
+                            ? Colors.red
+                            : Colors.green,
+                      ),
+                    ),
+                    title: Text(
+                      mutation.keluarga,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 4),
+                        Text('Tanggal: ${mutation.tanggal}'),
+                        const SizedBox(height: 8),
+                        _buildStatusChip(mutation.jenisMutasi),
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                FamilyMutationsDetailPage(mutation: mutation),
+                          ),
                         );
-                      }
-
-                      return ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: filtered.length,
-                        itemBuilder: (context, index) {
-                          final mutation = filtered[index];
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            elevation: 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.all(16),
-                              leading: CircleAvatar(
-                                backgroundColor:
-                                    (mutation.jenisMutasi ?? '')
-                                        .toString()
-                                        .toLowerCase()
-                                        .contains('keluar')
-                                    ? Colors.red.withOpacity(0.1)
-                                    : Colors.green.withOpacity(0.1),
-                                child: Icon(
-                                  (mutation.jenisMutasi ?? '')
-                                          .toString()
-                                          .toLowerCase()
-                                          .contains('keluar')
-                                      ? Icons.exit_to_app
-                                      : Icons.swap_horiz,
-                                  color:
-                                      (mutation.jenisMutasi ?? '')
-                                          .toString()
-                                          .toLowerCase()
-                                          .contains('keluar')
-                                      ? Colors.red
-                                      : Colors.green,
-                                ),
-                              ),
-                              title: Text(
-                                mutation.keluarga,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(height: 4),
-                                  Text('Tanggal: ${mutation.tanggal}'),
-                                  const SizedBox(height: 8),
-                                  _buildStatusChip(mutation.jenisMutasi),
-                                ],
-                              ),
-                              trailing: IconButton(
-                                icon: const Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 16,
-                                ),
-                                onPressed: () {
-                                  FocusScope.of(context).unfocus();
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          FamilyMutationsDetailPage(
-                                            mutation: mutation,
-                                          ),
-                                    ),
-                                  );
-                                },
-                              ),
-                              onTap: () {
-                                FocusScope.of(context).unfocus();
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        FamilyMutationsDetailPage(
-                                          mutation: mutation,
-                                        ),
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        },
+                      },
+                    ),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              FamilyMutationsDetailPage(mutation: mutation),
+                        ),
                       );
                     },
                   ),
+                );
+              },
+            ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          FocusScope.of(context).unfocus();
-          Navigator.pushNamed(context, '/family-mutations/add');
+          Navigator.pushNamed(context, '/mutations/add');
         },
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text(

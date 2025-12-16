@@ -94,12 +94,24 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 color: const Color(0xFF0891B2),
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.inventory_2, color: Colors.white, size: 16),
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Icon(
+                  Icons.inventory_2,
+                  color: Color(0xFF0891B2),
+                  size: 14,
+                ),
+              ),
             ),
             const SizedBox(width: 10),
             const Text('Marketplace', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18)),
