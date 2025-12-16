@@ -716,7 +716,7 @@ class AllFeaturesPage extends StatelessWidget {
                 'Mutasi',
                 Icons.swap_horiz,
                 const Color(0xFFF59E0B),
-                '/family-mutations/list',
+                '/mutations/list',
               ),
               FeatureItem(
                 'Persetujuan',

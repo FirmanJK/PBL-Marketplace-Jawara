@@ -153,16 +153,7 @@ class IncomePage extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          try {
-            Navigator.pushNamed(context, route);
-          } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Fitur sedang dalam pengembangan'),
-                backgroundColor: Colors.orange,
-              ),
-            );
-          }
+          Navigator.pushNamed(context, route);
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(

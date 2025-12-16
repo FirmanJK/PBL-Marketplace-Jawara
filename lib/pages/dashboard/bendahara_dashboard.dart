@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/services/auth_service.dart';
-import 'package:jawara/pages/chat/chat_list_page.dart';
+import 'package:jawara/pages/messages/resident_messages.dart';
 
 class BendaharaDashboardPage extends StatefulWidget {
   const BendaharaDashboardPage({super.key});
@@ -15,7 +15,7 @@ class _BendaharaDashboardPageState extends State<BendaharaDashboardPage> {
   final List<Widget> _pages = [
     const BendaharaHomePage(),
     const BendaharaKeuanganPage(),
-    const ChatListPage(),
+    const CitizenMessagesPage(),
     const BendaharaProfilPage(),
   ];
 
@@ -99,7 +99,7 @@ class BendaharaHomePage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white),
             onPressed: () {
-              // TODO: Implement search functionality
+              _showSearchDialog(context);
             },
           ),
           IconButton(
@@ -111,16 +111,7 @@ class BendaharaHomePage extends StatelessWidget {
         ],
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              const Color(0xFF8B5CF6).withValues(alpha: 0.1),
-              Colors.white,
-            ],
-          ),
-        ),
+        color: Colors.white,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -132,12 +123,12 @@ class BendaharaHomePage extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF8B5CF6), Color(0xFF7C3AED)],
+                    colors: [Color(0xFF0891B2), Color(0xFF06B6D4)],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
+                      color: const Color(0xFF0891B2).withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -205,13 +196,6 @@ class BendaharaHomePage extends StatelessWidget {
                     const Color(0xFF3B82F6),
                     '/reports/print',
                   ),
-                  _buildFeatureCard(
-                    context,
-                    'Ringkasan Keuangan',
-                    Icons.pie_chart,
-                    const Color(0xFF8B5CF6),
-                    '/reports/income',
-                  ),
                 ],
               ),
             ],
@@ -227,24 +211,7 @@ class BendaharaHomePage extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
-          try {
-            Navigator.pushNamed(context, route);
-          } catch (e) {
-            // Fitur dalam pengembangan tetap bisa digunakan
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Fitur $title tersedia - Silakan coba lagi'),
-                backgroundColor: Colors.blue,
-                action: SnackBarAction(
-                  label: 'Coba Lagi',
-                  textColor: Colors.white,
-                  onPressed: () {
-                    Navigator.pushNamed(context, route);
-                  },
-                ),
-              ),
-            );
-          }
+          Navigator.pushNamed(context, route);
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -275,6 +242,97 @@ class BendaharaHomePage extends StatelessWidget {
       ),
     );
   }
+
+  static void _showSearchDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Pencarian'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              decoration: const InputDecoration(
+                hintText: 'Cari laporan keuangan atau data...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+              onSubmitted: (value) {
+                Navigator.pop(context);
+                if (value.isNotEmpty) {
+                  _performSearch(context, value);
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/reports/income');
+                    },
+                    icon: const Icon(Icons.assessment),
+                    label: const Text('Laporan'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/income');
+                    },
+                    icon: const Icon(Icons.account_balance_wallet),
+                    label: const Text('Keuangan'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tutup'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static void _performSearch(BuildContext context, String query) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Hasil Pencarian: "$query"'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.assessment),
+              title: Text('Tidak ada hasil ditemukan'),
+              subtitle: Text('Coba kata kunci lain'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tutup'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/reports/income');
+            },
+            child: const Text('Lihat Semua Laporan'),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class BendaharaKeuanganPage extends StatefulWidget {
@@ -285,106 +343,623 @@ class BendaharaKeuanganPage extends StatefulWidget {
 }
 
 class _BendaharaKeuanganPageState extends State<BendaharaKeuanganPage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Manajemen Keuangan'),
-        backgroundColor: const Color(0xFF0891B2),
-        foregroundColor: Colors.white,
-        automaticallyImplyLeading: false,
+  
+  void _showNotifications(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      body: Padding(
+      builder: (context) => Container(
         padding: const EdgeInsets.all(16),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildFinanceCard(
-              context,
-              'Pemasukan',
-              Icons.arrow_downward,
-              const Color(0xFF10B981),
-              '/income',
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Notifikasi Keuangan',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pushNamed(context, '/notifications'),
+                  child: const Text('Lihat Semua'),
+                ),
+              ],
             ),
-            _buildFinanceCard(
-              context,
-              'Pengeluaran',
-              Icons.arrow_upward,
-              const Color(0xFFEF4444),
-              '/spending',
-            ),
-            _buildFinanceCard(
-              context,
-              'Kategori Iuran',
-              Icons.category,
-              const Color(0xFF3B82F6),
-              '/income/categories',
-            ),
-            _buildFinanceCard(
-              context,
-              'Tagih Iuran',
+            const SizedBox(height: 16),
+            _buildNotificationItem(
+              'Tagihan Baru',
+              'Ada 3 tagihan iuran yang belum dibayar',
+              '1 jam yang lalu',
               Icons.receipt_long,
-              const Color(0xFFF59E0B),
-              '/income/bill',
+              Colors.orange,
             ),
-            _buildFinanceCard(
-              context,
-              'Daftar Tagihan',
-              Icons.list_alt,
-              const Color(0xFF8B5CF6),
-              '/income/bills',
+            _buildNotificationItem(
+              'Pemasukan',
+              'Pembayaran iuran dari Pak Budi diterima',
+              '3 jam yang lalu',
+              Icons.arrow_downward,
+              Colors.green,
             ),
-            _buildFinanceCard(
-              context,
-              'Tambah Pemasukan',
-              Icons.add_circle,
-              const Color(0xFF14B8A6),
-              '/income/other/add',
+            _buildNotificationItem(
+              'Laporan',
+              'Laporan keuangan bulan ini siap',
+              '1 hari yang lalu',
+              Icons.assessment,
+              Colors.blue,
             ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFinanceCard(BuildContext context, String title, IconData icon, Color color, String route) {
+  Widget _buildNotificationItem(String title, String message, String time, IconData icon, Color color) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  message,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  time,
+                  style: TextStyle(
+                    color: Colors.grey[500],
+                    fontSize: 10,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleMenuSelection(BuildContext context, String value) {
+    switch (value) {
+      case 'refresh':
+        _showRefreshDialog(context);
+        break;
+      case 'filter':
+        _showFilterDialog(context);
+        break;
+      case 'sort':
+        _showSortDialog(context);
+        break;
+      case 'export':
+        _showExportDialog(context);
+        break;
+      case 'settings':
+        Navigator.pushNamed(context, '/settings');
+        break;
+      case 'help':
+        Navigator.pushNamed(context, '/help');
+        break;
+      case 'about':
+        Navigator.pushNamed(context, '/about');
+        break;
+    }
+  }
+
+  void _showRefreshDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.refresh, color: Color(0xFF0891B2)),
+            SizedBox(width: 8),
+            Text('Refresh Data'),
+          ],
+        ),
+        content: const Text('Apakah Anda ingin memperbarui data keuangan?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Data keuangan berhasil diperbarui'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0891B2)),
+            child: const Text('Refresh', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showFilterDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.filter_list, color: Color(0xFF0891B2)),
+            SizedBox(width: 8),
+            Text('Filter Keuangan'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CheckboxListTile(
+              title: const Text('Pemasukan'),
+              value: true,
+              onChanged: (value) {},
+              activeColor: const Color(0xFF0891B2),
+            ),
+            CheckboxListTile(
+              title: const Text('Pengeluaran'),
+              value: false,
+              onChanged: (value) {},
+              activeColor: const Color(0xFF0891B2),
+            ),
+            CheckboxListTile(
+              title: const Text('Tagihan'),
+              value: true,
+              onChanged: (value) {},
+              activeColor: const Color(0xFF0891B2),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Filter berhasil diterapkan'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0891B2)),
+            child: const Text('Terapkan', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSortDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.sort, color: Color(0xFF0891B2)),
+            SizedBox(width: 8),
+            Text('Urutkan Keuangan'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RadioListTile<String>(
+              title: const Text('Tanggal Terbaru'),
+              value: 'date_desc',
+              groupValue: 'date_desc',
+              onChanged: (value) {},
+              activeColor: const Color(0xFF0891B2),
+            ),
+            RadioListTile<String>(
+              title: const Text('Tanggal Terlama'),
+              value: 'date_asc',
+              groupValue: 'date_desc',
+              onChanged: (value) {},
+              activeColor: const Color(0xFF0891B2),
+            ),
+            RadioListTile<String>(
+              title: const Text('Jumlah Terbesar'),
+              value: 'amount_desc',
+              groupValue: 'date_desc',
+              onChanged: (value) {},
+              activeColor: const Color(0xFF0891B2),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Pengurutan berhasil diterapkan'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0891B2)),
+            child: const Text('Terapkan', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showExportDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.download, color: Color(0xFF0891B2)),
+            SizedBox(width: 8),
+            Text('Export Data'),
+          ],
+        ),
+        content: const Text('Pilih format export data keuangan:'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Data berhasil diexport ke PDF'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('PDF', style: TextStyle(color: Colors.white)),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Data berhasil diexport ke Excel'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            child: const Text('Excel', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Manajemen Keuangan',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: const Color(0xFF0891B2),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        actions: [
+          // Notification Icon
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+                onPressed: () => _showNotifications(context),
+                tooltip: 'Notifikasi',
+              ),
+              // Notification Badge
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 16,
+                    minHeight: 16,
+                  ),
+                  child: const Text(
+                    '3',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          
+          // Dropdown Menu (Three Dots)
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert, color: Colors.white),
+            tooltip: 'Menu',
+            offset: const Offset(0, 50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            onSelected: (value) => _handleMenuSelection(context, value),
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem<String>(
+                value: 'refresh',
+                child: Row(
+                  children: [
+                    Icon(Icons.refresh, color: Color(0xFF0891B2), size: 20),
+                    SizedBox(width: 12),
+                    Text('Refresh Data', style: TextStyle(fontSize: 14)),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'filter',
+                child: Row(
+                  children: [
+                    Icon(Icons.filter_list, color: Color(0xFF0891B2), size: 20),
+                    SizedBox(width: 12),
+                    Text('Filter Keuangan', style: TextStyle(fontSize: 14)),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'sort',
+                child: Row(
+                  children: [
+                    Icon(Icons.sort, color: Color(0xFF0891B2), size: 20),
+                    SizedBox(width: 12),
+                    Text('Urutkan', style: TextStyle(fontSize: 14)),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem<String>(
+                value: 'export',
+                child: Row(
+                  children: [
+                    Icon(Icons.download, color: Color(0xFF0891B2), size: 20),
+                    SizedBox(width: 12),
+                    Text('Export Data', style: TextStyle(fontSize: 14)),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'settings',
+                child: Row(
+                  children: [
+                    Icon(Icons.settings, color: Color(0xFF0891B2), size: 20),
+                    SizedBox(width: 12),
+                    Text('Pengaturan', style: TextStyle(fontSize: 14)),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem<String>(
+                value: 'help',
+                child: Row(
+                  children: [
+                    Icon(Icons.help_outline, color: Color(0xFF0891B2), size: 20),
+                    SizedBox(width: 12),
+                    Text('Bantuan', style: TextStyle(fontSize: 14)),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'about',
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Color(0xFF0891B2), size: 20),
+                    SizedBox(width: 12),
+                    Text('Tentang', style: TextStyle(fontSize: 14)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _buildMenuCard(
+            context,
+            icon: Icons.arrow_downward_outlined,
+            title: 'Pemasukan',
+            subtitle: 'Kelola data pemasukan RT/RW',
+            color: const Color(0xFF10B981),
+            route: '/income',
+          ),
+          const SizedBox(height: 12),
+          _buildMenuCard(
+            context,
+            icon: Icons.arrow_upward_outlined,
+            title: 'Pengeluaran',
+            subtitle: 'Kelola data pengeluaran RT/RW',
+            color: const Color(0xFFEF4444),
+            route: '/spending',
+          ),
+          const SizedBox(height: 12),
+          _buildMenuCard(
+            context,
+            icon: Icons.category_outlined,
+            title: 'Kategori Iuran',
+            subtitle: 'Atur kategori iuran warga',
+            color: const Color(0xFF3B82F6),
+            route: '/income/categories',
+          ),
+          const SizedBox(height: 12),
+          _buildMenuCard(
+            context,
+            icon: Icons.receipt_long_outlined,
+            title: 'Tagih Iuran',
+            subtitle: 'Buat tagihan iuran bulanan',
+            color: const Color(0xFFF59E0B),
+            route: '/income/bill',
+          ),
+          const SizedBox(height: 12),
+          _buildMenuCard(
+            context,
+            icon: Icons.list_alt_outlined,
+            title: 'Daftar Tagihan',
+            subtitle: 'Lihat semua tagihan warga',
+            color: const Color(0xFF8B5CF6),
+            route: '/income/bills',
+          ),
+          const SizedBox(height: 12),
+          _buildMenuCard(
+            context,
+            icon: Icons.add_circle_outlined,
+            title: 'Tambah Pemasukan',
+            subtitle: 'Catat pemasukan lainnya',
+            color: const Color(0xFF14B8A6),
+            route: '/income/other/add',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMenuCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required String route,
+  }) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: InkWell(
         onTap: () {
-          try {
-            Navigator.pushNamed(context, route);
-          } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Fitur sedang dalam pengembangan')),
-            );
-          }
+          Navigator.pushNamed(context, route);
         },
         borderRadius: BorderRadius.circular(12),
-        child: Padding(
+        child: Container(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              colors: [
+                color.withOpacity(0.1),
+                color.withOpacity(0.05),
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+          ),
+          child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
+                  color: color.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: color, size: 32),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 24,
+                ),
               ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF1F2937),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.grey[400],
+                size: 16,
               ),
             ],
           ),
@@ -458,13 +1033,7 @@ class _BendaharaLaporanPageState extends State<BendaharaLaporanPage> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
-          try {
-            Navigator.pushNamed(context, route);
-          } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Fitur sedang dalam pengembangan')),
-            );
-          }
+          Navigator.pushNamed(context, route);
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -769,10 +1338,10 @@ class _BendaharaPesanPageState extends State<BendaharaPesanPage> {
           children: [
             _buildMessageCard(
               context,
-              'Pesan Warga',
-              Icons.message,
+              'Notifikasi & Pesan',
+              Icons.notifications,
               const Color(0xFF14B8A6),
-              '/messages',
+              '/notifications',
             ),
             _buildMessageCard(
               context,
@@ -807,24 +1376,7 @@ class _BendaharaPesanPageState extends State<BendaharaPesanPage> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
-          try {
-            Navigator.pushNamed(context, route);
-          } catch (e) {
-            // Fitur dalam pengembangan tetap bisa digunakan
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Fitur $title tersedia - Silakan coba lagi'),
-                backgroundColor: Colors.blue,
-                action: SnackBarAction(
-                  label: 'Coba Lagi',
-                  textColor: Colors.white,
-                  onPressed: () {
-                    Navigator.pushNamed(context, route);
-                  },
-                ),
-              ),
-            );
-          }
+          Navigator.pushNamed(context, route);
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(

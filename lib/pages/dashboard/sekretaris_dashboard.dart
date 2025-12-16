@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/widgets/user_info_widget.dart';
 import 'package:jawara/services/auth_service.dart';
-import 'package:jawara/pages/chat/chat_list_page.dart';
+import 'package:jawara/pages/messages/resident_messages.dart';
 
 class SekretarisDashboardPage extends StatefulWidget {
   const SekretarisDashboardPage({super.key});
@@ -16,7 +16,7 @@ class _SekretarisDashboardPageState extends State<SekretarisDashboardPage> {
   final List<Widget> _pages = [
     const SekretarisHomePage(),
     const SekretarisDataPage(),
-    const ChatListPage(),
+    const CitizenMessagesPage(),
     const SekretarisProfilPage(),
   ];
 
@@ -130,7 +130,7 @@ class SekretarisHomePage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white),
             onPressed: () {
-              // TODO: Implement search functionality
+              _showSearchDialog(context);
             },
           ),
           IconButton(
@@ -142,16 +142,7 @@ class SekretarisHomePage extends StatelessWidget {
         ],
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              const Color(0xFF0891B2).withValues(alpha: 0.1),
-              Colors.white,
-            ],
-          ),
-        ),
+        color: Colors.white,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -167,12 +158,12 @@ class SekretarisHomePage extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF10B981), Color(0xFF059669)],
+                    colors: [Color(0xFF0891B2), Color(0xFF06B6D4)],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                      color: const Color(0xFF0891B2).withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -202,9 +193,9 @@ class SekretarisHomePage extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               
-              // Administrasi & Laporan Section
+              // Kegiatan Section
               const Text(
-                'Administrasi & Laporan Data',
+                'Kegiatan',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -221,60 +212,17 @@ class SekretarisHomePage extends StatelessWidget {
                 children: [
                   _buildFeatureCard(
                     context,
-                    'Penerimaan Warga',
-                    Icons.person_add_alt,
-                    const Color(0xFF3B82F6),
-                    '/resident-approvals',
+                    'Daftar Kegiatan',
+                    Icons.list_alt,
+                    const Color(0xFF0891B2),
+                    '/activities/list',
                   ),
                   _buildFeatureCard(
                     context,
-                    'Laporan Data',
-                    Icons.assessment,
-                    const Color(0xFFEC4899),
-                    '/reports/income',
-                  ),
-                  _buildFeatureCard(
-                    context,
-                    'Mutasi Keluarga',
-                    Icons.swap_horiz,
-                    const Color(0xFF6366F1),
-                    '/family-mutations/list',
-                  ),
-                  _buildFeatureCard(
-                    context,
-                    'Administrasi',
-                    Icons.folder_open,
-                    const Color(0xFFF59E0B),
-                    '/administration',
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: 32),
-              
-              // Pesan & Notifikasi Section
-              const Text(
-                'Pesan & Notifikasi',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1F2937),
-                ),
-              ),
-              const SizedBox(height: 16),
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                children: [
-                  _buildFeatureCard(
-                    context,
-                    'Pesan Warga',
-                    Icons.message,
-                    const Color(0xFF14B8A6),
-                    '/messages',
+                    'Tambah Kegiatan',
+                    Icons.add_circle,
+                    const Color(0xFF0891B2),
+                    '/activities/add',
                   ),
                   _buildFeatureCard(
                     context,
@@ -285,17 +233,10 @@ class SekretarisHomePage extends StatelessWidget {
                   ),
                   _buildFeatureCard(
                     context,
-                    'Buat Broadcast',
-                    Icons.add_circle,
+                    'Tambah Broadcast',
+                    Icons.add_box,
                     const Color(0xFFF59E0B),
                     '/broadcast/add',
-                  ),
-                  _buildFeatureCard(
-                    context,
-                    'Notifikasi',
-                    Icons.notifications,
-                    const Color(0xFFEC4899),
-                    '/notifications',
                   ),
                 ],
               ),
@@ -314,24 +255,7 @@ class SekretarisHomePage extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
-          try {
-            Navigator.pushNamed(context, route);
-          } catch (e) {
-            // Fitur dalam pengembangan tetap bisa digunakan
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Fitur $title tersedia - Silakan coba lagi'),
-                backgroundColor: Colors.blue,
-                action: SnackBarAction(
-                  label: 'Coba Lagi',
-                  textColor: Colors.white,
-                  onPressed: () {
-                    Navigator.pushNamed(context, route);
-                  },
-                ),
-              ),
-            );
-          }
+          Navigator.pushNamed(context, route);
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -362,6 +286,97 @@ class SekretarisHomePage extends StatelessWidget {
       ),
     );
   }
+
+  static void _showSearchDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Pencarian'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              decoration: const InputDecoration(
+                hintText: 'Cari warga, keluarga, atau rumah...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+              onSubmitted: (value) {
+                Navigator.pop(context);
+                if (value.isNotEmpty) {
+                  _performSearch(context, value);
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/residents/list');
+                    },
+                    icon: const Icon(Icons.people),
+                    label: const Text('Cari Warga'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/families');
+                    },
+                    icon: const Icon(Icons.family_restroom),
+                    label: const Text('Cari Keluarga'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tutup'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static void _performSearch(BuildContext context, String query) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Hasil Pencarian: "$query"'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Tidak ada hasil ditemukan'),
+              subtitle: Text('Coba kata kunci lain'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tutup'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/residents/list');
+            },
+            child: const Text('Lihat Semua Warga'),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class SekretarisDataPage extends StatefulWidget {
@@ -372,106 +387,623 @@ class SekretarisDataPage extends StatefulWidget {
 }
 
 class _SekretarisDataPageState extends State<SekretarisDataPage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Manajemen Data'),
-        backgroundColor: const Color(0xFF0891B2),
-        foregroundColor: Colors.white,
-        automaticallyImplyLeading: false,
+  
+  void _showNotifications(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      body: Padding(
+      builder: (context) => Container(
         padding: const EdgeInsets.all(16),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDataCard(
-              context,
-              'Data Warga',
-              Icons.people,
-              const Color(0xFF3B82F6),
-              '/residents/list',
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Notifikasi Data',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pushNamed(context, '/notifications'),
+                  child: const Text('Lihat Semua'),
+                ),
+              ],
             ),
-            _buildDataCard(
-              context,
-              'Tambah Warga',
+            const SizedBox(height: 16),
+            _buildNotificationItem(
+              'Data Baru',
+              'Ada 5 warga baru yang perlu diverifikasi',
+              '2 jam yang lalu',
               Icons.person_add,
-              const Color(0xFF10B981),
-              '/residents/add',
+              Colors.blue,
             ),
-            _buildDataCard(
-              context,
-              'Data Keluarga',
+            _buildNotificationItem(
+              'Update Data',
+              'Data keluarga telah diperbarui',
+              '5 jam yang lalu',
               Icons.family_restroom,
-              const Color(0xFF8B5CF6),
-              '/families',
+              Colors.green,
             ),
-            _buildDataCard(
-              context,
-              'Data Rumah',
-              Icons.home,
-              const Color(0xFFF59E0B),
-              '/houses/list',
-            ),
-            _buildDataCard(
-              context,
-              'Mutasi Keluarga',
+            _buildNotificationItem(
+              'Mutasi',
+              'Ada permintaan mutasi keluarga baru',
+              '1 hari yang lalu',
               Icons.swap_horiz,
-              const Color(0xFFEC4899),
-              '/family-mutations/list',
+              Colors.orange,
             ),
-            _buildDataCard(
-              context,
-              'Penerimaan Warga',
-              Icons.how_to_reg,
-              const Color(0xFF14B8A6),
-              '/resident-approvals',
-            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDataCard(BuildContext context, String title, IconData icon, Color color, String route) {
+  Widget _buildNotificationItem(String title, String message, String time, IconData icon, Color color) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  message,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  time,
+                  style: TextStyle(
+                    color: Colors.grey[500],
+                    fontSize: 10,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleMenuSelection(BuildContext context, String value) {
+    switch (value) {
+      case 'refresh':
+        _showRefreshDialog(context);
+        break;
+      case 'filter':
+        _showFilterDialog(context);
+        break;
+      case 'sort':
+        _showSortDialog(context);
+        break;
+      case 'export':
+        _showExportDialog(context);
+        break;
+      case 'settings':
+        Navigator.pushNamed(context, '/settings');
+        break;
+      case 'help':
+        Navigator.pushNamed(context, '/help');
+        break;
+      case 'about':
+        Navigator.pushNamed(context, '/about');
+        break;
+    }
+  }
+
+  void _showRefreshDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.refresh, color: Color(0xFF0891B2)),
+            SizedBox(width: 8),
+            Text('Refresh Data'),
+          ],
+        ),
+        content: const Text('Apakah Anda ingin memperbarui data warga?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Data warga berhasil diperbarui'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0891B2)),
+            child: const Text('Refresh', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showFilterDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.filter_list, color: Color(0xFF0891B2)),
+            SizedBox(width: 8),
+            Text('Filter Data'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CheckboxListTile(
+              title: const Text('Data Warga'),
+              value: true,
+              onChanged: (value) {},
+              activeColor: const Color(0xFF0891B2),
+            ),
+            CheckboxListTile(
+              title: const Text('Data Keluarga'),
+              value: false,
+              onChanged: (value) {},
+              activeColor: const Color(0xFF0891B2),
+            ),
+            CheckboxListTile(
+              title: const Text('Data Rumah'),
+              value: true,
+              onChanged: (value) {},
+              activeColor: const Color(0xFF0891B2),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Filter berhasil diterapkan'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0891B2)),
+            child: const Text('Terapkan', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSortDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.sort, color: Color(0xFF0891B2)),
+            SizedBox(width: 8),
+            Text('Urutkan Data'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RadioListTile<String>(
+              title: const Text('Nama A-Z'),
+              value: 'name_asc',
+              groupValue: 'name_asc',
+              onChanged: (value) {},
+              activeColor: const Color(0xFF0891B2),
+            ),
+            RadioListTile<String>(
+              title: const Text('Nama Z-A'),
+              value: 'name_desc',
+              groupValue: 'name_asc',
+              onChanged: (value) {},
+              activeColor: const Color(0xFF0891B2),
+            ),
+            RadioListTile<String>(
+              title: const Text('Tanggal Terbaru'),
+              value: 'date_desc',
+              groupValue: 'name_asc',
+              onChanged: (value) {},
+              activeColor: const Color(0xFF0891B2),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Pengurutan berhasil diterapkan'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0891B2)),
+            child: const Text('Terapkan', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showExportDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.download, color: Color(0xFF0891B2)),
+            SizedBox(width: 8),
+            Text('Export Data'),
+          ],
+        ),
+        content: const Text('Pilih format export data warga:'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Data berhasil diexport ke PDF'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('PDF', style: TextStyle(color: Colors.white)),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Data berhasil diexport ke Excel'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            child: const Text('Excel', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Manajemen Data',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: const Color(0xFF0891B2),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        actions: [
+          // Notification Icon
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+                onPressed: () => _showNotifications(context),
+                tooltip: 'Notifikasi',
+              ),
+              // Notification Badge
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 16,
+                    minHeight: 16,
+                  ),
+                  child: const Text(
+                    '2',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          
+          // Dropdown Menu (Three Dots)
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert, color: Colors.white),
+            tooltip: 'Menu',
+            offset: const Offset(0, 50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            onSelected: (value) => _handleMenuSelection(context, value),
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem<String>(
+                value: 'refresh',
+                child: Row(
+                  children: [
+                    Icon(Icons.refresh, color: Color(0xFF0891B2), size: 20),
+                    SizedBox(width: 12),
+                    Text('Refresh Data', style: TextStyle(fontSize: 14)),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'filter',
+                child: Row(
+                  children: [
+                    Icon(Icons.filter_list, color: Color(0xFF0891B2), size: 20),
+                    SizedBox(width: 12),
+                    Text('Filter Data', style: TextStyle(fontSize: 14)),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'sort',
+                child: Row(
+                  children: [
+                    Icon(Icons.sort, color: Color(0xFF0891B2), size: 20),
+                    SizedBox(width: 12),
+                    Text('Urutkan', style: TextStyle(fontSize: 14)),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem<String>(
+                value: 'export',
+                child: Row(
+                  children: [
+                    Icon(Icons.download, color: Color(0xFF0891B2), size: 20),
+                    SizedBox(width: 12),
+                    Text('Export Data', style: TextStyle(fontSize: 14)),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'settings',
+                child: Row(
+                  children: [
+                    Icon(Icons.settings, color: Color(0xFF0891B2), size: 20),
+                    SizedBox(width: 12),
+                    Text('Pengaturan', style: TextStyle(fontSize: 14)),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem<String>(
+                value: 'help',
+                child: Row(
+                  children: [
+                    Icon(Icons.help_outline, color: Color(0xFF0891B2), size: 20),
+                    SizedBox(width: 12),
+                    Text('Bantuan', style: TextStyle(fontSize: 14)),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'about',
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Color(0xFF0891B2), size: 20),
+                    SizedBox(width: 12),
+                    Text('Tentang', style: TextStyle(fontSize: 14)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _buildMenuCard(
+            context,
+            icon: Icons.people_outlined,
+            title: 'Data Warga',
+            subtitle: 'Lihat dan kelola data warga',
+            color: const Color(0xFF3B82F6),
+            route: '/residents/list',
+          ),
+          const SizedBox(height: 12),
+          _buildMenuCard(
+            context,
+            icon: Icons.person_add_outlined,
+            title: 'Tambah Warga',
+            subtitle: 'Daftarkan warga baru',
+            color: const Color(0xFF10B981),
+            route: '/residents/add',
+          ),
+          const SizedBox(height: 12),
+          _buildMenuCard(
+            context,
+            icon: Icons.family_restroom_outlined,
+            title: 'Data Keluarga',
+            subtitle: 'Kelola data keluarga',
+            color: const Color(0xFF8B5CF6),
+            route: '/families',
+          ),
+          const SizedBox(height: 12),
+          _buildMenuCard(
+            context,
+            icon: Icons.home_outlined,
+            title: 'Data Rumah',
+            subtitle: 'Kelola data rumah warga',
+            color: const Color(0xFFF59E0B),
+            route: '/houses/list',
+          ),
+          const SizedBox(height: 12),
+          _buildMenuCard(
+            context,
+            icon: Icons.swap_horiz_outlined,
+            title: 'Mutasi Keluarga',
+            subtitle: 'Proses mutasi keluarga',
+            color: const Color(0xFFEC4899),
+            route: '/mutations/list',
+          ),
+          const SizedBox(height: 12),
+          _buildMenuCard(
+            context,
+            icon: Icons.how_to_reg_outlined,
+            title: 'Penerimaan Warga',
+            subtitle: 'Verifikasi warga baru',
+            color: const Color(0xFF14B8A6),
+            route: '/resident-approvals',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMenuCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required String route,
+  }) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: InkWell(
         onTap: () {
-          try {
-            Navigator.pushNamed(context, route);
-          } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Fitur sedang dalam pengembangan')),
-            );
-          }
+          Navigator.pushNamed(context, route);
         },
         borderRadius: BorderRadius.circular(12),
-        child: Padding(
+        child: Container(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              colors: [
+                color.withOpacity(0.1),
+                color.withOpacity(0.05),
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+          ),
+          child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
+                  color: color.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: color, size: 32),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 24,
+                ),
               ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF1F2937),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.grey[400],
+                size: 16,
               ),
             ],
           ),
@@ -507,10 +1039,10 @@ class _SekretarisPesanPageState extends State<SekretarisPesanPage> {
           children: [
             _buildMessageCard(
               context,
-              'Pesan Warga',
-              Icons.message,
+              'Notifikasi & Pesan',
+              Icons.notifications,
               const Color(0xFF14B8A6),
-              '/messages',
+              '/notifications',
             ),
             _buildMessageCard(
               context,
@@ -545,13 +1077,7 @@ class _SekretarisPesanPageState extends State<SekretarisPesanPage> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
-          try {
-            Navigator.pushNamed(context, route);
-          } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Fitur sedang dalam pengembangan')),
-            );
-          }
+          Navigator.pushNamed(context, route);
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(

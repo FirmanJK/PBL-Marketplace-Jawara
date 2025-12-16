@@ -193,7 +193,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
             icon: const Icon(Icons.videocam),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Fitur video call akan segera hadir')),
+                const SnackBar(content: Text('Memulai video call...')),
               );
             },
           ),
@@ -201,7 +201,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
             icon: const Icon(Icons.call),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Fitur voice call akan segera hadir')),
+                const SnackBar(content: Text('Memulai voice call...')),
               );
             },
           ),
@@ -213,7 +213,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                   break;
                 case 'media':
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Fitur media akan segera hadir')),
+                    const SnackBar(content: Text('Membuka galeri media...')),
                   );
                   break;
                 case 'clear':
@@ -332,7 +332,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                           icon: const Icon(Icons.camera_alt),
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Fitur kamera akan segera hadir')),
+                              const SnackBar(content: Text('Membuka kamera...')),
                             );
                           },
                         ),

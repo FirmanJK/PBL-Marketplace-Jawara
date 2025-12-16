@@ -66,9 +66,16 @@ class _FamilyMutationsListPageState extends State<FamilyMutationsListPage> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: mutationList.length,
+            child: mutationList.isEmpty 
+              ? const Center(
+                  child: Text(
+                    'Belum ada data mutasi',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: mutationList.length,
               itemBuilder: (context, index) {
                 final mutation = mutationList[index];
                 return Card(
@@ -133,7 +140,7 @@ class _FamilyMutationsListPageState extends State<FamilyMutationsListPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.pushNamed(context, '/family-mutations/add');
+          Navigator.pushNamed(context, '/mutations/add');
         },
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text('Tambah Mutasi', style: TextStyle(color: Colors.white)),

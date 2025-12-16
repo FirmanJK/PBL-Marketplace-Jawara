@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 // import 'package:responsive_framework/responsive_framework.dart'; // Temporarily disabled
 import 'package:jawara/pages/activities/activities_add.dart';
 import 'package:jawara/pages/activities/activities_list.dart';
-import 'package:jawara/pages/activities/broadcast_add.dart';
+
 import 'package:jawara/pages/activities/broadcast_list.dart';
 import 'package:jawara/pages/activities/activity_logs_page.dart';
 import 'package:jawara/pages/auth/login_page.dart';
@@ -219,7 +219,7 @@ class _MyAppState extends State<MyApp> {
         '/activities/list': (context) => const ActivitiesListPage(),
         '/activities/add': (context) => const ActivitiesAddPage(),
         '/broadcast/list': (context) => const BroadcastListPage(),
-        '/broadcast/add': (context) => const BroadcastAddPage(),
+
 
         // Pesan Warga (Resident Messages)
         '/messages': (context) => const CitizenMessagesPage(),
