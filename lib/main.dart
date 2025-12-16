@@ -34,6 +34,7 @@ import 'package:jawara/pages/marketplace/marketplace_cart_page.dart';
 import 'package:jawara/pages/marketplace/marketplace_catalog_page.dart';
 import 'package:jawara/pages/marketplace/marketplace_upload_page.dart';
 import 'package:jawara/pages/marketplace/marketplace_checkout_page.dart';
+import 'package:jawara/pages/marketplace/marketplace_cart_checkout_page.dart';
 import 'package:jawara/pages/marketplace/marketplace_transactions_page.dart';
 import 'package:jawara/pages/mutations/mutations_main_page.dart';
 import 'package:jawara/pages/mutations/family_mutations_list.dart';
@@ -162,6 +163,7 @@ class MyApp extends StatelessWidget {
         '/marketplace/cart': (context) => const MarketplaceCartPage(),
         '/marketplace/catalog': (context) => const MarketplaceCatalogPage(),
         '/marketplace/upload': (context) => const MarketplaceUploadPage(),
+        '/marketplace/checkout': (context) => const MarketplaceCartCheckoutPage(),
         '/marketplace/transactions': (context) => const MarketplaceTransactionsPage(),
         '/marketplace/orders': (context) => const MarketplaceTransactionsPage(),
 

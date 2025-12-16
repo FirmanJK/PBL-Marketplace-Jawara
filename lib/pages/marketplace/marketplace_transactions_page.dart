@@ -449,7 +449,13 @@ class _TransactionCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Bayar Sekarang'),
+                      child: const Text(
+                        'Bayar Sekarang',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 if (transaction.status == 'shipped')
@@ -472,7 +478,13 @@ class _TransactionCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Pesanan Diterima'),
+                      child: const Text(
+                        'Pesanan Diterima',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
               ],
