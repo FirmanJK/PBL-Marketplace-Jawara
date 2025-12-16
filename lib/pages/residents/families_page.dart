@@ -4,6 +4,7 @@ import 'package:jawara/pages/residents/family_detail.dart';
 import 'package:jawara/utils/toast_helper.dart';
 import 'package:jawara/models/family.dart';
 import 'package:jawara/services/families_service.dart';
+import 'package:flutter/services.dart';
 // Use API-backed families list instead of dummy data
 
 class FamiliesPage extends StatefulWidget {
@@ -469,104 +470,35 @@ class _FamiliesPageState extends State<FamiliesPage> {
                     children: [
                       TextField(
                         controller: namaKeluargaController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         decoration: InputDecoration(
-                          labelText: 'Nama Keluarga',
-                          hintText: 'Masukkan nama keluarga',
+                          labelText: 'NIK',
+                          hintText: 'Masukkan NIK (angka saja)',
                           prefixIcon: const Icon(
                             Icons.people,
                             color: Color(0xFF0891B2),
                           ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF0891B2),
-                              width: 2,
-                            ),
-                          ),
+                          border: const OutlineInputBorder(),
                           filled: true,
                           fillColor: Colors.grey[50],
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: kepalaKeluargaController,
-                        decoration: InputDecoration(
-                          labelText: 'Kepala Keluarga',
-                          hintText: 'Masukkan nama kepala keluarga',
-                          prefixIcon: const Icon(
-                            Icons.person,
-                            color: Color(0xFF0891B2),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF0891B2),
-                              width: 2,
-                            ),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[50],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: alamatController,
-                        decoration: InputDecoration(
-                          labelText: 'Alamat Rumah',
-                          hintText: 'Masukkan alamat lengkap',
-                          prefixIcon: const Icon(
-                            Icons.location_on,
-                            color: Color(0xFF0891B2),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF0891B2),
-                              width: 2,
-                            ),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[50],
-                        ),
-                        maxLines: 2,
                       ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<String>(
-                        initialValue: selectedStatus,
-                        decoration: InputDecoration(
+                        value: selectedStatus,
+                        decoration: const InputDecoration(
                           labelText: 'Status Kepemilikan',
-                          prefixIcon: const Icon(
-                            Icons.home,
-                            color: Color(0xFF0891B2),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF0891B2),
-                              width: 2,
-                            ),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[50],
+                          border: OutlineInputBorder(),
                         ),
-                        items: ['Pemilik', 'Penyewa'].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
+                        items: ['Pemilik', 'Penyewa']
+                            .map((String value) => DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                ))
+                            .toList(),
                         onChanged: (String? newValue) {
                           selectedStatus = newValue;
                         },
@@ -613,6 +545,21 @@ class _FamiliesPageState extends State<FamiliesPage> {
                           );
                           return;
                         }
+
+                          if (familyNumber.length != 16) {
+                            ToastHelper.showWarning(
+                              parentContext,
+                              'NIK harus 16 digit',
+                            );
+                            return;
+                          }
+                          if (int.tryParse(familyNumber) == null) {
+                            ToastHelper.showWarning(
+                              parentContext,
+                              'NIK hanya boleh berisi angka',
+                            );
+                            return;
+                          }
 
                         // Call API to create family. Use public endpoint when no token.
                         try {
@@ -743,45 +690,15 @@ class _FamiliesPageState extends State<FamiliesPage> {
             children: [
               TextField(
                 controller: namaKeluargaController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: const InputDecoration(
-                  labelText: 'Nama Keluarga',
+                  labelText: 'NIK',
+                  hintText: 'Masukkan NIK (16 Digit)',
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
-              TextField(
-                controller: kepalaKeluargaController,
-                decoration: const InputDecoration(
-                  labelText: 'Kepala Keluarga',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: alamatController,
-                decoration: const InputDecoration(
-                  labelText: 'Alamat Rumah',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 2,
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                initialValue: selectedStatus,
-                decoration: const InputDecoration(
-                  labelText: 'Status Kepemilikan',
-                  border: OutlineInputBorder(),
-                ),
-                items: ['Pemilik', 'Penyewa'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  selectedStatus = newValue;
-                },
-              ),
             ],
           ),
         ),
