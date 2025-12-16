@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/shared/base_layout.dart';
+import 'package:jawara/services/mutations_service.dart';
+import 'package:jawara/services/families_service.dart';
+import 'package:jawara/models/family.dart';
 
 class CustomDropdown extends StatelessWidget {
   final String hintText;
@@ -18,19 +21,29 @@ class CustomDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: Colors.grey.shade300),
-        color: Colors.white,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: DropdownButtonFormField<String>(
-        decoration: const InputDecoration(
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.zero,
+        decoration: InputDecoration(
+          hintText: hintText,
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 14.0),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF0891B2), width: 2),
+          ),
         ),
-        hint: Text(hintText),
+        hint: Text(hintText, style: TextStyle(color: Colors.grey[600])),
         initialValue: selectedValue,
+        isExpanded: true,
         items: items.map((String value) {
           return DropdownMenuItem<String>(value: value, child: Text(value));
         }).toList(),
@@ -51,6 +64,8 @@ class _FamilyMutationsAddPageState extends State<FamilyMutationsAddPage> {
   String? _selectedJenisMutasi;
   String? _selectedKeluarga;
   final TextEditingController _alasanController = TextEditingController();
+  final TextEditingController _alamatAsalController = TextEditingController();
+  final TextEditingController _alamatTujuanController = TextEditingController();
   DateTime? _selectedDate;
 
   final List<String> jenisMutasiOptions = [
@@ -58,15 +73,29 @@ class _FamilyMutationsAddPageState extends State<FamilyMutationsAddPage> {
     'Keluar Wilayah',
     'Pindah Alamat',
   ];
-  final List<String> keluargaOptions = [
-    'Keluarga Budi',
-    'Keluarga Siti',
-    'Keluarga Amir',
-  ];
+  List<Family> keluargaOptions = [];
+  int? _selectedKeluargaId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFamilies();
+  }
+
+  Future<void> _loadFamilies() async {
+    try {
+      final families = await FamiliesService.getFamilies();
+      setState(() {
+        keluargaOptions = families;
+      });
+    } catch (_) {}
+  }
 
   @override
   void dispose() {
     _alasanController.dispose();
+    _alamatAsalController.dispose();
+    _alamatTujuanController.dispose();
     super.dispose();
   }
 
@@ -200,12 +229,71 @@ class _FamilyMutationsAddPageState extends State<FamilyMutationsAddPage> {
                       ),
                     ),
                     const SizedBox(height: 8),
+                    // Keluarga dropdown (loaded from backend)
                     CustomDropdown(
                       hintText: "-- Pilih Keluarga --",
-                      items: keluargaOptions,
+                      items: keluargaOptions.map((f) => '${f.id} - ${f.familyNumber}').toList(),
                       selectedValue: _selectedKeluarga,
-                      onChanged: (value) =>
-                          setState(() => _selectedKeluarga = value),
+                      onChanged: (value) {
+                        if (value == null) return;
+                        final id = int.tryParse(value.split(' -').first);
+                        setState(() {
+                          _selectedKeluarga = value;
+                          _selectedKeluargaId = id;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Alamat Asal
+                    const Text(
+                      "Alamat Asal",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        color: Color(0xFF1F2937),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _alamatAsalController,
+                      maxLines: 2,
+                      decoration: InputDecoration(
+                        hintText: "Masukkan alamat asal...",
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        fillColor: Colors.white,
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Alamat Tujuan
+                    const Text(
+                      "Alamat Tujuan",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        color: Color(0xFF1F2937),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _alamatTujuanController,
+                      maxLines: 2,
+                      decoration: InputDecoration(
+                        hintText: "Masukkan alamat tujuan...",
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        fillColor: Colors.white,
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 24),
 
@@ -292,18 +380,41 @@ class _FamilyMutationsAddPageState extends State<FamilyMutationsAddPage> {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {
-                              print('Simpan Mutasi:');
-                              print('Jenis: $_selectedJenisMutasi');
-                              print('Keluarga: $_selectedKeluarga');
-                              print('Alasan: ${_alasanController.text}');
-                              print('Tanggal: $_formattedDate');
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Mutasi keluarga berhasil disimpan'),
-                                  backgroundColor: Color(0xFF10B981),
-                                ),
-                              );
+                            onPressed: () async {
+                              if (_selectedJenisMutasi == null || _selectedKeluargaId == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Lengkapi jenis mutasi dan keluarga')),
+                                );
+                                return;
+                              }
+                              try {
+                                // Build description containing alamat asal, tujuan, dan alasan
+                                final descParts = <String>[];
+                                final asal = _alamatAsalController.text.trim();
+                                final tujuan = _alamatTujuanController.text.trim();
+                                final alasan = _alasanController.text.trim();
+                                if (asal.isNotEmpty) descParts.add('alamat_lama:${asal}');
+                                if (tujuan.isNotEmpty) descParts.add('alamat_baru:${tujuan}');
+                                if (alasan.isNotEmpty) descParts.add('alasan:${alasan}');
+                                final description = descParts.join('|');
+
+                                await MutationsService.createMutation({
+                                  'family_id': _selectedKeluargaId,
+                                  'mutation_type': _selectedJenisMutasi,
+                                  'description': description,
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Mutasi keluarga berhasil disimpan'),
+                                    backgroundColor: Color(0xFF10B981),
+                                  ),
+                                );
+                                Navigator.of(context).pop(true);
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Gagal menyimpan mutasi: $e')),
+                                );
+                              }
                             },
                             icon: const Icon(Icons.save),
                             label: const Text(
