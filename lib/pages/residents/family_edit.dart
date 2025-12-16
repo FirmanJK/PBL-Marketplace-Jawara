@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jawara/models/family.dart';
 import 'package:jawara/models/resident.dart';
 import 'package:jawara/services/families_service.dart';
+import 'package:flutter/services.dart';
 import 'package:jawara/utils/toast_helper.dart';
 
 class FamilyEditPage extends StatefulWidget {
@@ -38,6 +39,15 @@ class _FamilyEditPageState extends State<FamilyEditPage> {
       ToastHelper.showWarning(context, 'Nama keluarga tidak boleh kosong');
       return;
     }
+
+      if (newName.length != 16) {
+        ToastHelper.showWarning(context, 'NIK harus 16 digit');
+        return;
+      }
+      if (int.tryParse(newName) == null) {
+        ToastHelper.showWarning(context, 'NIK hanya boleh berisi angka');
+        return;
+      }
 
     setState(() => _isSaving = true);
     try {
@@ -97,6 +107,8 @@ class _FamilyEditPageState extends State<FamilyEditPage> {
           children: [
             TextField(
               controller: _nameController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: const InputDecoration(labelText: 'NIK', border: OutlineInputBorder()),
             ),
             const SizedBox(height: 16),

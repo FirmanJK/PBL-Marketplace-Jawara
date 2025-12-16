@@ -612,6 +612,47 @@ class _FamilyDetailPageState extends State<FamilyDetailPage> {
                   ),
                   const SizedBox(height: 12),
 
+                  // Show house address if available from members
+                  (() {
+                    final addr = _residents.isNotEmpty
+                        ? _residents.firstWhere(
+                            (r) => r.address != null && r.address!.trim().isNotEmpty,
+                            orElse: () => _residents.first,
+                          ).address
+                        : null;
+                    if (addr != null && addr.trim().isNotEmpty) {
+                      return Column(
+                        children: [
+                          _buildInfoCard(
+                            icon: Icons.location_on,
+                            label: 'Alamat Rumah',
+                            value: addr,
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  })(),
+
+                  // Show ownership status if family provides it
+                  (() {
+                    final ownership = widget.family.ownershipStatus;
+                    if (ownership != null && ownership.trim().isNotEmpty) {
+                      return Column(
+                        children: [
+                          _buildInfoCard(
+                            icon: Icons.house,
+                            label: 'Status Kepemilikan',
+                            value: ownership,
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  })(),
+
                   
 
                   _buildInfoCard(

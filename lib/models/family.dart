@@ -6,6 +6,7 @@ class Family {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final String? headResidentName;
+  final String? ownershipStatus;
 
   const Family({
     required this.id,
@@ -15,6 +16,7 @@ class Family {
     this.createdAt,
     this.updatedAt,
     this.headResidentName,
+    this.ownershipStatus,
   });
 
   /// Convenience getter for UI label (keeps backward compatibility with
@@ -61,6 +63,12 @@ class Family {
         }
         return json['head_resident_name'] as String? ?? null;
       })(),
+      ownershipStatus: (() {
+        return json['ownership_status'] as String?
+            ?? json['ownership'] as String?
+            ?? json['status_kepemilikan'] as String?
+            ?? null;
+      })(),
       
     );
   }
@@ -74,6 +82,7 @@ class Family {
       'created_at': createdAt?.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
       'head_resident_name': headResidentName,
+      'ownership_status': ownershipStatus,
     };
   }
 }
