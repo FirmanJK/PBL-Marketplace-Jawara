@@ -46,7 +46,14 @@ class _MarketplaceCartPageState extends State<MarketplaceCartPage> {
               ),
             ),
             const SizedBox(width: 10),
-            const Text('Keranjang Saya', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18)),
+            const Text(
+              'Keranjang Saya',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                fontSize: 18,
+              ),
+            ),
           ],
         ),
         backgroundColor: Colors.white,
@@ -82,10 +89,7 @@ class _MarketplaceCartPageState extends State<MarketplaceCartPage> {
                   const SizedBox(height: 8),
                   Text(
                     'Belum ada produk di keranjang',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[500],
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                   ),
                 ],
               ),
@@ -111,20 +115,23 @@ class _MarketplaceCartPageState extends State<MarketplaceCartPage> {
                             // Product Image
                             ClipRRect(
                               borderRadius: BorderRadius.circular(8),
-                              child: product.imageUrl.startsWith('http')
+                              child: product.getImageUrl().isNotEmpty
                                   ? Image.network(
-                                      product.imageUrl,
+                                      product.getImageUrl(),
                                       width: 80,
                                       height: 80,
                                       fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Container(
-                                          width: 80,
-                                          height: 80,
-                                          color: Colors.grey[200],
-                                          child: const Icon(Icons.image_not_supported),
-                                        );
-                                      },
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                            return Container(
+                                              width: 80,
+                                              height: 80,
+                                              color: Colors.grey[200],
+                                              child: const Icon(
+                                                Icons.image_not_supported,
+                                              ),
+                                            );
+                                          },
                                     )
                                   : Container(
                                       width: 80,
@@ -172,13 +179,17 @@ class _MarketplaceCartPageState extends State<MarketplaceCartPage> {
                                             );
                                           }
                                         },
-                                        icon: const Icon(Icons.remove_circle_outline),
+                                        icon: const Icon(
+                                          Icons.remove_circle_outline,
+                                        ),
                                         color: const Color(0xFF0891B2),
                                         constraints: const BoxConstraints(),
                                         padding: EdgeInsets.zero,
                                       ),
                                       Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
                                         child: Text(
                                           '${cartItem.quantity}',
                                           style: const TextStyle(
@@ -194,7 +205,9 @@ class _MarketplaceCartPageState extends State<MarketplaceCartPage> {
                                             cartItem.quantity + 1,
                                           );
                                         },
-                                        icon: const Icon(Icons.add_circle_outline),
+                                        icon: const Icon(
+                                          Icons.add_circle_outline,
+                                        ),
                                         color: const Color(0xFF0891B2),
                                         constraints: const BoxConstraints(),
                                         padding: EdgeInsets.zero,
@@ -202,11 +215,19 @@ class _MarketplaceCartPageState extends State<MarketplaceCartPage> {
                                       const Spacer(),
                                       IconButton(
                                         onPressed: () {
-                                          _cartService.removeFromCart(product.id);
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                          _cartService.removeFromCart(
+                                            product.id,
+                                          );
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
                                             SnackBar(
-                                              content: Text('${product.name} dihapus dari keranjang'),
-                                              duration: const Duration(seconds: 2),
+                                              content: Text(
+                                                '${product.name} dihapus dari keranjang',
+                                              ),
+                                              duration: const Duration(
+                                                seconds: 2,
+                                              ),
                                             ),
                                           );
                                         },

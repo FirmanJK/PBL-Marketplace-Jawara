@@ -2,17 +2,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jawara/data/products.dart';
-import 'package:jawara/models/product.dart';
+import 'package:jawara/models/marketplace_product.dart';
+import 'package:jawara/services/api_service.dart';
 import 'package:jawara/shared/button.dart';
 import 'package:jawara/shared/input.dart' show CustomInputField;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MarketplaceEditPage extends StatefulWidget {
-  final Product product;
+  final MarketplaceProduct product;
 
-  const MarketplaceEditPage({
-    super.key,
-    required this.product,
-  });
+  const MarketplaceEditPage({super.key, required this.product});
 
   @override
   State<MarketplaceEditPage> createState() => _MarketplaceEditPageState();
@@ -23,7 +22,7 @@ class _MarketplaceEditPageState extends State<MarketplaceEditPage> {
   late TextEditingController _nameController;
   late TextEditingController _priceController;
   late TextEditingController _descriptionController;
-  
+
   File? _newImage;
   bool _isLoading = false;
 
@@ -31,8 +30,12 @@ class _MarketplaceEditPageState extends State<MarketplaceEditPage> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.product.name);
-    _priceController = TextEditingController(text: widget.product.price.toString());
-    _descriptionController = TextEditingController(text: widget.product.description);
+    _priceController = TextEditingController(
+      text: widget.product.price.toString(),
+    );
+    _descriptionController = TextEditingController(
+      text: widget.product.description,
+    );
   }
 
   @override
@@ -56,7 +59,10 @@ class _MarketplaceEditPageState extends State<MarketplaceEditPage> {
               onTap: () => Navigator.pop(context, ImageSource.camera),
             ),
             ListTile(
-              leading: const Icon(Icons.photo_library, color: Color(0xFF0891B2)),
+              leading: const Icon(
+                Icons.photo_library,
+                color: Color(0xFF0891B2),
+              ),
               title: const Text('Pilih dari Galeri'),
               onTap: () => Navigator.pop(context, ImageSource.gallery),
             ),
@@ -88,9 +94,9 @@ class _MarketplaceEditPageState extends State<MarketplaceEditPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal mengambil gambar: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal mengambil gambar: $e')));
       }
     }
   }
@@ -102,12 +108,28 @@ class _MarketplaceEditPageState extends State<MarketplaceEditPage> {
     setState(() => _isLoading = true);
 
     try {
+      String? uploadedImageUrl;
+
+      // Upload gambar dulu jika ada gambar baru
+      if (_newImage != null) {
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString('access_token');
+
+        if (token != null) {
+          uploadedImageUrl = await ApiService.uploadProductImage(
+            _newImage!.path,
+            token: token,
+          );
+          print('[DEBUG] Image uploaded: $uploadedImageUrl');
+        }
+      }
+
       await ProductService.updateProduct(
         id: widget.product.id,
         name: _nameController.text,
         price: double.parse(_priceController.text),
         description: _descriptionController.text,
-        imageFile: _newImage,
+        imageFile: uploadedImageUrl, // Kirim URL bukan File
       );
 
       if (mounted) {
@@ -118,9 +140,9 @@ class _MarketplaceEditPageState extends State<MarketplaceEditPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memperbarui produk: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal memperbarui produk: $e')));
       }
     } finally {
       if (mounted) {
@@ -132,9 +154,7 @@ class _MarketplaceEditPageState extends State<MarketplaceEditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Produk'),
-      ),
+      appBar: AppBar(title: const Text('Edit Produk')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -162,20 +182,21 @@ class _MarketplaceEditPageState extends State<MarketplaceEditPage> {
                                 width: double.infinity,
                                 fit: BoxFit.cover,
                               )
-                            : widget.product.imageUrl.startsWith('http')
-                                ? Image.network(
-                                    widget.product.imageUrl,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return const Center(
-                                        child: Icon(Icons.image_not_supported, size: 64),
-                                      );
-                                    },
-                                  )
-                                : const Center(
-                                    child: Icon(Icons.image, size: 64),
-                                  ),
+                            : widget.product.getImageUrl().isNotEmpty
+                            ? Image.network(
+                                widget.product.getImageUrl(),
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Center(
+                                    child: Icon(
+                                      Icons.image_not_supported,
+                                      size: 64,
+                                    ),
+                                  );
+                                },
+                              )
+                            : const Center(child: Icon(Icons.image, size: 64)),
                       ),
                       Positioned(
                         bottom: 8,
@@ -189,11 +210,18 @@ class _MarketplaceEditPageState extends State<MarketplaceEditPage> {
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.camera_alt, color: Colors.white, size: 16),
+                              Icon(
+                                Icons.camera_alt,
+                                color: Colors.white,
+                                size: 16,
+                              ),
                               SizedBox(width: 4),
                               Text(
                                 'Ganti Foto',
-                                style: TextStyle(color: Colors.white, fontSize: 12),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
                               ),
                             ],
                           ),

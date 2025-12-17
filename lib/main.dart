@@ -58,7 +58,7 @@ import 'package:jawara/services/auth_service.dart';
 import 'package:jawara/services/database_service.dart';
 import 'package:jawara/services/notification_service.dart';
 import 'package:jawara/models/resident.dart';
-import 'package:jawara/models/product.dart';
+import 'package:jawara/models/marketplace_product.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -163,8 +163,10 @@ class MyApp extends StatelessWidget {
         '/marketplace/cart': (context) => const MarketplaceCartPage(),
         '/marketplace/catalog': (context) => const MarketplaceCatalogPage(),
         '/marketplace/upload': (context) => const MarketplaceUploadPage(),
-        '/marketplace/checkout': (context) => const MarketplaceCartCheckoutPage(),
-        '/marketplace/transactions': (context) => const MarketplaceTransactionsPage(),
+        '/marketplace/checkout': (context) =>
+            const MarketplaceCartCheckoutPage(),
+        '/marketplace/transactions': (context) =>
+            const MarketplaceTransactionsPage(),
         '/marketplace/orders': (context) => const MarketplaceTransactionsPage(),
 
         // Manajemen Pengguna
@@ -177,7 +179,7 @@ class MyApp extends StatelessWidget {
         '/settings': (context) => const SettingsPage(),
         '/help': (context) => const HelpPage(),
         '/about': (context) => const AboutPage(),
-        
+
         // Dashboard Menu Routes
         '/dashboard/finance': (context) => const FinancePage(),
         '/dashboard/activities': (context) => const ActivitiesListPage(),
@@ -193,16 +195,16 @@ class MyApp extends StatelessWidget {
             );
           }
         }
-        
+
         if (settings.name == '/marketplace/checkout') {
-          final product = settings.arguments as Product?;
+          final product = settings.arguments as MarketplaceProduct?;
           if (product != null) {
             return MaterialPageRoute(
               builder: (context) => MarketplaceCheckoutPage(product: product),
             );
           }
         }
-        
+
         // Handle unknown routes
         return MaterialPageRoute(
           builder: (context) => Scaffold(
@@ -215,18 +217,11 @@ class MyApp extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Colors.red,
-                  ),
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
                   const SizedBox(height: 16),
                   const Text(
                     'Halaman Tidak Ditemukan',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Text(

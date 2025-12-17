@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jawara/models/product.dart';
+import 'package:jawara/models/marketplace_product.dart';
 import 'package:jawara/pages/marketplace/marketplace_checkout_page.dart';
 import 'package:jawara/pages/marketplace/marketplace_edit_page.dart';
 import 'package:jawara/pages/marketplace/marketplace_cart_page.dart';
@@ -7,9 +7,10 @@ import 'package:jawara/data/products.dart';
 import 'package:jawara/services/cart_service.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MarketplaceDetailPage extends StatefulWidget {
-  final Product product;
+  final MarketplaceProduct product;
 
   const MarketplaceDetailPage({super.key, required this.product});
 
@@ -20,11 +21,13 @@ class MarketplaceDetailPage extends StatefulWidget {
 class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
   final CartService _cartService = CartService();
   bool _isLocaleInitialized = false;
+  int? _currentUserId;
 
   @override
   void initState() {
     super.initState();
     _initializeLocale();
+    _loadCurrentUser();
   }
 
   Future<void> _initializeLocale() async {
@@ -35,6 +38,19 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       });
     }
   }
+
+  Future<void> _loadCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('user_id');
+    if (mounted) {
+      setState(() {
+        _currentUserId = userId;
+      });
+    }
+  }
+
+  bool get _isOwner =>
+      _currentUserId != null && _currentUserId == widget.product.residentId;
 
   void _addToCart() {
     _cartService.addToCart(widget.product);
@@ -126,13 +142,9 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
     // Show loading while locale is being initialized
     if (!_isLocaleInitialized) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Detail Produk'),
-        ),
+        appBar: AppBar(title: const Text('Detail Produk')),
         body: const Center(
-          child: CircularProgressIndicator(
-            color: Color(0xFF0891B2),
-          ),
+          child: CircularProgressIndicator(color: Color(0xFF0891B2)),
         ),
       );
     }
@@ -194,39 +206,41 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
               );
             },
           ),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            offset: const Offset(0, 50),
-            onSelected: (value) {
-              if (value == 'edit') {
-                _editProduct();
-              } else if (value == 'delete') {
-                _confirmDelete();
-              }
-            },
-            itemBuilder: (BuildContext context) => [
-              const PopupMenuItem<String>(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    Icon(Icons.edit, color: Color(0xFF0891B2), size: 20),
-                    SizedBox(width: 12),
-                    Text('Edit'),
-                  ],
+          // Hanya tampilkan menu edit/delete jika user adalah pemilik produk
+          if (_isOwner)
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              offset: const Offset(0, 50),
+              onSelected: (value) {
+                if (value == 'edit') {
+                  _editProduct();
+                } else if (value == 'delete') {
+                  _confirmDelete();
+                }
+              },
+              itemBuilder: (BuildContext context) => [
+                const PopupMenuItem<String>(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, color: Color(0xFF0891B2), size: 20),
+                      SizedBox(width: 12),
+                      Text('Edit'),
+                    ],
+                  ),
                 ),
-              ),
-              const PopupMenuItem<String>(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    Icon(Icons.delete, color: Colors.red, size: 20),
-                    SizedBox(width: 12),
-                    Text('Hapus', style: TextStyle(color: Colors.red)),
-                  ],
+                const PopupMenuItem<String>(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, color: Colors.red, size: 20),
+                      SizedBox(width: 12),
+                      Text('Hapus', style: TextStyle(color: Colors.red)),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
         ],
       ),
       body: SingleChildScrollView(
@@ -238,9 +252,9 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
               width: double.infinity,
               height: 300,
               color: Colors.grey[200],
-              child: widget.product.imageUrl.startsWith('http')
+              child: widget.product.getImageUrl().isNotEmpty
                   ? Image.network(
-                      widget.product.imageUrl,
+                      widget.product.getImageUrl(),
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return const Center(
