@@ -42,10 +42,13 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
   Future<void> _loadCurrentUser() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('user_id');
+    print('[DEBUG] Current User ID: $userId');
+    print('[DEBUG] Product Resident ID: ${widget.product.residentId}');
     if (mounted) {
       setState(() {
         _currentUserId = userId;
       });
+      print('[DEBUG] Is Owner: ${_isOwner}');
     }
   }
 
@@ -75,15 +78,24 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
   }
 
   void _editProduct() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MarketplaceEditPage(product: widget.product),
-      ),
-    );
+    try {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MarketplaceEditPage(product: widget.product),
+        ),
+      );
 
-    if (result == true && mounted) {
-      Navigator.pop(context, true);
+      if (result == true && mounted) {
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      print('[ERROR] Navigation error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 

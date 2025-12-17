@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jawara/models/marketplace_product.dart';
 import 'package:jawara/models/user_role.dart';
 import 'package:jawara/pages/marketplace/marketplace_detail_page.dart';
+import 'package:jawara/pages/marketplace/marketplace_edit_page.dart';
 import 'package:jawara/services/api_service.dart';
 import 'package:jawara/services/marketplace_service.dart';
 import 'package:jawara/services/auth_service.dart';
@@ -530,6 +531,26 @@ class _ProductCardState extends State<_ProductCard> {
     }
   }
 
+  void _editProduct(BuildContext context) async {
+    try {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MarketplaceEditPage(product: widget.product),
+        ),
+      );
+
+      if (result == true) {
+        widget.onDelete(); // Refresh the list
+      }
+    } catch (e) {
+      print('[ERROR] Navigation error: $e');
+      if (mounted) {
+        ToastHelper.showError(context, 'Error: $e');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final currencyFormat = NumberFormat.currency(
@@ -652,12 +673,7 @@ class _ProductCardState extends State<_ProductCard> {
                 ],
                 onSelected: (value) {
                   if (value == 'edit') {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Edit produk "${widget.product.name}"'),
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
+                    _editProduct(context);
                   } else if (value == 'delete') {
                     _showDeleteConfirmation(context);
                   }
