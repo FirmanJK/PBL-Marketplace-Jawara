@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:jawara/models/product.dart';
+import 'package:jawara/models/marketplace_product.dart';
 import 'package:jawara/pages/marketplace/marketplace_payment_page.dart';
 
 class MarketplaceCheckoutPage extends StatefulWidget {
-  final Product product;
+  final MarketplaceProduct product;
 
   const MarketplaceCheckoutPage({super.key, required this.product});
 
@@ -126,9 +126,9 @@ class _MarketplaceCheckoutPageState extends State<MarketplaceCheckoutPage> {
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(8),
-                              child: widget.product.imageUrl.startsWith('http')
+                              child: widget.product.getImageUrl().isNotEmpty
                                   ? Image.network(
-                                      widget.product.imageUrl,
+                                      widget.product.getImageUrl(),
                                       width: 80,
                                       height: 80,
                                       fit: BoxFit.cover,
