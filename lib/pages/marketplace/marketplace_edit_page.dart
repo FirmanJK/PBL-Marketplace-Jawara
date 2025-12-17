@@ -6,6 +6,7 @@ import 'package:jawara/models/marketplace_product.dart';
 import 'package:jawara/services/api_service.dart';
 import 'package:jawara/shared/button.dart';
 import 'package:jawara/shared/input.dart' show CustomInputField;
+import 'package:jawara/utils/toast_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MarketplaceEditPage extends StatefulWidget {
@@ -25,6 +26,8 @@ class _MarketplaceEditPageState extends State<MarketplaceEditPage> {
 
   File? _newImage;
   bool _isLoading = false;
+  bool _isVerifying = false;
+  bool _verificationSuccess = false;
 
   @override
   void initState() {
@@ -90,7 +93,10 @@ class _MarketplaceEditPageState extends State<MarketplaceEditPage> {
       if (image != null) {
         setState(() {
           _newImage = File(image.path);
+          _verificationSuccess = false;
         });
+        // Langsung verifikasi setelah pilih gambar
+        _verifyImage(File(image.path));
       }
     } catch (e) {
       if (mounted) {
@@ -101,48 +107,167 @@ class _MarketplaceEditPageState extends State<MarketplaceEditPage> {
     }
   }
 
+  Future<void> _verifyImage(File imageFile) async {
+    setState(() => _isVerifying = true);
+
+    try {
+      // Show loading dialog
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const Dialog(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(color: Color(0xFF0891B2)),
+                  SizedBox(height: 16),
+                  Text('Memverifikasi kualitas sayur...'),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+
+      if (token == null) throw Exception('Token tidak ditemukan');
+
+      // Call verification API using multipart
+      final verificationResult = await ApiService.multipart(
+        '/marketplace/verify-vegetable',
+        'POST',
+        files: {'file': imageFile.path},
+        token: token,
+      );
+
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+      }
+
+      if (verificationResult == null) {
+        setState(() => _isVerifying = false);
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Verifikasi Gagal'),
+              content: const Text(
+                'Terjadi kesalahan saat memverifikasi. Silakan coba ambil foto lagi.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    setState(() => _newImage = null);
+                    _pickImage();
+                  },
+                  child: const Text('Coba Lagi'),
+                ),
+              ],
+            ),
+          );
+        }
+        return;
+      }
+
+      final isValid = verificationResult?['is_valid'] ?? false;
+      final confidence = verificationResult?['confidence'] ?? 0;
+      final vegetableType =
+          verificationResult?['vegetable_type'] ?? 'Tidak Diketahui';
+
+      setState(() => _isVerifying = false);
+
+      if (!isValid) {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Sayur Tidak Utuh ❌'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Jenis: $vegetableType'),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tingkat Kepercayaan: ${(confidence * 100).toStringAsFixed(1)}%',
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Produk Anda tidak memenuhi standar kualitas. Silakan ambil foto yang lebih baik.',
+                    style: TextStyle(fontStyle: FontStyle.italic),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    setState(() => _newImage = null);
+                  },
+                  child: const Text('Ambil Foto Lain'),
+                ),
+              ],
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ToastHelper.showSuccess(
+            context,
+            '✅ $vegetableType Terverifikasi UTUH! (${(confidence * 100).toStringAsFixed(1)}%)',
+          );
+        }
+        setState(() => _verificationSuccess = true);
+      }
+    } catch (e) {
+      setState(() => _isVerifying = false);
+      if (mounted) {
+        Navigator.pop(context, false); // Close loading dialog if exist
+      }
+      if (mounted) {
+        ToastHelper.showError(context, 'Gagal memverifikasi: $e');
+        setState(() => _newImage = null);
+      }
+    }
+  }
+
   Future<void> _submitUpdate() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // Jika ada gambar baru, wajib terverifikasi
+    if (_newImage != null && !_verificationSuccess) {
+      ToastHelper.showWarning(
+        context,
+        'Silakan tunggu hingga gambar terverifikasi',
+      );
+      return;
+    }
 
     if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
-      String? uploadedImageUrl;
-
-      // Upload gambar dulu jika ada gambar baru
-      if (_newImage != null) {
-        final prefs = await SharedPreferences.getInstance();
-        final token = prefs.getString('access_token');
-
-        if (token != null) {
-          uploadedImageUrl = await ApiService.uploadProductImage(
-            _newImage!.path,
-            token: token,
-          );
-          print('[DEBUG] Image uploaded: $uploadedImageUrl');
-        }
-      }
-
       await ProductService.updateProduct(
         id: widget.product.id,
         name: _nameController.text,
         price: double.parse(_priceController.text),
         description: _descriptionController.text,
-        imageFile: uploadedImageUrl, // Kirim URL bukan File
+        imageFile: _newImage?.path, // Kirim path string
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Produk berhasil diperbarui!')),
-        );
+        ToastHelper.showSuccess(context, 'Produk berhasil diperbarui!');
         Navigator.pop(context, true); // Return true to indicate success
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Gagal memperbarui produk: $e')));
+        ToastHelper.showError(context, 'Gagal memperbarui produk: $e');
       }
     } finally {
       if (mounted) {
@@ -154,7 +279,49 @@ class _MarketplaceEditPageState extends State<MarketplaceEditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Produk')),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0891B2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Icon(
+                  Icons.edit,
+                  color: Color(0xFF0891B2),
+                  size: 14,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'Edit Produk',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -231,6 +398,48 @@ class _MarketplaceEditPageState extends State<MarketplaceEditPage> {
                   ),
                 ),
               ),
+              const SizedBox(height: 16),
+
+              // Verification Status Indicator
+              if (_newImage != null)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: _verificationSuccess
+                        ? const Color(0xFFE8F5E9)
+                        : const Color(0xFFFFF3E0),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: _verificationSuccess
+                          ? const Color(0xFF4CAF50)
+                          : const Color(0xFFFF9800),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        _verificationSuccess ? Icons.check_circle : Icons.info,
+                        color: _verificationSuccess
+                            ? const Color(0xFF4CAF50)
+                            : const Color(0xFFFF9800),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _verificationSuccess
+                              ? 'Foto terverifikasi ✓'
+                              : 'Sedang verifikasi foto produk...',
+                          style: TextStyle(
+                            color: _verificationSuccess
+                                ? const Color(0xFF4CAF50)
+                                : const Color(0xFFFF9800),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               const SizedBox(height: 24),
 
               // Nama Barang

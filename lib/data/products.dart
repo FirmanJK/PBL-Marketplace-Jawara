@@ -20,26 +20,55 @@ class ProductService {
         throw Exception('Token tidak ditemukan. Silakan login kembali.');
       }
 
-      // Call API dengan parameter yang benar
-      await ApiService.updateMarketplaceProduct(
-        id,
+      String? uploadedImageFilename;
+
+      // Step 1: Upload image jika ada gambar baru
+      if (imageFile != null && imageFile.isNotEmpty) {
+        try {
+          uploadedImageFilename = await ApiService.uploadProductImage(
+            imageFile,
+            token: token,
+          );
+          print('[DEBUG] Image uploaded: $uploadedImageFilename');
+        } catch (e) {
+          throw Exception('Gagal upload gambar: $e');
+        }
+      }
+
+      // Step 2: Update produk dengan query parameters
+      final queryParams = <String, dynamic>{
+        'name': name,
+        'description': description,
+        'price': price.toString(),
+      };
+
+      if (uploadedImageFilename != null) {
+        queryParams['imagePath'] = uploadedImageFilename;
+      }
+
+      final uri = Uri.parse(
+        '${ApiService.baseUrl}/marketplace/products/$id',
+      ).replace(queryParameters: queryParams);
+
+      print('[DEBUG] Update URL: $uri');
+
+      final response = await ApiService.put(
+        '/marketplace/products/$id?name=${Uri.encodeComponent(name)}&description=${Uri.encodeComponent(description)}&price=$price${uploadedImageFilename != null ? '&imagePath=${Uri.encodeComponent(uploadedImageFilename)}' : ''}',
         token: token,
-        name: name,
-        price: price,
-        description: description,
-        imagePath: imageFile,
       );
+
+      print('[DEBUG] Product updated: ID=$id, Name=$name');
 
       // Return dummy product untuk sementara
       return MarketplaceProduct(
         id: id,
-        residentId: 0, // Akan di-update dari response API
+        residentId: 0,
         name: name,
         price: price,
         description: description,
         quantity: 0,
         unit: 'pcs',
-        imagePath: imageFile ?? '',
+        imagePath: uploadedImageFilename ?? '',
         status: 'active',
         createdAt: DateTime.now(),
       );
