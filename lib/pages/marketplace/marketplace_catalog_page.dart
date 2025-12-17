@@ -23,7 +23,7 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
   final ScrollController _scrollController = ScrollController();
   String? _token;
   bool _isAdmin = false;
-  int? _currentUserId;
+  int? _currentResidentId;
 
   int _currentPage = 1;
   bool _isLoading = false;
@@ -43,7 +43,7 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
     final authService = AuthService();
     setState(() {
       _isAdmin = authService.currentRole == UserRole.adminSistem;
-      _currentUserId = authService.currentUser?.id;
+      _currentResidentId = authService.currentUser?.residentId;
     });
   }
 
@@ -462,7 +462,7 @@ class _MarketplaceCatalogPageState extends State<MarketplaceCatalogPage> {
             product: product,
             onTap: () => _viewDetail(product),
             isAdmin: _isAdmin,
-            currentUserId: _currentUserId,
+            currentResidentId: _currentResidentId,
             onDelete: _refreshProducts,
           );
         },
@@ -475,14 +475,14 @@ class _ProductCard extends StatefulWidget {
   final MarketplaceProduct product;
   final VoidCallback onTap;
   final bool isAdmin;
-  final int? currentUserId;
+  final int? currentResidentId;
   final VoidCallback onDelete;
 
   const _ProductCard({
     required this.product,
     required this.onTap,
     this.isAdmin = false,
-    this.currentUserId,
+    this.currentResidentId,
     required this.onDelete,
   });
 
@@ -493,7 +493,7 @@ class _ProductCard extends StatefulWidget {
 class _ProductCardState extends State<_ProductCard> {
   bool _isDeleting = false;
 
-  bool get _isOwner => widget.currentUserId == widget.product.residentId;
+  bool get _isOwner => widget.currentResidentId == widget.product.residentId;
   bool get _canManage => widget.isAdmin || _isOwner;
 
   Future<void> _deleteProduct() async {
