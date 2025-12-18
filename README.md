@@ -1,8 +1,6 @@
-# 🏘️ JAWARA - Aplikasi Manajemen RT/RW
+# 🏘️ Aplikasi Manajemen RT/RW
 
 <div align="center">
-  <img src="assets/logo.png" alt="JAWARA Logo" width="200"/>
-  
   **Sistem Informasi Manajemen RT/RW Berbasis Mobile**
   
   [![Flutter](https://img.shields.io/badge/Flutter-3.35.4-02569B?logo=flutter)](https://flutter.dev)
@@ -14,7 +12,7 @@
 
 ## 📋 Deskripsi
 
-**JAWARA** (Jaringan Warga) adalah aplikasi mobile yang dirancang untuk memudahkan pengelolaan administrasi dan keuangan RT/RW. Aplikasi ini menyediakan fitur lengkap untuk manajemen data warga, keuangan, kegiatan, dan marketplace warga.
+Aplikasi **Manajemen RT/RW** adalah solusi digital yang dirancang untuk memudahkan pengelolaan administrasi dan keuangan RT/RW. Aplikasi ini menyediakan fitur lengkap untuk manajemen data warga, keuangan, kegiatan, dan marketplace warga dengan antarmuka yang user-friendly dan modern.
 
 ### ✨ Fitur Utama
 
@@ -43,17 +41,23 @@
 
 #### 🛍️ Marketplace Warga
 
-- **Katalog Produk**: Jual beli antar warga
-- **Unggah Produk**: Warga dapat menjual produk
-- **Keranjang Belanja**: Sistem keranjang untuk multiple items
-- **Checkout**: Proses pembelian yang mudah
+- **Katalog Produk**: Jual beli antar warga dengan tampilan grid yang menarik
+- **Unggah Produk**: Warga dapat menjual produk dengan foto dan deskripsi
+- **Keranjang Belanja**: Sistem keranjang untuk multiple items dengan update quantity
+- **Checkout Lengkap**:
+  - Form alamat pengiriman
+  - Pilihan metode pengiriman dan pembayaran
+  - Ringkasan pesanan dan total biaya
 - **Metode Pengiriman**:
-  - Reguler (diantar penjual)
-  - Instan (ambil di tempat)
+  - Reguler (2-3 hari) - Rp 5.000
+  - Instan (1 hari) - Rp 15.000
 - **Metode Pembayaran**:
   - Transfer Bank (BCA, Mandiri, BNI, BRI)
   - QRIS
-- **Transaksi**: Tracking status pesanan
+- **Manajemen Transaksi**:
+  - Status tracking (Pending, Dibayar, Dikirim, Selesai)
+  - Detail transaksi lengkap
+  - Riwayat pembelian
 
 #### 📊 Dashboard & Laporan
 
@@ -128,14 +132,40 @@ dependencies:
 
 ---
 
-## 📱 Screenshots
+## 📱 GIF
 
-<div align="center">
-  <img src="docs/screenshots/dashboard.png" width="200" alt="Dashboard"/>
-  <img src="docs/screenshots/warga.png" width="200" alt="Data Warga"/>
-  <img src="docs/screenshots/keuangan.png" width="200" alt="Keuangan"/>
-  <img src="docs/screenshots/marketplace.png" width="200" alt="Marketplace"/>
-</div>
+## 1. Admin Sistem
+   
+![Langkah 16](assets/images/Langkah1.gif)
+
+![Langkah 16](assets/images/Langkah2.gif)
+
+![Langkah 16](assets/images/Langkah3.gif)
+
+![Langkah 16](assets/images/Langkah4.gif)
+
+![Langkah 16](assets/images/Langkah5.gif)
+
+![Langkah 16](assets/images/Langkah6.gif)
+
+![Langkah 16](assets/images/Langkah7.gif)
+
+## 2. Ketua RT/RW
+
+![Langkah 16](assets/images/Langkah8.gif)
+
+## 3. Sekretaris
+
+![Langkah 16](assets/images/Langkah9.gif)
+
+## 4. Bendahara 
+
+![Langkah 16](assets/images/Langkah10.gif)
+
+## 5. Warga
+
+![Langkah 16](assets/images/Langkah11.gif)
+
 
 ---
 
@@ -154,8 +184,8 @@ dependencies:
 1. **Clone Repository**
 
    ```bash
-   git clone https://github.com/your-repo/jawara.git
-   cd jawara
+   git clone https://github.com/your-repo/rt-management-app.git
+   cd rt-management-app
    ```
 
 2. **Install Dependencies**
@@ -198,7 +228,7 @@ dependencies:
 ## 📁 Struktur Proyek
 
 ```
-jawara/
+rt-management-app/
 ├── lib/
 │   ├── main.dart                 # Entry point aplikasi
 │   ├── models/                   # Data models
@@ -238,25 +268,34 @@ jawara/
 
 ### User Roles
 
-1. **Admin**: Akses penuh ke semua fitur
-2. **Ketua RT**: Manajemen warga dan persetujuan
-3. **Bendahara**: Fokus pada keuangan
-4. **Warga**: Akses terbatas (marketplace, info)
+1. **Admin Sistem**: Akses penuh ke semua fitur dan manajemen user
+2. **Ketua RT**: Manajemen warga, persetujuan, dan kegiatan RT
+3. **Sekretaris**: Manajemen data warga dan administrasi
+4. **Bendahara**: Fokus pada keuangan dan laporan keuangan
+5. **Warga**: Akses marketplace, informasi, dan layanan warga
 
 ### Login Credentials (Demo)
 
 ```
-Admin:
-Email: admin@jawara.com
+Admin Sistem:
+Email: admin@localhost.com
 Password: admin123
 
 Ketua RT:
-Email: ketua@jawara.com
-Password: ketua123
+Email: user1@localhost.com
+Password: password123
+
+Sekretaris:
+Email: user2@localhost.com
+Password: password123
 
 Bendahara:
-Email: bendahara@jawara.com
-Password: bendahara123
+Email: user3@localhost.com
+Password: password123
+
+Warga:
+Email: user4@localhost.com
+Password: password123
 ```
 
 ---
@@ -415,7 +454,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 - Website: [https://polinema.ac.id](https://polinema.ac.id)
 - Email: info@polinema.ac.id
 
-**Project Link**: [https://github.com/your-repo/jawara](https://github.com/your-repo/jawara)
+**Project Link**: [https://github.com/your-repo/rt-management-app](https://github.com/your-repo/rt-management-app)
 
 ---
 
@@ -431,5 +470,5 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 <div align="center">
   <p>Made with ❤️ by Kelompok 07</p>
-  <p>© 2025 JAWARA - Politeknik Negeri Malang</p>
+  <p>© 2025 RT Management App - Politeknik Negeri Malang</p>
 </div>
